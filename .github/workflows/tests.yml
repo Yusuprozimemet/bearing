@@ -1,0 +1,27 @@
+name: Tests
+
+# The project's own checks: the style check and the test suite. The kit's other workflows test
+# only the kit's tools.
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the project and its dev tools
+        run: python -m pip install -e ".[dev]"
+      - name: Style check
+        run: ruff check . && ruff format --check .
+      - name: Run the tests
+        run: pytest -q
