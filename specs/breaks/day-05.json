@@ -1,0 +1,164 @@
+[
+  {
+    "what": "the applied migration 001_history.sql edited",
+    "file": "bearing/migrations/001_history.sql",
+    "find": "    pr_number INTEGER NULL,",
+    "replace": "    pr_number INTEGER,",
+    "command": [
+      "git",
+      "-c",
+      "core.safecrlf=false",
+      "diff",
+      "--exit-code",
+      "004a5c8",
+      "--",
+      "tests/contract/test_fixture.py",
+      "tests/contract/test_ingest.py",
+      "tests/contract/test_changelog.py",
+      "tests/fixtures/make_repo.py",
+      "tests/fixtures/expected/changelog.md",
+      "tests/fixtures/expected/ingest.txt",
+      "bearing/migrations/001_history.sql"
+    ]
+  },
+  {
+    "what": "module_names without the src/ collision rule",
+    "file": "bearing/snapshot/modules.py",
+    "find": "root if under_src and name in outside else name",
+    "replace": "name",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_modules.py::ModuleNameTest::test_names"
+    ]
+  },
+  {
+    "what": "count_lines counting a lone CR as a line end",
+    "file": "bearing/snapshot/modules.py",
+    "find": "return data.count(b\"\\n\") +",
+    "replace": "return data.count(b\"\\n\") + data.count(b\"\\r\") +",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_modules.py::LinesTest::test_counts"
+    ]
+  },
+  {
+    "what": "parse_imports catching only SyntaxError and ValueError",
+    "file": "bearing/snapshot/modules.py",
+    "find": "ValueError, RecursionError, MemoryError)",
+    "replace": "ValueError)",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_modules.py::ParseTest::test_imports_and_errors"
+    ]
+  },
+  {
+    "what": "parse_imports without silencing warnings",
+    "file": "bearing/snapshot/modules.py",
+    "find": "warnings.simplefilter(\"ignore\")",
+    "replace": "pass",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_modules.py::ParseTest::test_imports_and_errors"
+    ]
+  },
+  {
+    "what": "import_edges trying the sibling inside a package",
+    "file": "bearing/snapshot/modules.py",
+    "find": "if not targets and init not in tree and prefix:",
+    "replace": "if not targets and prefix:",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_modules.py::ResolveTest::test_edges"
+    ]
+  },
+  {
+    "what": "tree.py modules left in ls-tree's path order",
+    "file": "bearing/snapshot/tree.py",
+    "find": "modules.sort(key=lambda m: (m[\"name\"], m[\"path\"]))",
+    "replace": "pass",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_snapshot_tree.py::SnapshotTreeTest::test_main"
+    ]
+  },
+  {
+    "what": "tree.py parse_error true for a module with no imports",
+    "file": "bearing/snapshot/tree.py",
+    "find": "\"parse_error\": found is None,",
+    "replace": "\"parse_error\": found == [],",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_snapshot_tree.py::SnapshotTreeTest::test_golden_content"
+    ]
+  },
+  {
+    "what": "snapshot JSON indented by 1",
+    "file": "bearing/cli.py",
+    "find": "sort_keys=True, indent=2",
+    "replace": "sort_keys=True, indent=1",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/contract/test_snapshot.py::SnapshotContractTest::test_golden"
+    ]
+  },
+  {
+    "what": "snapshot command no longer catches SnapshotError",
+    "file": "bearing/cli.py",
+    "find": "except SnapshotError as exc:",
+    "replace": "except ValueError as exc:",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_snapshot_cli.py::SnapshotCliTest::test_errors"
+    ]
+  },
+  {
+    "what": "snapshot command writes a file into the target",
+    "file": "bearing/cli.py",
+    "find": "snap = snapshot(args.repo, args.ref)",
+    "replace": "snap = snapshot(args.repo, args.ref); (Path(args.repo) / 'stray.txt').write_text('x')",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_snapshot_cli.py::SnapshotCliTest::test_read_only"
+    ]
+  }
+]
