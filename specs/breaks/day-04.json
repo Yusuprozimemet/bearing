@@ -1,0 +1,127 @@
+[
+  {
+    "what": "the applied migration 001_history.sql edited",
+    "file": "bearing/migrations/001_history.sql",
+    "find": "subject TEXT NOT NULL,",
+    "replace": "subject TEXT,",
+    "command": [
+      "git",
+      "-c",
+      "core.safecrlf=false",
+      "diff",
+      "--exit-code",
+      "e578053",
+      "--",
+      "tests/contract/",
+      "tests/fixtures/make_repo.py",
+      "tests/fixtures/expected/",
+      "bearing/migrations/001_history.sql"
+    ]
+  },
+  {
+    "what": "changelog's except sqlite3.Error narrowed to KeyError",
+    "file": "bearing/cli.py",
+    "find": "    except sqlite3.Error as exc:",
+    "replace": "    except KeyError as exc:",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_broken_store.py::BrokenStoreTest::test_changelog_refuses"
+    ]
+  },
+  {
+    "what": "ingest's except (OSError, sqlite3.Error) narrowed to OSError",
+    "file": "bearing/cli.py",
+    "find": "    except (OSError, sqlite3.Error) as exc:",
+    "replace": "    except OSError as exc:",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_broken_store.py::BrokenStoreTest::test_ingest_refuses"
+    ]
+  },
+  {
+    "what": "fetch_prs's encoding=\"utf-8\" replaced by text=True",
+    "file": "bearing/ingest/gh.py",
+    "find": "capture_output=True, encoding=\"utf-8\"",
+    "replace": "capture_output=True, text=True",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_gh.py::FetchPrsTest::test_command_and_output"
+    ]
+  },
+  {
+    "what": "fetch_prs's stderr no longer stripped",
+    "file": "bearing/ingest/gh.py",
+    "find": "detail = (result.stderr or \"\").strip() or",
+    "replace": "detail = (result.stderr or \"\") or",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_gh.py::FetchPrsTest::test_errors"
+    ]
+  },
+  {
+    "what": "ingest without --prs uses no records instead of fetch_prs",
+    "file": "bearing/cli.py",
+    "find": "records = fetch_prs(args.repo)",
+    "replace": "records = []",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_gh.py::IngestLiveTest::test_without_prs"
+    ]
+  },
+  {
+    "what": "ingest's except GhError narrowed to KeyError",
+    "file": "bearing/cli.py",
+    "find": "except GhError as exc:",
+    "replace": "except KeyError as exc:",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_gh.py::IngestLiveTest::test_gh_errors"
+    ]
+  },
+  {
+    "what": "ingest calls fetch_prs even when --prs is given",
+    "file": "bearing/cli.py",
+    "find": "records = load_prs(args.prs)",
+    "replace": "records = fetch_prs(args.repo) and load_prs(args.prs)",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_gh.py::IngestLiveTest::test_with_prs_no_gh"
+    ]
+  },
+  {
+    "what": "map_history pass 1 ignores the merge subject",
+    "file": "bearing/ingest/mapping.py",
+    "find": "if record[\"number\"] == subject.number:",
+    "replace": "if False:",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_mapping.py::SharedOidTest::test_subject_then_lowest"
+    ]
+  }
+]
