@@ -24,12 +24,15 @@ LINES = [
     "00394fb #3 +module app.crlf",
     "00394fb #3 +import app.a -> app.b",
     "00394fb #3 +import app.b -> app.a",
+    "00394fb #3 cycle+ app.a > app.b > app.a",
     "448fc4d #6 +module app.broken",
+    "448fc4d #6 grew app.core 253",
     "fde93a4 #8 +module app.extra",
     "fde93a4 #8 -module app.legacy",
     "fde93a4 #8 renamed scripts.helpers -> scripts.tools",
     "e5fa51f #9 +module tests.contract.test_api",
     "e5fa51f #9 -import app.b -> app.a",
+    "e5fa51f #9 cycle- app.a > app.b > app.a",
 ]
 EXPECTED = "".join(line + "\n" for line in LINES).encode()
 # With pr_number NULL, the merge's lines carry #- and never the subject's number.
