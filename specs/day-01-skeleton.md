@@ -99,38 +99,56 @@ C01.10 and C01.11 are `hold` and owned by this spec's PR, which ran their checks
 ## Acceptance criteria
 Tick each box in the closing PR once its evidence is in it; under a box left unticked, write
 `Not proven: <why>` (`specs/README.md`, "Evidence at the close").
-- [ ] C01.1 **new** — `python -m bearing --version` prints exactly "bearing 0.1.0\n" and exits
+- [x] C01.1 **new** — `python -m bearing --version` prints exactly "bearing 0.1.0\n" and exits
       0. Red today: "No module named bearing.__main__", exit 1; on CI's base worktree, where
       the head is installed editable, the head's `bearing.cli` finds no `__version__` in the
       base's `bearing/__init__.py` and exits 1.
       Test: `tests/test_cli.py::CliTest::test_version_module`
-- [ ] C01.2 **new** — `pyproject.toml` declares the console script `bearing` as
+      Evidence: `CliTest.test_version_module` (#2), seen red first on `aa85066`'s code;
+      `python -m pytest -q` (#2).
+      broken: python -m bearing exits 1 without running main → 1 failed in 0.14s (#2)
+- [x] C01.2 **new** — `pyproject.toml` declares the console script `bearing` as
       `bearing.cli:main`, and loading that entry point and calling it with `["--version"]`
       prints "bearing 0.1.0\n" and returns 0 (or raises `SystemExit(0)`). Red today: no
       `console_scripts` entry point named `bearing`; on CI's base worktree, loading it raises
       `ImportError` (no `__version__` in the base's `bearing`), inside the test.
       Test: `tests/test_cli.py::CliTest::test_console_script`
-- [ ] C01.3 **new** — `git check-ignore bearing.egg-info/PKG-INFO .bearing/bearing.db` prints
+      Evidence: `CliTest.test_console_script` (#2), seen red first on `aa85066`'s code;
+      `python -m pytest -q` (#2).
+      broken: the version line printed as bearing-0.1.0 → 1 failed in 0.10s (#2)
+- [x] C01.3 **new** — `git check-ignore bearing.egg-info/PKG-INFO .bearing/bearing.db` prints
       both paths and exits 0. Red today: it prints nothing and exits 1. (A path ending in `/`
       matches the CRLF blank line of the working tree's `.gitignore` on Windows today; the
       check names a file inside each directory.)
       Test: `tests/test_repo_files.py::RepoFilesTest::test_gitignore`
-- [ ] C01.4 **new** — `git check-attr eol -- tests/fixtures/make_repo.py` prints
+      Evidence: `RepoFilesTest.test_gitignore` (#2), seen red first on `aa85066`'s code;
+      `python -m pytest -q` (#2).
+      broken: the data directory ignored under another name → 1 failed in 0.10s (#2)
+- [x] C01.4 **new** — `git check-attr eol -- tests/fixtures/make_repo.py` prints
       "tests/fixtures/make_repo.py: eol: lf". Red today: "eol: unspecified".
       Test: `tests/test_repo_files.py::RepoFilesTest::test_fixtures_eol_lf`
-- [ ] C01.5 **new** — `make_repo.py <dir>` exits 0 and builds `<dir>/repo` whose
+      Evidence: `RepoFilesTest.test_fixtures_eol_lf` (#2), seen red first on `aa85066`'s code;
+      `python -m pytest -q` (#2).
+      broken: the fixtures rule without eol=lf → 1 failed in 0.11s (#2)
+- [x] C01.5 **new** — `make_repo.py <dir>` exits 0 and builds `<dir>/repo` whose
       `git log --first-parent --format=%s main` is the table's 12 subjects, newest first, with
       the table's parent counts (9 two, 3 one) and author dates; the side merge of #7 is
       reachable from `main` but not on the first-parent line. Red today: there is no
       `make_repo.py`, so the build exits 2.
       Test: `tests/test_make_repo.py::HistoryTest::test_first_parent_line`
-- [ ] C01.6 **new** — `<dir>/prs.json` holds 10 records, #1–#10, with exactly the seven keys of
+      Evidence: `HistoryTest.test_first_parent_line` (#3), seen red first on `4a71d83`'s code,
+      with `make_repo.py` moved aside; `python -m pytest -q` (#3).
+      broken: PR #5's merge dated 01-20, not 01-19 → 1 failed in 4.28s (#3)
+- [x] C01.6 **new** — `<dir>/prs.json` holds 10 records, #1–#10, with exactly the seven keys of
       "In scope"; `headRefName`, `baseRefName` and `mergedAt` as the table says; each
       `mergeCommit.oid` is its step's commit (#6 the squash commit, #7 the side merge); #11 is
       absent; the file is `sort_keys=True, indent=2` with a final `\n`. Red today: no
       `make_repo.py`.
       Test: `tests/test_make_repo.py::HistoryTest::test_pr_records`
-- [ ] C01.7 **new** — the structure cases: at step 5 `app/a.py` and `app/b.py` import each other
+      Evidence: `HistoryTest.test_pr_records` (#3), seen red first on `4a71d83`'s code, with
+      `make_repo.py` moved aside; `python -m pytest -q` (#3).
+      broken: #7's record based on main, not release → 1 failed in 4.31s (#3)
+- [x] C01.7 **new** — the structure cases: at step 5 `app/a.py` and `app/b.py` import each other
       and at step 10 `app/b.py` no longer imports `app.a`; `app/crlf.py`'s blob holds `\r\n`;
       `ast.parse` fails on `app/broken.py` and succeeds on every other `.py` blob at HEAD;
       `app/core.py` has under 200 lines at step 7 and over 200 at step 8;
@@ -141,26 +159,41 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       imports `tools` and `scripts/tools.py` imports `config`. Red today: no `make_repo.py`;
       on Track B's builder, none of these files exist.
       Test: `tests/test_make_repo.py::StructureTest::test_cases`
-- [ ] C01.8 **new** — the PR-text cases: #1's body has "## What I built"; #2's body has text and
+      Evidence: `StructureTest.test_cases` (#6), seen red first on `a6ae0d8`'s code;
+      `python -m pytest -q` (#6).
+      broken: app/a.py no longer imports app.b (no cycle at step 5) → 1 failed in 4.98s (#6)
+- [x] C01.8 **new** — the PR-text cases: #1's body has "## What I built"; #2's body has text and
       no "What I built"; #4's body is `""`; #5's head starts with `docs/` and its merge
       (`merge^1..merge`) changes `scripts/run.py`; #9's body holds "Contract impact: None" and
       its merge changes `tests/contract/test_api.py`; `app/core.py` and `src/lib/util.py` are
       both changed by exactly the merges of #1, #3 and #9 among the PR merges. Red today: no
       `make_repo.py`; on Track B's builder, every body is `""`.
       Test: `tests/test_make_repo.py::TextTest::test_cases`
-- [ ] C01.9 **new** — two builds in two empty directories give the same HEAD SHA and the same
+      Evidence: `TextTest.test_cases` (#6), seen red first on `a6ae0d8`'s code;
+      `python -m pytest -q` (#6).
+      broken: #3 changes app/sub/mod.py instead of src/lib/util.py → 1 failed in 5.26s (#6)
+- [x] C01.9 **new** — two builds in two empty directories give the same HEAD SHA and the same
       `prs.json` bytes, and the HEAD SHA equals the constant in
       `tests/contract/test_fixture.py`; on Linux CI ("Tests") and in a local run on Windows with
       the system gitconfig's `core.autocrlf true`. Red today: no `make_repo.py`; on Track B's
       builder, another SHA.
       Test: `tests/contract/test_fixture.py::FixtureTest::test_head_sha`
-- [ ] C01.10 **hold** — `.github/workflows/tests.yml` runs the style check and the tests:
+      Evidence: `FixtureTest.test_head_sha` (#6), seen red first on `a6ae0d8`'s code;
+      `python -m pytest -q` (#6), on Linux CI ("Tests", #6) and locally on Windows (#8).
+      broken: author dates shifted by one second → 1 failed in 9.11s (#6)
+- [x] C01.10 **hold** — `.github/workflows/tests.yml` runs the style check and the tests:
       `grep -c -E '^\s+run: (pytest -q|ruff check \. && ruff format --check \.)\s*$' .github/workflows/tests.yml`
       prints 2.
-- [ ] C01.11 **hold** — the repository variables are set: `gh variable list` shows
+      broken: the test step replaced by an echo in tests.yml → 1 (#1)
+      broken: near miss: the test step narrowed to tests/unit → 1 (#1)
+      broken: near miss: the style step without the format check → 1 (#1)
+- [x] C01.11 **hold** — the repository variables are set: `gh variable list` shows
       `STYLE_CHECK_COMMAND` as "ruff check . && ruff format --check ." and `TRACK_RED_RUNNER`
       as "pytest". They live outside the repository, so no break can run from it: a reader
       checks the listing at the close.
+      broken: none → the variables live outside the repository
+      Not proven: a reader read gh variable list (#8): `STYLE_CHECK_COMMAND` "ruff check . &&
+      ruff format --check .", `TRACK_RED_RUNNER` "pytest".
 
 ## Verify
 ```bash
@@ -264,3 +297,49 @@ grep -c -E '^\s+run: (pytest -q|ruff check \. && ruff format --check \.)\s*$' .g
   fixtures (or code) under `tests/` into the base, and copy it over at a stop.
 - **Hand-off** H01.6 → the maintainer: the kit's documents say `unittest` where the runner is the
   project's; fix in the kit.
+- At the close: #4 fixed D01.1's limit in this repository (`code_under_tests`) before Tracks B
+  and C merged; #3 took `main` in, and "Track tests seen red" passed on both #3 and #6, so
+  neither needed the admin merge the Notes above foresaw. H01.5 still stands for the kit.
+- At the close: #6 recorded a fourth break, "the builder no longer sets GIT_AUTHOR_NAME, so
+  this machine's identity leaks in", which failed `FixtureTest.test_head_sha` in 8.93s. It bites
+  only where the environment sets `GIT_AUTHOR_NAME`, as this Windows machine's does; on the
+  replay's Ubuntu runner, `-c user.name=Fixture` gives the same identity and the test passes
+  with the break in. So it is not under C01.9 and not in `specs/breaks/day-01.json`: a local
+  Windows run guards it.
+- At the close, all 13 recorded breaks were run again through `scripts/break.py`, one at a
+  time, from the manifest's arguments: each failed its check, with the PRs' reports apart from
+  pytest's run time. The run time was why #7 came first: the replay compared it, and
+  10 of the 13 reports carry one.
+- **Defect** D01.18 — found: Track A · cause: environment · made: Day 01 · CI installs ruff
+  unpinned and got 0.17.3, which reports PLW1510 on `subprocess.run` without `check=`; the
+  local 0.15.13 passed it. #2's first push failed "Style check"; fixed with `check=False`. ruff
+  is still unpinned.
+- **Defect** D01.19 — found: Track C · cause: spec · made: Day 01 · "In scope" listed the git
+  settings that pin the fixture's SHA but not `GIT_AUTHOR_NAME`, `GIT_AUTHOR_EMAIL`,
+  `GIT_COMMITTER_NAME` and `GIT_COMMITTER_EMAIL`, which override `-c user.name`; this machine
+  sets them, so #6's first push built another SHA here than on CI. Track B's builder had the
+  same leak, unseen with no SHA pinned. The builder now sets all four (#6).
+- **Defect** D01.20 — found: close · cause: environment · made: none · `scripts/evidence.py`
+  compared pytest's run time ("1 failed in 0.14s") when replaying a break, so no pytest break
+  could match twice; fixed in #7 before this close.
+- **Defect** D01.21 — found: close · cause: process · made: Day 01 · the `manifest:` lines in
+  #1 and #6 lost a level of backslashes in the PR bodies (`\s` for `\\s`, a newline for `\n`):
+  #1's no longer parsed as JSON, and two of #6's finds no longer matched `make_repo.py`. The
+  close restored them to the source's text and replayed every entry.
+- **Defect** D01.22 — found: self · cause: process · made: none · in #7, the break on purpose
+  ran while a background run of every `scripts/test_*.py` was still reading the same file, which
+  then reported 4 failures; alone, the file passed.
+- **Defect** D01.23 — found: review · cause: process · made: Day 01 · after #7's "merged", the
+  session ran `spec-drift.py` but neither reported the next step nor suggested a new session;
+  it went straight on into this close in the same context. CLAUDE.md's step 5 and "One session
+  per step" say so in plain words, and the session read past them because #7 was a detour
+  before the close rather than a step of the day. The maintainer caught it in review. The
+  session had first saved the lesson to its private memory; the maintainer rejected that, since
+  a fix that lives in one person's memory leaves the kit as weak as it was and distorts the
+  measurement. The memory was deleted. The fix is the repository's (H01.7).
+- **Hand-off** H01.7 → the maintainer: enforce the step boundary after every "merged" with a hook,
+  not prose alone. A `UserPromptSubmit` hook on "merged" sets a marker and reminds the turn of
+  step 5. A `PreToolUse` guard refuses new work while the marker is set: creating a branch,
+  `git commit` and `gh pr create`. A new session or `/compact` clears the marker. CLAUDE.md's
+  step 5 names `tooling/` and spec-change merges as boundaries too. Build it in a `tooling/` PR in
+  a fresh session after this close, and copy it into the kit at a stop.
