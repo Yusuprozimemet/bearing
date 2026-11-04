@@ -88,7 +88,7 @@
   implementer on Haiku (39 replies, $0.04). The folder's total from 2026-10-28 to 2026-11-04 is
   $184.22, counted during the close, so the close's own session is only partly in it.
 
-### Day 03: Changelog (Phase 1), closed in the closing PR
+### Day 03: Changelog (Phase 1), closed in #24
 
 - **Delivered:** `bearing changelog [--since DATE] [--until DATE] [--data DIR]`. A merge's area is
   its branch up to the first `/`, and its paragraph is the first one under "What I built" in
@@ -131,6 +131,51 @@
   the main session (76 replies, $3.67), the spec-auditor (33 replies, $1.43) and the
   implementer on Haiku (27 replies, $0.04). The folder's total from 2026-10-28 to 2026-11-04 is
   $197.05, counted during the close, so the close's own session is only partly in it.
+
+### Day 04: Live PRs (Phase 1), closed in the closing PR
+
+- **Delivered:** `bearing ingest <repo>` with no `--prs` reads the records from `gh pr list`
+  itself, with the same command `--prs` files are recorded with. A missing `gh`, a failed call
+  or output that is not JSON gives "bearing: ..." and exit 1, with no store written (#27). Two
+  records on one merge commit now go to the one the merge subject names, or else the lowest
+  number, whatever `gh`'s order (H02.1, #28). A broken `bearing.db` was already refused, and a
+  test now pins it (H03.2, #26). Phase 1's done line holds on the kit at `44d7a55`:
+  `merges 91  matched 91  unmatched merges 0  unmatched PRs 0  direct 11`, and 91 changelog
+  entries, none of them falling back to its merge subject. `pytest -q`: 38 passed, 33 subtests
+  passed.
+- **Criteria:** 8 of 8 ticked: 4 `new` and 4 `hold`.
+- **Breaks on purpose:** 9, all in `specs/breaks/day-04.json`: 1 in #25, 2 in #26, 5 in #27 and
+  1 in #28. C04.6's break needs the kit, so it was run by hand in #25 and is in no manifest.
+  The close replayed all 9 in an LF worktree, and each one failed its check.
+- **PRs:** 5 at the day-spec rung: the spec (#25), Tracks 0, A and B (#26–#28) and the close.
+- **Defects:** 12 in the Notes.
+
+  | Field | Count |
+  | --- | --- |
+  | found: spec-change PR | 1 |
+  | found: auditor | 8 |
+  | found: Track A | 1 |
+  | found: Track B | 2 |
+  | cause: spec | 7 |
+  | cause: process | 5 |
+
+  The blind relabel agreed on 11 of 12 stages and causes. It moved D04.7 from `environment` to
+  `spec`, and D04.8 stayed `found: auditor` (the spec's Notes give the reasons). Nine were found before any code: the session's own (D04.1, a Day 3 escape: #23 already
+  refused a broken store, untested) and eight spec-auditor findings (D04.2–D04.9). Two of
+  those would have let wrong code pass: a command check compared with the module's own constant
+  (D04.5) and a shared-`oid` case with no subject naming neither record (D04.6). The three
+  after the spec PR are process slips around the implementer: an expected count that missed
+  Track 0's tests (D04.10), a count taken before formatting (D04.11) and a red value not
+  reported (D04.12). The main session caught each before its PR. No escape was found at the close.
+- **Hand-offs:** H02.1 and H03.2 picked up (C04.5, C04.1). Left to the maintainer: H04.1, the
+  Phase 1 stop (the verdict on the kit's changelog, the kit-update PR, the token comparison),
+  and H04.2 (`gh`'s 1000-PR cap), with H03.1 and H03.3 still there.
+- **Tokens:** `docs/dashboard/token-usage.json` tags two rows with Day 4, on 2026-11-04: the
+  main session (51 replies, $2.09) and the implementer on Haiku (9 replies, $0.01). Most of the
+  day went to rows with no day: since Day 3's close the untagged main session rose from 349 to
+  415 replies and the untagged spec-auditor from 44 to 85. The folder's total from 2026-10-28
+  to 2026-11-04 is $206.89, counted during the close, so the close's own session is only
+  partly in it.
 
 ## What is being measured
 
