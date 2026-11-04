@@ -17,6 +17,9 @@ bearing = "bearing.cli:main"
 [tool.setuptools.packages.find]
 include = ["bearing*"]
 
+[tool.setuptools.package-data]
+bearing = ["migrations/*.sql"]
+
 [tool.ruff]
 target-version = "py312"
 # The kit's scripts are in the kit's style, not this project's (the kit's README, "Style check setup").
