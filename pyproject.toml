@@ -11,6 +11,9 @@ requires-python = ">=3.12"
 [project.optional-dependencies]
 dev = ["pytest", "ruff"]
 
+[project.scripts]
+bearing = "bearing.cli:main"
+
 [tool.setuptools.packages.find]
 include = ["bearing*"]
 
