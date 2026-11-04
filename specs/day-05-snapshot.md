@@ -141,7 +141,7 @@ this spec's PR, which runs its check first.
 ## Acceptance criteria
 Tick each box in the closing PR once its evidence is in it; under a box left unticked, write
 `Not proven: <why>` (`specs/README.md`, "Evidence at the close").
-- [ ] C05.1 **new** — `module_names` on the paths `app/__init__.py`, `app/core.py`,
+- [x] C05.1 **new** — `module_names` on the paths `app/__init__.py`, `app/core.py`,
       `app/pkg/__init__.py`, `src/lib/__init__.py`, `src/lib/util.py`, `scripts/helpers.py`,
       `tests/contract/test_api.py`, `setup.py`, `src/x.py`, `x.py`, `__init__.py` and
       `src/__init__.py` returns exactly `{"app/__init__.py": "app", "app/core.py": "app.core",
@@ -152,11 +152,18 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       Red today: "No module named 'bearing.snapshot'"; after Track 0, "No module named
       'bearing.snapshot.modules'".
       Test: `tests/test_modules.py::ModuleNameTest::test_names`
-- [ ] C05.2 **new** — `count_lines` gives 0 for `b""`, 1 for `b"a"`, 1 for `b"a\n"`, 2 for
+      Evidence: `ModuleNameTest.test_names` (#34), seen red first on `fdfe9c3`'s code (Track 0)
+      with "cannot import name 'modules' from 'bearing.snapshot'" (D05.10);
+      `python -m pytest -q` (#34).
+      broken: module_names without the src/ collision rule → 1 failed in 0.09s (#34)
+- [x] C05.2 **new** — `count_lines` gives 0 for `b""`, 1 for `b"a"`, 1 for `b"a\n"`, 2 for
       `b"a\nb"`, 2 for `b"a\r\nb\r\n"`, 1 for `b"a\rb\n"` and 3 for `b"\n\n\n"`. Red today: as
       C05.1.
       Test: `tests/test_modules.py::LinesTest::test_counts`
-- [ ] C05.3 **new** — `parse_imports` returns `None` for `b"def broken(:\n    return 1\n"`, for
+      Evidence: `LinesTest.test_counts` (#34), seen red first on `fdfe9c3`'s code as C05.1;
+      `python -m pytest -q` (#34).
+      broken: count_lines counting a lone CR as a line end → 2 failed, 1 passed, 5 subtests passed in 0.09s (#34)
+- [x] C05.3 **new** — `parse_imports` returns `None` for `b"def broken(:\n    return 1\n"`, for
       `b"x = '\xe9'\n"` (latin-1 bytes, no cookie) and for `b"x = 1\x00\n"`; for
       `b"# -*- coding: latin-1 -*-\nx = '\xe9'\n"` it returns `[]`; for the CRLF bytes
       `b"import b\r\n\r\ndef f():\r\n    from ..pkg import h, k\r\n"` it returns
@@ -169,7 +176,11 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       `x = "\d"` and a newline (an invalid escape: a `SyntaxWarning`) it returns `[]`, not
       `None`. Red today: as C05.1.
       Test: `tests/test_modules.py::ParseTest::test_imports_and_errors`
-- [ ] C05.4 **new** — `import_edges` on a tree written in the test, each file's source given to
+      Evidence: `ParseTest.test_imports_and_errors` (#34), seen red first on `fdfe9c3`'s code as
+      C05.1; `python -m pytest -q` (#34).
+      broken: parse_imports catching only SyntaxError and ValueError → 2 failed, 1 passed, 3 subtests passed in 0.29s (#34)
+      broken: parse_imports without silencing warnings → 1 failed, 5 subtests passed in 0.22s (#34)
+- [x] C05.4 **new** — `import_edges` on a tree written in the test, each file's source given to
       `parse_imports` and the paths to `module_names`: `app/__init__.py` `from . import core`,
       `app/core.py` `import os\nimport app.core`, `app/pkg/__init__.py` empty, `app/sub/__init__.py`
       empty, `app/sub/mod.py` `from ..pkg import h\nfrom ..core import f\nfrom ... import app`,
@@ -187,7 +198,10 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       parse error, no sibling try inside a package (`import core` in `app/x.py`), and the
       absolute `app` wins over `scripts/app.py`. Red today: as C05.1.
       Test: `tests/test_modules.py::ResolveTest::test_edges`
-- [ ] C05.5 **new** — the `snapshot-v1` contract: `python -m bearing snapshot <dir>/repo
+      Evidence: `ResolveTest.test_edges` (#34), seen red first on `fdfe9c3`'s code as C05.1;
+      `python -m pytest -q` (#34).
+      broken: import_edges trying the sibling inside a package → 1 failed in 0.08s (#34)
+- [x] C05.5 **new** — the `snapshot-v1` contract: `python -m bearing snapshot <dir>/repo
       448fc4dc915289f0b3f0254cf80360b56f48513a`, on the fixture, exits 0, and its stdout, with
       `\r\n` read as `\n`, equals the bytes of `tests/fixtures/expected/snapshot-448fc4d.json`.
       The golden file holds exactly the 15 modules and 8 imports of "What the fixture gives",
@@ -197,7 +211,12 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       object (`specs/README.md`): every path comes from git with `/`, and the bytes are the
       contract (plan-auditor F9). Red today: argparse's "invalid choice: 'snapshot'" (exit 2).
       Test: `tests/contract/test_snapshot.py::SnapshotContractTest::test_golden`
-- [ ] C05.6 **new** — at `main`: `snapshot("<dir>/repo", "main")` returns a `dict` with
+      Evidence: `SnapshotContractTest.test_golden` (#36), seen red first on `da306c7`'s code
+      with argparse's "invalid choice: 'snapshot'" (exit 2); `python -m pytest -q` (#36); at the
+      close, Verify's first `bearing snapshot` exited 0 and its output matched the golden file
+      (`diff --strip-trailing-cr` empty).
+      broken: snapshot JSON indented by 1 → 1 failed in 5.26s (#36)
+- [x] C05.6 **new** — at `main`: `snapshot("<dir>/repo", "main")` returns a `dict` with
       `"version"` `"snapshot-v1"`, `"ref"` `"8c1b9f1b90d3e582590942e15b131cea986d94c3"`, its
       modules as `"<name> <path> <lines> <parse_error>"` strings equal to the 16 of "What the
       fixture gives" written out in the test, in that sorted order, and its imports equal to the
@@ -205,19 +224,29 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       with the message "not a commit: no-such-ref". Red today: "No module named
       'bearing.snapshot'" (after Track 0, 'bearing.snapshot.tree').
       Test: `tests/test_snapshot_tree.py::SnapshotTreeTest::test_main`
-- [ ] C05.7 **new** — errors, stderr read with `\r\n` as `\n`:
+      Evidence: `SnapshotTreeTest.test_main` (#35), seen red first on `05314b9`'s code with "No
+      module named 'bearing.snapshot.tree'"; `python -m pytest -q` (#35).
+      broken: tree.py modules left in ls-tree's path order → 1 failed in 5.67s (#35)
+- [x] C05.7 **new** — errors, stderr read with `\r\n` as `\n`:
       `python -m bearing snapshot <dir>/repo no-such-ref` exits 1, stdout is empty, and stderr
       is exactly "bearing: not a commit: no-such-ref\n"; `python -m bearing snapshot <tmp> main`,
       `<tmp>` an empty directory made by the test, exits 1, stdout empty, stderr exactly
       "bearing: not a git repository: <tmp>\n", `<tmp>` as the test passed it. Red today: as
       C05.5.
       Test: `tests/test_snapshot_cli.py::SnapshotCliTest::test_errors`
-- [ ] C05.8 **new** — the target is read-only (plan.md, "Decisions"): after
+      Evidence: `SnapshotCliTest.test_errors` (#36), both subtests seen red first on
+      `da306c7`'s code with argparse's "invalid choice: 'snapshot'" (exit 2);
+      `python -m pytest -q` (#36).
+      broken: snapshot command no longer catches SnapshotError → 2 failed, 1 passed in 5.71s (#36)
+- [x] C05.8 **new** — the target is read-only (plan.md, "Decisions"): after
       `python -m bearing snapshot <dir>/repo main` and the first command of C05.7, its `git status --porcelain --ignored` prints nothing, and
       `git for-each-ref` and `git rev-parse HEAD` print what they printed before them. Red
       today: the commands exit 2 before reading anything, so the test fails on their exit code.
       Test: `tests/test_snapshot_cli.py::SnapshotCliTest::test_read_only`
-- [ ] C05.10 **new** — the golden file's content, from a list written apart from the code:
+      Evidence: `SnapshotCliTest.test_read_only` (#36), seen red first on `da306c7`'s code on
+      the commands' exit code 2; `python -m pytest -q` (#36).
+      broken: snapshot command writes a file into the target → 1 failed in 6.30s (#36)
+- [x] C05.10 **new** — the golden file's content, from a list written apart from the code:
       `json.loads` of `tests/fixtures/expected/snapshot-448fc4d.json` has `"version"`
       `"snapshot-v1"`, `"ref"` `"448fc4dc915289f0b3f0254cf80360b56f48513a"`, its modules as
       `"<name> <path> <lines> <parse_error>"` strings equal to the 15 of "What the fixture
@@ -227,11 +256,16 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       written from a wrong implementation's output fails here, not only in a reader's eyes. Red
       today: as C05.6.
       Test: `tests/test_snapshot_tree.py::SnapshotTreeTest::test_golden_content`
-- [ ] C05.9 **hold** — the frozen files stay as Day 4 and the kit copy left them: the fixture, the
+      Evidence: `SnapshotTreeTest.test_golden_content` (#35), seen red first on `05314b9`'s code
+      as C05.6; `python -m pytest -q` (#35).
+      broken: tree.py parse_error true for a module with no imports → 1 failed in 5.99s (#35)
+- [x] C05.9 **hold** — the frozen files stay as Day 4 and the kit copy left them: the fixture, the
       three contract tests and their golden files, and the applied migration:
       `git -c core.safecrlf=false diff --exit-code 004a5c8 -- tests/contract/test_fixture.py tests/contract/test_ingest.py tests/contract/test_changelog.py tests/fixtures/make_repo.py tests/fixtures/expected/changelog.md tests/fixtures/expected/ingest.txt bearing/migrations/001_history.sql`
       prints nothing and exits 0. The files are named one by one: the day adds a contract test
       and a golden file beside them, which a diff of the directories would report.
+      Evidence: the command above, exit 0 in #32 and on `ea82a8f` at the close.
+      broken: the applied migration 001_history.sql edited → subject_branch TEXT NULL (#32)
 
 ## Verify
 ```bash
@@ -303,6 +337,27 @@ git -c core.safecrlf=false diff --exit-code 004a5c8 -- tests/contract/test_fixtu
   with no `\r\n` rule and did not say the path is echoed as given; and a `GIT_DIR` in the
   environment would point git at this repository. C05.7 now reads `\r\n` as `\n`, and the CLI
   tests drop `GIT_DIR` and `GIT_WORK_TREE`.
+- At the close, on `ea82a8f`: `python -m pytest -q` gave "47 passed, 47 subtests passed", the
+  count above. Verify's `bearing snapshot` at `448fc4d` exited 0 and matched
+  `snapshot-448fc4d.json` (`diff --strip-trailing-cr` empty); at `main` it exited 0 with `"ref"`
+  `8c1b9f1`, 16 modules and 7 imports. C05.9's diff exited 0. All 11 `manifest:` lines (1 in
+  #32, 5 in #34, 2 in #35, 3 in #36; Track 0, #33, has no criterion and no break) parsed as
+  JSON, and each `find` occurs once in the merged code. Replayed with `scripts/break.py` in an
+  LF worktree of `main`, each failed its check. Every criterion had a break from a track or the
+  spec PR, so the close ran no first break.
+- **Defect** D05.9 — found: Track B · cause: process · made: Day 05 · the main session's Track B
+  brief gave the expected count as 45 passed; `main` held 42 tests, not 43, so the right count
+  was 44. The main session sent a correction before the implementer finished (#35).
+- **Defect** D05.10 — found: close · cause: spec · made: Day 05 · C05.1–C05.4 gave the red after
+  Track 0 as "No module named 'bearing.snapshot.modules'"; the tests import with
+  `from bearing.snapshot import modules`, which on `fdfe9c3`'s code fails with "cannot import
+  name 'modules' from 'bearing.snapshot'". The cause is the same missing module, but the
+  wording was a guess, not a run. #34 recorded only "4 failed", so the close found it by
+  running the tests on `fdfe9c3`'s code.
+- The blind relabel at the close agreed on 10 of 10 stages, 10 of 10 causes and 10 of 10
+  `made:`. The rater marked D05.2, D05.8 and D05.10 as mixed: D05.8 partly `environment` (an
+  inherited `GIT_DIR`) and D05.10 partly `process` (#34 recorded only the count). Each keeps
+  `spec`: the fix in each was to the spec's wording or split, and no tag changed.
 - **Hand-off** H05.1 → the maintainer: plan.md's Day 10 stop names "co-change coupling, then
   cycle detection in the timeline" as the next cuts, but cycle detection is Phase 2 (Day 7)
   and coupling is built by the stop; the cut list wants a plan-change PR (plan-auditor F7).

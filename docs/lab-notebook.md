@@ -132,7 +132,7 @@
   implementer on Haiku (27 replies, $0.04). The folder's total from 2026-10-28 to 2026-11-04 is
   $197.05, counted during the close, so the close's own session is only partly in it.
 
-### Day 04: Live PRs (Phase 1), closed in the closing PR
+### Day 04: Live PRs (Phase 1), closed in #29
 
 - **Delivered:** `bearing ingest <repo>` with no `--prs` reads the records from `gh pr list`
   itself, with the same command `--prs` files are recorded with. A missing `gh`, a failed call
@@ -177,6 +177,53 @@
   415 replies and the untagged spec-auditor from 44 to 85. The folder's total from 2026-10-28
   to 2026-11-04 is $206.89, counted during the close, so the close's own session is only
   partly in it.
+
+### Day 05: Snapshot (Phase 2), closed in the closing PR
+
+- **Delivered:** `bearing snapshot <repo> <ref>` prints the `snapshot-v1` JSON of a repository
+  at one commit: one module per `.py` file, with its dotted name, path, line count and whether
+  it parses, and the import edges between modules in the repository (#36). Names, line counts,
+  import parsing and resolution are `bearing.snapshot.modules` (#34), and `snapshot(repo, ref)`
+  reads the tree from git without writing to the target (#35). The golden file pins `448fc4d`,
+  which holds the fixture's cycle: 15 modules and 8 imports. `main`'s 16 and 7 are pinned
+  outside the contract. A bad ref or a directory that is not a repository gives "bearing: ..."
+  and exit 1. `pytest -q`: 47 passed, 47 subtests passed.
+- **Criteria:** 10 of 10 ticked: 9 `new` and 1 `hold`.
+- **Breaks on purpose:** 11, all in `specs/breaks/day-05.json`: 1 in #32, 5 in #34, 2 in #35 and
+  3 in #36. Track 0 (#33) had no criterion. The close replayed all 11 in an LF worktree, and
+  each one failed its check.
+- **PRs:** 6 at the day-spec rung: the spec (#32), Tracks 0, A, B and C (#33–#36) and the close.
+- **Defects:** 10 in the Notes.
+
+  | Field | Count |
+  | --- | --- |
+  | found: spec-change PR | 1 |
+  | found: auditor | 7 |
+  | found: Track B | 1 |
+  | found: close | 1 |
+  | cause: spec | 9 |
+  | cause: process | 1 |
+
+  The blind relabel agreed on all 10 stages, causes and `made:`; the rater marked D05.2,
+  D05.8 and D05.10 as mixed, and no tag changed. Eight were found before any code: one by the session's own
+  scratch implementation of the spec's rules (D05.1) and seven by the spec-auditor
+  (D05.2–D05.8). Two of those would have let wrong code pass: a golden file checked only
+  against the implementation's own output (D05.5), and a resolution case that a wrong rule
+  passed too (D05.3). One would have crashed: deep nesting raising past `parse_imports` (D05.6).
+  After the spec PR there was one process slip, a wrong expected count in a brief (D05.9),
+  and one escape found at the close. The spec's red text for Track A was a guess, not a
+  run, and the track PR recorded only the count (D05.10).
+- **Hand-offs:** the plan-auditor's F1–F3 settled in the spec. H01.1 re-pointed to Day 7 as
+  H05.5. Open: H05.1 (plan.md's Day 10 cut list) to the maintainer; H05.2–H05.4 (how
+  `timeline` finds the repository and store, root and direct commits, the blob cache) to
+  Day 6; H05.5 and H05.6 (`grew`, the module map) to Day 7.
+- **Tokens:** `docs/dashboard/token-usage.json` tags three rows with Day 5, on 2026-11-04: the
+  main session (84 replies, $4.72), the spec-auditor (38 replies, $1.38) and the implementer on
+  Haiku (27 replies, $0.04). The untagged main session rose from 415 to 560 replies and the
+  untagged plan-auditor from 70 to 118, its runs since Day 4's close. Day 4's close added
+  a defect-rater row and raised Day 4's main row to 68 replies. The folder's total from
+  2026-10-28 to 2026-11-04 is $224.13, counted during the close, so the close's own session is
+  only partly in it.
 
 ## What is being measured
 
