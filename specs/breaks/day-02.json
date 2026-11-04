@@ -1,0 +1,149 @@
+[
+  {
+    "what": "the pinned HEAD SHA edited in tests/contract/test_fixture.py",
+    "file": "tests/contract/test_fixture.py",
+    "find": "HEAD_SHA = \"8c1b9f1",
+    "replace": "HEAD_SHA = \"0c1b9f1",
+    "command": [
+      "git",
+      "-c",
+      "core.safecrlf=false",
+      "diff",
+      "--exit-code",
+      "31eaca5",
+      "--",
+      "tests/contract/test_fixture.py",
+      "tests/fixtures/make_repo.py"
+    ]
+  },
+  {
+    "what": "read_first_parent without --first-parent",
+    "file": "bearing/ingest/history.py",
+    "find": "\"--first-parent\",",
+    "replace": "",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_history.py::FirstParentTest::test_fixture_line"
+    ]
+  },
+  {
+    "what": "parse_merge_subject owner allowed to hold /",
+    "file": "bearing/ingest/history.py",
+    "find": "([^/\\s]+)/",
+    "replace": "(\\S+)/",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_history.py::MergeSubjectTest::test_subjects"
+    ]
+  },
+  {
+    "what": "load_prs reads with the locale's code page",
+    "file": "bearing/ingest/mapping.py",
+    "find": "read_text(encoding=\"utf-8\")",
+    "replace": "read_text()",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_mapping.py::LoadPrsTest::test_utf8"
+    ]
+  },
+  {
+    "what": "pass 2 matches a record whatever its oid",
+    "file": "bearing/ingest/mapping.py",
+    "find": "                and _oid(record) is None\n",
+    "replace": "",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_mapping.py::FallbackTest::test_oid_off_the_line"
+    ]
+  },
+  {
+    "what": "one space between the summary's first fields",
+    "file": "bearing/ingest/mapping.py",
+    "find": "f\"merges {result.merges}  matched",
+    "replace": "f\"merges {result.merges} matched",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_mapping.py::MappingTest::test_fixture_report"
+    ]
+  },
+  {
+    "what": "save keeps the old commits rows",
+    "file": "bearing/store/db.py",
+    "find": "conn.execute(\"DELETE FROM commits\")",
+    "replace": "pass",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_store.py::StoreTest::test_stored_once"
+    ]
+  },
+  {
+    "what": "cli.py writes each report line without its newline",
+    "file": "bearing/cli.py",
+    "find": "sys.stdout.write(f\"{line}\\n\")",
+    "replace": "sys.stdout.write(f\"{line}\")",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/contract/test_ingest.py::IngestContractTest::test_golden"
+    ]
+  },
+  {
+    "what": "cli.py opens the store inside the target repository",
+    "file": "bearing/cli.py",
+    "find": "conn = open_store(args.data)",
+    "replace": "conn = open_store(args.repo)",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_ingest_cli.py::IngestCliTest::test_target_untouched"
+    ]
+  },
+  {
+    "what": "cli.py prints errors to stdout",
+    "file": "bearing/cli.py",
+    "find": "print(f\"bearing: {message}\", file=sys.stderr)",
+    "replace": "print(f\"bearing: {message}\")",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_ingest_cli.py::IngestCliTest::test_errors"
+    ]
+  },
+  {
+    "what": "the subject fallback never matches",
+    "file": "bearing/ingest/mapping.py",
+    "find": "if subject is None:",
+    "replace": "if True:",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_mapping.py::FallbackTest::test_absent_and_null"
+    ]
+  }
+]
