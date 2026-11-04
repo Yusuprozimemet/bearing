@@ -105,6 +105,44 @@ class FallbackTest(FixtureCase):
         )
 
 
+class SharedOidTest(unittest.TestCase):
+    def test_subject_then_lowest(self):
+        from bearing.ingest.history import Commit
+        from bearing.ingest.mapping import map_history
+
+        A = Commit(
+            "a" * 40,
+            ("0" * 40, "1" * 40),
+            "2026-02-01T00:00:00Z",
+            "Merge pull request #8 from acme/docs/x",
+        )
+        B = Commit(
+            "b" * 40, ("a" * 40,), "2026-02-02T00:00:00Z", "One squashed change (#9)"
+        )
+        C = Commit(
+            "c" * 40,
+            ("b" * 40, "2" * 40),
+            "2026-02-03T00:00:00Z",
+            "Merge pull request #20 from acme/docs/y",
+        )
+        oids = {3: A.sha, 8: A.sha, 5: B.sha, 9: B.sha, 12: C.sha, 11: C.sha}
+        for order in ([3, 8, 5, 9, 12, 11], [11, 12, 9, 5, 8, 3]):
+            records = [
+                {"number": n, "title": f"PR {n}", "mergeCommit": {"oid": oids[n]}}
+                for n in order
+            ]
+            with self.subTest(order=order):
+                result = map_history([A, B, C], records)
+                self.assertEqual(result.pr_by_sha, {A.sha: 8, B.sha: 5, C.sha: 11})
+                self.assertEqual(
+                    [r["number"] for r in result.unmatched_prs], [3, 9, 12]
+                )
+                self.assertEqual(result.merges, 3)
+                self.assertEqual(result.matched, 3)
+                self.assertEqual(len(result.unmatched_merges), 0)
+                self.assertEqual(result.direct, 0)
+
+
 class LoadPrsTest(unittest.TestCase):
     def test_utf8(self):
         from bearing.ingest.mapping import load_prs

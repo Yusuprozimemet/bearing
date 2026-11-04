@@ -28,6 +28,18 @@ def _oid(record):
     return None
 
 
+def _pick(commit, candidates):
+    # Several records can share one merge commit, a squashed PR and the PR it came from.
+    # The commit's subject names the one it merged; without a name, the lowest number wins,
+    # so the answer does not depend on the order gh listed the records in.
+    subject = parse_merge_subject(commit.subject)
+    if subject is not None:
+        for index, record in candidates:
+            if record["number"] == subject.number:
+                return index
+    return min(candidates, key=lambda item: item[1]["number"])[0]
+
+
 def map_history(commits, records) -> MappingResult:
     pr_by_sha: dict[str, int] = {}
     matched_records: set[int] = set()
@@ -35,14 +47,17 @@ def map_history(commits, records) -> MappingResult:
 
     # Pass 1: a record whose mergeCommit oid is a commit on the line.
     for commit in commits:
-        for index, record in enumerate(records):
-            if index in matched_records:
-                continue
-            if _oid(record) == commit.sha:
-                pr_by_sha[commit.sha] = record["number"]
-                matched_records.add(index)
-                matched_commits.add(commit.sha)
-                break
+        candidates = [
+            (index, record)
+            for index, record in enumerate(records)
+            if index not in matched_records and _oid(record) == commit.sha
+        ]
+        if not candidates:
+            continue
+        index = _pick(commit, candidates)
+        pr_by_sha[commit.sha] = records[index]["number"]
+        matched_records.add(index)
+        matched_commits.add(commit.sha)
 
     # Pass 2: a two-parent merge whose subject names a record that has no oid. A record
     # with an oid is never matched by its subject, even when that oid is off the line.
