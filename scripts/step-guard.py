@@ -5,10 +5,10 @@
     python scripts/step-guard.py start     # SessionStart: a new session, /clear or /compact clears it
 
 CLAUDE.md's step 5 says that after every "merged" the session checks the evidence, reports the
-next step, suggests a new session, and stops. It was read past twice on Day 01: after #7's
+next step, suggests a new session, and stops. In bearing it was read past twice on Day 01: after #7's
 "merged" the session went on into the close (D01.23), and after #8's it launched the end-of-phase
 plan-auditors in the same context (D01.24). A rule the model can skip was skipped; this one it
-cannot (H01.7).
+cannot. Built in bearing's #9 and copied here.
 
 "merged" is a short prompt (six words at most) holding the word, with no question mark and no
 "not": "merged", "Merged #8.", "#8 merged". A longer message that mentions a merge is not one. On

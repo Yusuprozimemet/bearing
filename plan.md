@@ -242,6 +242,46 @@ kit's repository). For it to count:
 
 <!-- Added by plan-change PRs, newest first. Empty at the start. -->
 
+### 2026-11-04: Course correction after Phase 1
+
+The Day 4 stop (H04.1), recorded in the kit-update PR (#30).
+
+- **Verdict: the changelog is useful enough to go on.** On the kit at `44d7a55`, with 91 of its
+  93 PR records: `merges 91  matched 91  unmatched merges 0  unmatched PRs 0  direct 11`, 215
+  lines, 91 entries, in four areas (dashboard 28, docs 13, specs 2, tooling 48). Findings, not
+  fixed now:
+  - "tooling" is too broad: 48 of 91 entries. The areas need to be finer than the title prefix
+    gives.
+  - A description should be one or two sentences. Some carry a whole PR body (#11), and some
+    an opener that says nothing ("Two follow-ups from CHANGES item 26, one commit each:", #5).
+    This is a rule for whichever day next touches the changelog.
+  - On a Windows console (Git Bash), "°" and "…" print as "Â°" and "â€¦"; the file is clean
+    UTF-8, and `PYTHONIOENCODING=utf-8` prints them right. This is H03.1's stdout side, and it
+    stays unowned for now.
+- **The kit is copied in at `c12cfe5`** (kit PRs #93, #94, #95), a split in the measurement
+  dated 2026-11-04. Main session Opus 5.5 (`claude-opus-5-5`), implementer Haiku
+  (`claude-haiku-5-5`), Claude Code 2.1.170: unchanged. The local changes to kit files:
+  - #4 `scripts/seen-red.py`, #7 `scripts/evidence.py` and #9 `scripts/step-guard.py` (its
+    test and hooks) are now the kit's files.
+  - #5 `scripts/test_evidence_workflow.py` stays Bearing's: the kit now says a project that
+    changes the install step replaces the two default install tests with its own, as #5 did.
+  - #20's `human:` lines in `.github/pull_request_template.md` and `CLAUDE.md` are kept
+    (D04.8): the kit has none, so these two files stay ahead of it until the kit takes them.
+  - H01.5, H01.6 and H01.7 are fixed in the kit. H02.4 is half done: the kit's
+    `specs/README.md` says to copy a `manifest:` line from the raw body and check it parses, but
+    no check does it; it stays open in the kit.
+  - The kit's `lifted()` (#95) lifts a stop only on a heading here saying "after Phase N", or a
+    bullet opening "**Phase N stop:**". The entry below names Phase 1 and no longer lifts it.
+- **The token split separates nothing yet.**
+  `python scripts/token-usage.py --compare --split 2026-11-04`: the first kit copy (`dfc762f`),
+  all 29 merged PRs and every transcript fall on 2026-11-04, so only the "after" side has
+  replies: 863 replies, median 81,069 and mean 88,240 context tokens per reply, 0.0% read past
+  300k, $47.58 ($0.0551 per reply), 29.8 replies per merged PR. The $47.58 counts the main
+  sessions only; Day 4's close counted $206.89 for the whole folder, subagents included. At the
+  Day 10 stop the boundary is this PR's date.
+- **Merged PRs per rung**, from the merged branches, to #29: day spec 23 (#1–#3, #6, #8,
+  #11–#19, #21–#29), area branch 6 (#4, #5, #7, #9, #10, #20), short spec 0.
+
 ### 2026-11-04: after the Phase 0/1 audit
 
 - **The kit has 91 merges, not 90.** The kit was copied at `44d7a55`, the merge of its PR #92;

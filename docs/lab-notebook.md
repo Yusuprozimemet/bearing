@@ -167,9 +167,10 @@
   after the spec PR are process slips around the implementer: an expected count that missed
   Track 0's tests (D04.10), a count taken before formatting (D04.11) and a red value not
   reported (D04.12). The main session caught each before its PR. No escape was found at the close.
-- **Hand-offs:** H02.1 and H03.2 picked up (C04.5, C04.1). Left to the maintainer: H04.1, the
-  Phase 1 stop (the verdict on the kit's changelog, the kit-update PR, the token comparison),
-  and H04.2 (`gh`'s 1000-PR cap), with H03.1 and H03.3 still there.
+- **Hand-offs:** H02.1 and H03.2 picked up (C04.5, C04.1). H04.1, the Phase 1 stop, held in
+  #30: the changelog judged useful enough to go on, with three findings; the kit copied in at
+  `c12cfe5`; the token comparison, which separates nothing yet (plan.md, "Course correction
+  after Phase 1"). Left to the maintainer: H04.2 (`gh`'s 1000-PR cap), with H03.1 and H03.3 still there.
 - **Tokens:** `docs/dashboard/token-usage.json` tags two rows with Day 4, on 2026-11-04: the
   main session (51 replies, $2.09) and the implementer on Haiku (9 replies, $0.01). Most of the
   day went to rows with no day: since Day 3's close the untagged main session rose from 349 to
