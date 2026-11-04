@@ -24,7 +24,7 @@ real, messy histories (squash merges, flat script folders, relative imports) and
 | **Import resolution** | Relative imports, `src/` layouts, and flat `scripts/` folders that are not packages | Phase 2: every `.py` file is one module, named by its path from its import root with `.` for `/`, no `.py`, and `__init__.py` named by its package; the root is the repository's, or `src/` in a `src/` layout (no module map: see the Course correction on Day 7); a flat folder's `import helpers` resolves to the file beside the importer |
 | **Files that will not parse** | A syntax error, non-UTF-8 bytes, CRLF endings | Phase 2: lines are counted on the bytes, imports are empty, the module carries `"parse_error": true`; never a crash. The fixture holds the syntax error and the CRLF file, not non-UTF-8 bytes: that case is tested on bytes given to the parser |
 | **PR text that is not the template** | An empty body, no "What I built" heading, a heading spelt differently | Phase 1: the first paragraph of the body is the fallback; an empty body gives an empty entry, never a missing PR |
-| **False flags in "said vs done"** | A `docs/` PR that fixes a typo in a script is not a lie | Phase 3: rules read from config, each flag shows its evidence, and a stopping point judges them on the kit's history |
+| **False flags in "said vs done"** | A `docs/` PR that fixes a typo in a script is not a lie | Phase 3: rules read from config, each flag shows its evidence, and a stopping point judges them on the kit's history. The rule still raises such a flag: the fixture's #5 is one, in the direction golden file (Course correction before Phase 3) |
 | **Speed on long histories** | A snapshot per merge re-reads every file | Phase 2: parse each blob once, cached by its blob SHA |
 | **Reproducible output** | Golden tests fail on any ordering, timestamp, layout or line-ending randomness, and a fixture built on Windows must give the SHAs it gives on Linux | All phases: sorted output, no run-time timestamps, a layered (not force-directed) graph layout; the fixture writes bytes with `\n` and sets its own git config (see Phase 0); `.gitattributes` keeps `tests/fixtures/` at `eol=lf` |
 
@@ -41,7 +41,9 @@ real, messy histories (squash merges, flat script folders, relative imports) and
   written by `make_repo.py` itself, so its numbers and commits agree with the repository.
 - **A PR's area is its branch name up to the first `/`** (`headRefName`, or the "from
   owner/branch" of the merge subject when there is no record): `docs`, `tooling`, `day-03`.
-  A branch with no `/` has the area `other`.
+  A branch with no `/` has the area `other`. This is the changelog's area. A file's area is
+  another thing, a path area from `bearing.toml`, which Phase 3 reads; the two meet only in
+  said vs done (Course correction before Phase 3).
 - **The layered layout is the simplest deterministic one:** a module's layer is its longest
   import path from a module nothing imports; within a layer, modules are in name order. No
   crossing minimisation in v1. It is less pretty and is the same on every run and machine.
@@ -162,13 +164,15 @@ Each phase is a series of <400-line PRs, so CI stays green.
 ### Phase 3 — Direction
 **Goal:** where the work goes, and where a PR's words and its diff disagree.
 - Churn per area, by week. (Per module is cut: the timeline's `grew` events already show
-  where a module grows.)
+  where a module grows.) The area is the file's path area; the week is the ISO week of the
+  first-parent commit's `committed_at`.
 - Co-change coupling: file pairs that change together in at least N PRs, with pairs whose
   files lie in different `bearing.toml` areas flagged as a hidden dependency.
 - Said vs done, from `bearing.toml`'s areas: a PR whose changed files lie outside its area's
-  paths; a PR whose body says "Contract impact: none" while touching a contract path. Each flag
-  names the PR, the claim and the files.
-- `bearing direction` prints all three.
+  paths, checked only when its branch area names one of them; a PR whose body says "Contract
+  impact: none" while touching a contract path. Each flag names the PR, the claim and the files.
+- `bearing direction` prints all three. `bearing.toml` is read from `--config FILE`, default
+  `bearing.toml` in the working directory, never from the target repository.
 - **Done when:** the fixture's report matches its golden file, and Day 10's closing PR lists
   every flag `bearing direction` prints on the kit's history, as many lines as flags, each
   marked `real` or `rule: <what to change>` by the maintainer, with the counts of each; and at
@@ -192,8 +196,9 @@ Each phase is a series of <400-line PRs, so CI stays green.
   go on? If not, stop the project here; that is a valid result for the kit's measurement too.
 - **Day 10 (Phase 3) is a stopping point.** The plan-auditor reads the whole plan against the
   code. Decide whether the page is worth building, and whether Bearing should be proposed to
-  the kit (a kit decision, made in the kit's own repository, not here). If the schedule has
-  slipped, co-change coupling is the next cut.
+  the kit (a kit decision, made in the kit's own repository, not here). Co-change coupling is
+  built on Day 8, before this stop, so it is no longer a cut; if the schedule has slipped, the
+  stop decides what Phase 4 leaves out (Course correction before Phase 3, item 5).
 
 ## Constraints
 
@@ -360,6 +365,44 @@ The Day 4 stop (H04.1), recorded in the kit-update PR (#30).
   their golden files. Day 5 wrote one, `snapshot-448fc4d.json`, and no day was given more. A
   snapshot of every merge is checked through the timeline's golden file, which is built from
   them. "Done when" now names the one snapshot.
+
+### 2026-11-04: Course correction before Phase 3
+
+The plan-auditor's Phase 3 findings on fresh `main` (`43d5012`), settled in Day 8's spec PR.
+The maintainer chose 1, 2 and the days' split; 3 and 4 follow from the facts below.
+
+1. **Two kinds of area.** "Decisions" makes a PR's area its branch prefix; Phase 3 needs areas
+   that are paths. The fixture's coupling pair (`app/core.py`, `src/lib/util.py`) changes only
+   in `day-NN` PRs (#1, #3, #9), so no branch area can put it apart. `bearing.toml` has one
+   `[areas]` table, each area a name and a list of path prefixes; a file's area is the first
+   whose prefix it starts with, in file order, else `other`. Churn and coupling use the file's
+   area. Said vs done checks a PR's files only when its branch area is the name of a
+   `bearing.toml` area; `day-NN`, `release` and `other` PRs are not checked for it. The
+   changelog keeps branch areas: its golden file is frozen.
+2. **The fixture's #5 is flagged.** `docs/typo-fix` changes one line of `scripts/run.py`. The
+   rule flags it, and the direction golden file lists it with that file as evidence. A typo fix
+   is not a lie, so the flag is false, but judging flags is the stop's job (the hard-parts row,
+   and Phase 3's "Done when"); a rule that hides small changes would hide small real ones too.
+   This settles H01.4's second half.
+3. **Both forms of "Contract impact".** All 94 of the kit's merged PRs at `c12cfe5` write a
+   `## Contract impact` heading, and none the one-line form; many write "None." with more text
+   after it. The fixture's template does the same; only #9 writes "Contract impact: None", and
+   #9 is the only PR that touches `tests/contract/`. So the claim is "none" in either form: a
+   `Contract impact` heading of any level whose first non-blank line starts with the word
+   "none", or a line starting `Contract impact:` followed by that word, case ignored (H01.4's
+   first half). The fixture can show only the one-line form, so the heading form is tested on
+   a body written in the test.
+4. **Where `bearing.toml` lives (H07.1).** The target repository is read-only and the fixture
+   frozen, so the file always lives outside the repository it describes: `--config FILE`,
+   default `bearing.toml` in the working directory, as `--data` defaults there. The fixture's is
+   `tests/fixtures/bearing.toml`. The kit's is written on Day 10, which runs on the kit at
+   `c12cfe55018aebe82de83485460f1edd22e4c96b` (#95), the SHA Day 7 ran, unless Day 10's spec
+   names another and says why.
+5. **The days.** Day 8: `bearing.toml`, churn and coupling, and `bearing direction` printing
+   those two sections. Day 9: said vs done, the direction golden file and its contract test.
+   Day 10: the kit's run, the maintainer's judging and the stop. Churn and coupling read each
+   commit's `git diff --numstat -M` at run time, as the timeline reads its renames; the store
+   gains no table.
 
 ## Day-by-day specs
 
