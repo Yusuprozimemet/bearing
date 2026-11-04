@@ -18,11 +18,11 @@ real, messy histories (squash merges, flat script folders, relative imports) and
 
 | Hard part | Why | Fix |
 |---|---|---|
-| **PR ↔ commit mapping** | The kit's history has 90 merge commits, 11 direct commits before the first PR, and one PR closed unmerged (#71); it has no squash merge and no fork PR, and neither has wordtally's, so those cases exist only in the fixture | Phase 1: `mergeCommit` from `gh` first, the "Merge pull request #N" subject as fallback, an unmatched list reported, never guessed; a direct commit is listed as such, not as an error |
+| **PR ↔ commit mapping** | The kit's history at the copied SHA (`44d7a55`) has 91 merge commits, 11 direct commits before the first PR, and one PR closed unmerged (#71); it has no squash merge and no fork PR, and neither has wordtally's. The squash merge exists only in the fixture; a fork PR exists in no history Bearing is tested on, the fixture included | Phase 1: `mergeCommit` from `gh` first, the "Merge pull request #N" subject as fallback, an unmatched list reported, never guessed; a direct commit is listed as such, not as an error; a fork's subject ("from other-owner/patch-1") is tested as a string, the fixture being frozen |
 | **Merges out of order, merges with two parents** | PR numbers, `mergedAt` and the first-parent order disagree (a PR opened early and merged late); a merge's diff is against its first parent only | Phase 1: history is the first-parent line of `main`, in that order; every diff is `merge^1..merge`; a PR record whose commit is not on that line is unmatched |
 | **Renames** | A moved file is one module removed and one added unless git pairs them | Phase 2: `git diff -M` pairs them; the timeline prints a rename line; the blob cache is unaffected, the blob SHA is the same |
 | **Import resolution** | Relative imports, `src/` layouts, and flat `scripts/` folders that are not packages | Phase 2: a module map that is configurable, with flat files as their own modules by default |
-| **Files that will not parse** | A syntax error, non-UTF-8 bytes, CRLF endings | Phase 2: lines are counted on the bytes, imports are empty, the module carries `"parse_error": true`; never a crash |
+| **Files that will not parse** | A syntax error, non-UTF-8 bytes, CRLF endings | Phase 2: lines are counted on the bytes, imports are empty, the module carries `"parse_error": true`; never a crash. The fixture holds the syntax error and the CRLF file, not non-UTF-8 bytes: that case is tested on bytes given to the parser |
 | **PR text that is not the template** | An empty body, no "What I built" heading, a heading spelt differently | Phase 1: the first paragraph of the body is the fallback; an empty body gives an empty entry, never a missing PR |
 | **False flags in "said vs done"** | A `docs/` PR that fixes a typo in a script is not a lie | Phase 3: rules read from config, each flag shows its evidence, and a stopping point judges them on the kit's history |
 | **Speed on long histories** | A snapshot per merge re-reads every file | Phase 2: parse each blob once, cached by its blob SHA |
@@ -140,8 +140,8 @@ Each phase is a series of <400-line PRs, so CI stays green.
   none ("Output contracts").
 - **Done when:** on the fixture, the changelog matches its golden file; on the kit's repository
   at the copied SHA, with its PRs recorded to a file, `bearing ingest` prints
-  `merges 90  matched 90  unmatched merges 0  unmatched PRs 0  direct 11`, and
-  `bearing changelog | grep -c '^- #'` prints 90. Day 4's closing PR quotes both lines.
+  `merges 91  matched 91  unmatched merges 0  unmatched PRs 0  direct 11`, and
+  `bearing changelog | grep -c '^- #'` prints 91. Day 4's closing PR quotes both lines.
 
 ### Phase 2 — Structure snapshots
 **Goal:** the module and import graph at every merge, and what changed between two merges.
@@ -184,7 +184,7 @@ Each phase is a series of <400-line PRs, so CI stays green.
 
 ## Stopping points
 
-- **Day 4 (Phase 1) is a stopping point.** Is the changelog of the kit's 90 PRs useful enough to
+- **Day 4 (Phase 1) is a stopping point.** Is the changelog of the kit's 91 PRs useful enough to
   go on? If not, stop the project here; that is a valid result for the kit's measurement too.
 - **Day 10 (Phase 3) is a stopping point.** The plan-auditor reads the whole plan against the
   code. Decide whether the page is worth building, and whether Bearing should be proposed to
@@ -198,7 +198,7 @@ Each phase is a series of <400-line PRs, so CI stays green.
   plan-change PR.
 - Applied migrations in `bearing/migrations/` are never edited; a schema change is a new file.
 - Tests never use the network and never run `gh`; they run on `make_repo.py`'s repository and
-  recorded JSON.
+  recorded JSON, or on strings and bytes written in the test for a case the frozen fixture lacks.
 - Output is deterministic: sorted, no time of the run in it.
 - The kit's files in this repository (`scripts/`, `.claude/`, `.github/`, `specs/README.md`) stay
   as copied during the build, except the `PROJECT:` placeholders and the install steps the
@@ -241,6 +241,35 @@ kit's repository). For it to count:
 ## Course corrections
 
 <!-- Added by plan-change PRs, newest first. Empty at the start. -->
+
+### 2026-11-04: after the Phase 0/1 audit
+
+- **The kit has 91 merges, not 90.** The kit was copied at `44d7a55`, the merge of its PR #92;
+  the plan counted to `8a9d53a` (#91), one merge earlier. The count follows the copied SHA, so
+  Phase 1's line and the Day 4 stop now say 91. Direct commits (11), the one unmerged PR (#71),
+  and no squash or fork PR still hold there.
+- **Kit files changed during Day 1, against "Constraints".** Four area-branch PRs changed kit
+  files in this repository instead of in the kit, all merged on 2026-11-04 while the kit's
+  `main` stayed at `44d7a55`:
+  - #4 `scripts/seen-red.py` (and its test): left out code under `tests/` the project file
+    names, so Tracks B and C could be seen red (D01.1; H01.5 carries it to the kit);
+  - #5 `scripts/test_evidence_workflow.py`: the kit's test of the install step that
+    "Constraints" lets the project change;
+  - #7 `scripts/evidence.py` (and its test): the replay compared pytest's run time and failed
+    10 of Day 1's 13 breaks;
+  - #9 `scripts/step-guard.py`, its test and three hooks in `.claude/settings.json`, none in
+    the kit: the step boundary skipped after a "merged" (D01.23, H01.7).
+
+  From that date Bearing's kit files are `44d7a55` plus these four. This is a split in the
+  measurement: their sessions are Bearing's tokens spent on kit work, counted in Day 1. Each is
+  to be made in the kit's repository, outside a Bearing session, and the Day 4 stop's kit-update
+  PR replaces the local copies with that kit SHA. The rule stays: the next kit fault is recorded
+  in the Notes first, and a change here before a stop is a new Course correction.
+- **Two hard cases are not in the fixture.** The fixture is frozen at its pinned HEAD
+  (`tests/contract/test_fixture.py`), and it holds no fork PR and no file with non-UTF-8 bytes,
+  although the hard-parts table said the fork PR was in it and listed non-UTF-8 bytes. Adding them would move the pinned SHA, a contract
+  edit. So Phase 1 tests a fork's merge subject as a string, and Phase 2 tests non-UTF-8 bytes
+  given to the parser; "Constraints" now allows such tests. Neither case is in a golden file.
 
 ## Day-by-day specs
 
