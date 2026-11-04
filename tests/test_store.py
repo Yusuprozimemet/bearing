@@ -1,4 +1,4 @@
-"""Storing the fixture's history: the counts after one ingest, and after a second one into the same store."""
+"""Storing the fixture's history: the counts after one ingest, and after a second one into the same store, which keeps the blob cache."""
 
 import subprocess
 import sys
@@ -57,8 +57,23 @@ class StoreTest(unittest.TestCase):
                     {"commits": 12, "matched": 9, "direct": 2, "prs": 10},
                 )
                 self.assertEqual(
-                    conn.execute("SELECT name FROM schema_migrations").fetchall(),
-                    [("001_history.sql",)],
+                    conn.execute(
+                        "SELECT name FROM schema_migrations ORDER BY rowid"
+                    ).fetchall(),
+                    [("001_history.sql",), ("002_blobs.sql",)],
                 )
                 self.assertTrue((data / "bearing.db").exists())
+                if run == 1:
+                    conn.execute(
+                        "INSERT INTO blobs (sha, lines, imports) VALUES (?, ?, ?)",
+                        ("c" * 40, 3, "[]"),
+                    )
+                    conn.commit()
+                else:
+                    self.assertEqual(
+                        conn.execute(
+                            "SELECT sha, lines, imports FROM blobs"
+                        ).fetchall(),
+                        [("c" * 40, 3, "[]")],
+                    )
                 conn.close()

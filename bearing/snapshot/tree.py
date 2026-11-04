@@ -26,7 +26,14 @@ def _git(repo, *args):
         raise SnapshotError(f"cannot run git in {repo}: {exc.strerror or exc}") from exc
 
 
-def snapshot(repo, ref):
+def _read_blob(repo, objsha):
+    blob = _git(repo, "cat-file", "blob", objsha)
+    if blob.returncode != 0:
+        raise SnapshotError(blob.stderr.decode().strip())
+    return blob.stdout
+
+
+def snapshot(repo, ref, cache=None):
     if _git(repo, "rev-parse", "--git-dir").returncode != 0:
         raise SnapshotError(f"not a git repository: {repo}")
     done = _git(repo, "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}")
@@ -51,18 +58,23 @@ def snapshot(repo, ref):
     modules = []
     imports = {}
     for path, objsha in kept:
-        blob = _git(repo, "cat-file", "blob", objsha)
-        if blob.returncode != 0:
-            raise SnapshotError(blob.stderr.decode().strip())
-        if path not in names:
-            continue
-        found = parse_imports(blob.stdout)
+        if cache is None:
+            data = _read_blob(repo, objsha)
+            if path not in names:
+                continue
+            lines, found = count_lines(data), parse_imports(data)
+        else:
+            if path not in names:
+                continue
+            lines, found = cache.get(
+                objsha, lambda objsha=objsha: _read_blob(repo, objsha)
+            )
         imports[path] = found
         modules.append(
             {
                 "name": names[path],
                 "path": path,
-                "lines": count_lines(blob.stdout),
+                "lines": lines,
                 "parse_error": found is None,
             }
         )
