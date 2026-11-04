@@ -47,7 +47,7 @@
   folder's total from 2026-10-28 to 2026-11-04 is $168.85. Most of it was spent setting up the
   repository before the spec, and the script tags none of that to a day.
 
-### Day 02: Ingest (Phase 1), closed in the closing PR
+### Day 02: Ingest (Phase 1), closed in #17
 
 - **Delivered:** `bearing ingest <repo> --prs <file> [--data DIR]`. It reads the first-parent
   line of `main` (#13) and maps the `gh` records to it, `mergeCommit` first and the merge subject
@@ -87,6 +87,50 @@
   the main session (76 replies, $3.20), the spec-auditor (33 replies, $1.14) and the
   implementer on Haiku (39 replies, $0.04). The folder's total from 2026-10-28 to 2026-11-04 is
   $184.22, counted during the close, so the close's own session is only partly in it.
+
+### Day 03: Changelog (Phase 1), closed in the closing PR
+
+- **Delivered:** `bearing changelog [--since DATE] [--until DATE] [--data DIR]`. A merge's area is
+  its branch up to the first `/`, and its paragraph is the first one under "What I built" in
+  the PR body, or the body's first paragraph (#21). The entries are ingest's `merges`, dated by
+  the merge commit, not the record. They print as `# Changelog` and then one `## <area>` section
+  per area, against the golden file `tests/fixtures/expected/changelog.md` (#22). The command
+  and its contract test came in #23, with two hand-offs from Day 2. Stdout is UTF-8 whatever the
+  code page (H02.2), and an unusable `--data` gives "bearing: ..." and exit 1, not a traceback
+  (H02.3). On the fixture: 10 entries, the ingest line's `merges 10`. `pytest -q`: 30 passed,
+  22 subtests passed.
+- **Criteria:** 9 of 9 ticked: 8 `new` and 1 `hold`.
+- **Breaks on purpose:** 11, all in `specs/breaks/day-03.json`: 1 in #19, 2 in #21, 3 in #22
+  and 5 in #23. Every criterion had one before the close, so the close ran none. All 11
+  `manifest:` lines arrived intact. On Days 1 and 2 some had lost backslashes (D01.21, D02.12,
+  D02.13). The close replayed all 11 in an LF worktree, and each one failed its check.
+- **PRs:** 5 at the day-spec rung: the spec (#19), Tracks A–C (#21–#23) and the close. #20, a
+  `tooling/` PR that added the `human:` line, merged between the spec and Track A.
+- **Defects:** 12 in the Notes.
+
+  | Field | Count |
+  | --- | --- |
+  | found: spec-change PR | 1 |
+  | found: auditor | 9 |
+  | found: Track B | 1 |
+  | found: self | 1 |
+  | cause: spec | 9 |
+  | cause: process | 2 |
+  | cause: environment | 1 |
+
+  Ten of the twelve were in the spec and were fixed before any code: the session's own count
+  (D03.1) and nine spec-auditor findings (D03.2–D03.10). One finding (D03.3) would have let a
+  format that sorted by number pass. Track B's break, which sorts by number, confirmed it: the
+  golden file passes with that break in, and only the out-of-order pair catches it. No track
+  found a spec gap, and the close found no escape. The two defects after the spec PR are an
+  environment one (a corrupt Ruff cache, D03.11) and the close's own (D03.12).
+- **Hand-offs:** H02.2 and H02.3 picked up (C03.7, C03.8). Left: H03.1 (stderr's encoding) and
+  H03.3 (version strings in the text formats) to the maintainer, H03.2 (a broken `bearing.db`)
+  to Day 4, with H02.1 still there.
+- **Tokens:** `docs/dashboard/token-usage.json` tags three rows with Day 3, all on 2026-11-04:
+  the main session (76 replies, $3.67), the spec-auditor (33 replies, $1.43) and the
+  implementer on Haiku (27 replies, $0.04). The folder's total from 2026-10-28 to 2026-11-04 is
+  $197.05, counted during the close, so the close's own session is only partly in it.
 
 ## What is being measured
 
