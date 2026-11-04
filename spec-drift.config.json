@@ -9,5 +9,8 @@
   "frozen": [
     "^tests/contract/",
     "^bearing/migrations/"
+  ],
+  "code_under_tests": [
+    "^tests/fixtures/make_repo\\.py$"
   ]
 }
