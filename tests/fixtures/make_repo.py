@@ -170,9 +170,14 @@ BODIES = {2: BODY_2, 4: "", 9: BODY_9}
 
 
 def git(repo, day, *args):
-    # Every call gets the commit date, so each commit and merge carries the step's date.
+    # Every call gets the commit date, so each commit and merge carries the step's date. The
+    # identity goes in the environment too: GIT_AUTHOR_NAME and the like override user.name.
     env = dict(os.environ)
     env.update(
+        GIT_AUTHOR_NAME="Fixture",
+        GIT_AUTHOR_EMAIL="fixture@example.com",
+        GIT_COMMITTER_NAME="Fixture",
+        GIT_COMMITTER_EMAIL="fixture@example.com",
         GIT_CONFIG_NOSYSTEM="1",
         GIT_ATTR_NOSYSTEM="1",
         GIT_CONFIG_GLOBAL=os.devnull,

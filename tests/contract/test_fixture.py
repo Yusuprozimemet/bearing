@@ -10,7 +10,7 @@ REPO = Path(__file__).resolve().parents[2]
 BUILDER = REPO / "tests" / "fixtures" / "make_repo.py"
 # HEAD of main after the builder's last merge. A change to the builder's history moves it, and
 # every test that reads the history with it.
-HEAD_SHA = "50fdc5c8a204a8263c98a9e347d3bfa47458b163"
+HEAD_SHA = "8c1b9f1b90d3e582590942e15b131cea986d94c3"
 
 
 class FixtureTest(unittest.TestCase):
