@@ -21,7 +21,7 @@ real, messy histories (squash merges, flat script folders, relative imports) and
 | **PR ↔ commit mapping** | The kit's history at the copied SHA (`44d7a55`) has 91 merge commits, 11 direct commits before the first PR, and one PR closed unmerged (#71); it has no squash merge and no fork PR, and neither has wordtally's. The squash merge exists only in the fixture; a fork PR exists in no history Bearing is tested on, the fixture included | Phase 1: `mergeCommit` from `gh` first, the "Merge pull request #N" subject as fallback, an unmatched list reported, never guessed; a direct commit is listed as such, not as an error; a fork's subject ("from other-owner/patch-1") is tested as a string, the fixture being frozen |
 | **Merges out of order, merges with two parents** | PR numbers, `mergedAt` and the first-parent order disagree (a PR opened early and merged late); a merge's diff is against its first parent only | Phase 1: history is the first-parent line of `main`, in that order; every diff is `merge^1..merge`; a PR record whose commit is not on that line is unmatched |
 | **Renames** | A moved file is one module removed and one added unless git pairs them | Phase 2: `git diff -M` pairs them; the timeline prints a rename line; the blob cache is unaffected, the blob SHA is the same |
-| **Import resolution** | Relative imports, `src/` layouts, and flat `scripts/` folders that are not packages | Phase 2: every `.py` file is one module, named by its path from its import root with `.` for `/`, no `.py`, and `__init__.py` named by its package; the root is the repository's, or `src/` in a `src/` layout, and the module map in `bearing.toml` can change it; a flat folder's `import helpers` resolves to the file beside the importer |
+| **Import resolution** | Relative imports, `src/` layouts, and flat `scripts/` folders that are not packages | Phase 2: every `.py` file is one module, named by its path from its import root with `.` for `/`, no `.py`, and `__init__.py` named by its package; the root is the repository's, or `src/` in a `src/` layout (no module map: see the Course correction on Day 7); a flat folder's `import helpers` resolves to the file beside the importer |
 | **Files that will not parse** | A syntax error, non-UTF-8 bytes, CRLF endings | Phase 2: lines are counted on the bytes, imports are empty, the module carries `"parse_error": true`; never a crash. The fixture holds the syntax error and the CRLF file, not non-UTF-8 bytes: that case is tested on bytes given to the parser |
 | **PR text that is not the template** | An empty body, no "What I built" heading, a heading spelt differently | Phase 1: the first paragraph of the body is the fallback; an empty body gives an empty entry, never a missing PR |
 | **False flags in "said vs done"** | A `docs/` PR that fixes a typo in a script is not a lie | Phase 3: rules read from config, each flag shows its evidence, and a stopping point judges them on the kit's history |
@@ -92,14 +92,14 @@ bearing/
   ingest/           # git merges, gh PR records, the mapping between them
   store/            # SQLite access
   migrations/       # 001_*.sql ...; applied ones are frozen
-  snapshot/         # module map, import graph, blob cache, snapshot diff
+  snapshot/         # module names, import graph, blob cache, snapshot diff
   direction/        # churn, co-change coupling, said-vs-done rules
   page/             # static HTML timeline
 tests/
   contract/         # golden-file tests of every output format; frozen
   fixtures/         # make_repo.py, recorded gh JSON, expected outputs
   ...               # unit tests per package
-bearing.toml.example  # areas → paths, module map, rule settings for a target repository
+bearing.toml.example  # areas → paths, rule settings for a target repository
 ```
 
 ## Phases
@@ -154,7 +154,7 @@ Each phase is a series of <400-line PRs, so CI stays green.
 - A blob cache, so each file version is parsed once across the whole history.
 - `bearing timeline`: one line per merge that changed structure: module added or removed, import
   edge added or removed, a cycle introduced or broken, a module that grew past a set size.
-- **Done when:** the fixture's snapshots and timeline match their golden files; on the kit's
+- **Done when:** the fixture's snapshot at `448fc4d` and its timeline match their golden files; on the kit's
   and wordtally's full histories, `bearing timeline` exits 0, and `bearing timeline --stats`
   prints `blobs parsed 0  cache hits N` on its second run, N equal to the first run's
   `blobs parsed`. Day 7's closing PR quotes the two lines for each repository.
@@ -193,7 +193,7 @@ Each phase is a series of <400-line PRs, so CI stays green.
 - **Day 10 (Phase 3) is a stopping point.** The plan-auditor reads the whole plan against the
   code. Decide whether the page is worth building, and whether Bearing should be proposed to
   the kit (a kit decision, made in the kit's own repository, not here). If the schedule has
-  slipped, co-change coupling is the next cut, then cycle detection in the timeline.
+  slipped, co-change coupling is the next cut.
 
 ## Constraints
 
@@ -337,6 +337,29 @@ The Day 4 stop (H04.1), recorded in the kit-update PR (#30).
   although the hard-parts table said the fork PR was in it and listed non-UTF-8 bytes. Adding them would move the pinned SHA, a contract
   edit. So Phase 1 tests a fork's merge subject as a string, and Phase 2 tests non-UTF-8 bytes
   given to the parser; "Constraints" now allows such tests. Neither case is in a golden file.
+
+### 2026-11-04: Course correction on Day 7: no module map
+
+- **The module map in `bearing.toml` is cut.** "Import resolution" let a map in `bearing.toml`
+  change a module's import root. Day 5 left it to Day 7 (H05.6): if the kit's and wordtally's
+  histories need no map, a plan-change PR may cut it. Neither does. At the kit's `c12cfe5` and
+  at wordtally's `e1d15e9`, 15 imports name a top-level folder or a `.py` file's name of the
+  same repository, or are relative (6 in the kit, 9 in wordtally); 14 resolve to an edge
+  without a map. The one that does not is wordtally's `experiments/jev/e1/build.py` importing
+  `evidence`, which it reaches through a `sys.path` edit. A map that resolved it would make
+  `scripts/` an import root and rename every `scripts.*` module. The kit's tests load their
+  hyphenated scripts with `importlib`, which no map can reach. The maintainer chose the cut.
+  Modules keep the names "Import resolution" gives them, and Phase 2 reads no `bearing.toml`.
+- **Where `bearing.toml` is read from is now Phase 3's question.** Phase 3 is the first phase
+  to read the file, for its areas and rules. The target repository is read-only, so Day 8
+  decides the file's location (H07.1).
+- **Cycle detection is no longer a cut.** The Day 10 stop named it as the cut after co-change
+  coupling, and Day 7 builds it (`cycle+`, `cycle-`), so the stop now names coupling alone (Day
+  5's H05.1, which was left to the maintainer and never picked up).
+- **One snapshot golden file.** Phase 2's "Done when" asked that the fixture's "snapshots" match
+  their golden files. Day 5 wrote one, `snapshot-448fc4d.json`, and no day was given more. A
+  snapshot of every merge is checked through the timeline's golden file, which is built from
+  them. "Done when" now names the one snapshot.
 
 ## Day-by-day specs
 
