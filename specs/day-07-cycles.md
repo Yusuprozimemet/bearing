@@ -130,7 +130,7 @@ close.
 ## Acceptance criteria
 Tick each box in the closing PR once its evidence is in it; under a box left unticked, write
 `Not proven: <why>` (`specs/README.md`, "Evidence at the close").
-- [ ] C07.1 **new** — `structure_events(old, new, renames)` on snapshots written in the test,
+- [x] C07.1 **new** — `structure_events(old, new, renames)` on snapshots written in the test,
       each module `{"name": <name>, "path": "<name>.py", "lines": <n>, "parse_error": False}`:
       `old` with `a`, `b`, `c`, `d`, `e`, `m`, `x`, `y`, `z` at 10 lines, `g1` at 200, `g2`
       at 199, `g3` at 201, `g4` at 150, and the imports `[["a", "b"], ["d", "e"], ["e", "d"],
@@ -152,14 +152,22 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       does not. Red today: the list has the first ten and lacks the six `cycle` and `grew`
       items ("Second list contains 6 additional elements").
       Test: `tests/test_diff.py::StructureEventsTest::test_cycles_and_growth`
-- [ ] C07.2 **new** — the timeline's contract: on the fixture, after `python -m bearing ingest
+      Evidence: `StructureEventsTest.test_cycles_and_growth` (#45), seen red first on
+      `9e253f6`'s code with "Second list contains 6 additional elements"; `python -m pytest -q`
+      (#45).
+      broken: diff.py: old cycles taken before the rename rule → 1 failed in 0.09s (#45)
+- [x] C07.2 **new** — the timeline's contract: on the fixture, after `python -m bearing ingest
       <dir>/repo --prs <dir>/prs.json --data <tmp>`, `python -m bearing timeline <dir>/repo
       --data <tmp>` exits 0 and its stdout's bytes equal those of
       `tests/fixtures/expected/timeline.txt`, which holds exactly the 21 lines of "What the
       fixture gives", `\r\n` read as `\n` on both sides. Red today: stdout lacks lines 13, 15
       and 21, so the bytes differ.
       Test: `tests/contract/test_timeline.py::TimelineContractTest::test_golden`
-- [ ] C07.3 **new** — `TimelineCliTest`'s `LINES` is the 21 lines, so `test_lines` (C06.5)
+      Evidence: `TimelineContractTest.test_golden` (#45), seen red first on `9e253f6`'s code:
+      the bytes differ, first at line 13, `00394fb #3 cycle+ app.a > app.b > app.a`, which
+      stdout lacks; `python -m pytest -q` (#45).
+      broken: diff.py: the cycle line without its first name repeated → 1 failed in 7.66s (#45)
+- [x] C07.3 **new** — `TimelineCliTest`'s `LINES` is the 21 lines, so `test_lines` (C06.5)
       and `test_stats` (C06.6) pass on the new code, the `#-` variant of #8's lines and the
       `--stats` counts unchanged ("blobs parsed 28  cache hits 0", then "blobs parsed 0  cache
       hits 28" twice). Red today: stdout is Day 6's 18 lines, not 21.
@@ -167,7 +175,11 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       `tests/test_timeline_cli.py::TimelineCliTest::test_stats`
       Replaces: C06.5 — was: stdout is exactly the 18 lines of Day 6's "What the fixture gives"
       Replaces: C06.6 — was: the 18 lines on stdout
-- [ ] C07.4 **hold** — Phase 2's "Done when" on the target histories: for each of
+      Evidence: `TimelineCliTest.test_lines` and `TimelineCliTest.test_stats` (#45), each seen
+      red first on `9e253f6`'s code: stdout's bytes are Day 6's 18 lines, without line 13
+      (`00394fb #3 cycle+ app.a > app.b > app.a`); `python -m pytest -q` (#45).
+      broken: diff.py: grew fires while a module stays above 200 → 1 failed in 8.38s (#45)
+- [x] C07.4 **hold** — Phase 2's "Done when" on the target histories: for each of
       `../agentic-workflow-kit` and `../wordtally`, after `python -m bearing ingest <repo> --data
       <d>` into a new directory `<d>`, `python -m bearing timeline <repo> --data <d> --stats`
       run twice exits 0 both times, and the second run's stderr is "blobs parsed 0  cache hits
@@ -176,8 +188,13 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       ("What the kit and wordtally give"). The close also breaks the check once by hand, not
       replayed: C06.6's break ("cli.py: the cache is not committed") put in, the kit's second
       run must print "blobs parsed 204", and the Notes quote what it printed.
+      Evidence: run by hand at the close on `8e90f74`, each into a new data directory. The kit
+      at `c12cfe55018aebe82de83485460f1edd22e4c96b`: "blobs parsed 204  cache hits 0", then
+      "blobs parsed 0  cache hits 204", both exit 0. wordtally at
+      `e1d15e9bbe5067bf4b0cc67f0bb65f7cf52f5dab`: "blobs parsed 94  cache hits 0", then "blobs
+      parsed 0  cache hits 94", both exit 0. The hand break is quoted in the Notes.
       broken: none → the check needs the two clones, which CI's replay does not have, so a break of it cannot be replayed; the cache's counting is broken on the fixture by C06.6's "cli.py: the cache is not committed" (#42)
-- [ ] C07.5 **hold** — the frozen files stay as Day 6 left them, added files allowed: the
+- [x] C07.5 **hold** — the frozen files stay as Day 6 left them, added files allowed: the
       fixture, the contract tests and their golden files, the migrations, and the snapshot and
       cache tests:
       `git -c core.safecrlf=false diff --diff-filter=DMRT --exit-code 8abee85 -- tests/contract/ tests/fixtures/make_repo.py tests/fixtures/expected/ bearing/migrations/ tests/test_snapshot_tree.py tests/test_snapshot_cli.py tests/test_blob_cache.py`
@@ -185,7 +202,9 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       `tests/contract/test_timeline.py` and `tests/fixtures/expected/timeline.txt`, and fails
       on a file deleted, modified, renamed or changed in type; CI's "Frozen files stay
       unedited" also passes an added file.
-      broken: the applied migration 001_history.sql edited → subject_number INTEGER NULL,
+      Evidence: the command above, exit 0 in #44 and #45 and on `8e90f74` at the close; CI's
+      "Frozen files stay unedited" on #44 and #45.
+      broken: the applied migration 001_history.sql edited → subject_number INTEGER NULL, (#44)
 
 ## Verify
 ```bash
@@ -230,11 +249,34 @@ they are not in Verify: the close runs them by hand and quotes them.
   judged by its exit code alone and passed on today's 18 lines; it now counts two of the new
   lines (`# 2`), and prints 0 today.
 - **Defect** D07.4 — found: auditor · cause: spec · made: Day 07 · C07.4's check was never seen to
-  fail: C06.6's break is on another check. The close now breaks it by hand on the kit.
+  fail: C06.6's break is on another check. The spec-auditor found this before any code, and
+  the spec now has the close break it by hand on the kit.
 - **Defect** D07.5 — found: auditor · cause: spec · made: Day 05 · plan.md's Day 10 stop still
   listed cycle detection as a cut, though Day 7 builds it (H05.1, never picked up), and Phase
   2's "Done when" asked for golden files of "snapshots" while Day 5 wrote one. This spec's plan
   change corrects both.
+- At the close, on `8e90f74`: `python -m pytest -q` gave "56 passed, 51 subtests passed", the
+  count above. Verify's `grep -c` printed 2, and C07.5's diff exited 0. All 4 `manifest:`
+  lines parsed as JSON (1 in #44, 3 in #45), and each `find` occurs once in the merged code. I
+  replayed each with `scripts/break.py` on `main`, and each failed its check. I ran `main`'s
+  new tests on track A's base code (`9e253f6`) in a scratch worktree: "4 failed", each red as
+  the spec says.
+- C07.4 at the close, each clone's `main` as the spec gives it, a new data directory for each:
+  the kit printed the same 42 lines on both runs (6 `grew`, no `cycle`), in 24 s, then 17 s;
+  wordtally printed 29 (5 `grew`, no `cycle`), in 12 s, then 11 s. Neither clone's
+  `git status` changed. The hand break, not replayed: C06.6's break (`conn.commit()` in
+  `bearing/cli.py` replaced by `pass`), then a new ingest of the kit and two runs. Both exited
+  0, and the second printed "blobs parsed 204  cache hits 0", not "blobs parsed 0  cache hits
+  204", so the check failed with the break in. The file's bytes were put back, and
+  `git status` was clean after it.
+- No defect was found in track A or at the close: the five above are all the spec-auditor's.
+- The blind relabel at the close agreed on 3 of 5 stages, 4 of 5 causes and 5 of 5 `made:`. On
+  D07.4 the rater answered "unclear" for the stage, with low confidence, and `process` for the
+  cause. It keeps `found: auditor`, and its text now says the spec-auditor found it before any
+  code. It keeps `spec` too, because the missing break was a gap in the criterion as written,
+  and the spec fixed it. On D07.5 the rater gave "before code" where the tag reads as an
+  escape. The tag stays: Day 5 made the defect and it got past Day 5's close, though Day 7
+  found it before any code.
 - **Hand-off** H07.1 → Day 8: where `bearing.toml` is read from. The target repository is
   read-only (plan.md, "Decisions"), and Phase 3 is the first phase to read the file, for its
   areas and rules (plan.md, Course correction on Day 7).

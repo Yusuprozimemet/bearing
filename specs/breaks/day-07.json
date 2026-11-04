@@ -1,0 +1,64 @@
+[
+  {
+    "what": "the applied migration 001_history.sql edited",
+    "file": "bearing/migrations/001_history.sql",
+    "find": "committed_at TEXT NOT NULL",
+    "replace": "committed_at TEXT",
+    "command": [
+      "git",
+      "-c",
+      "core.safecrlf=false",
+      "diff",
+      "--diff-filter=DMRT",
+      "--exit-code",
+      "8abee85",
+      "--",
+      "tests/contract/",
+      "tests/fixtures/make_repo.py",
+      "tests/fixtures/expected/",
+      "bearing/migrations/",
+      "tests/test_snapshot_tree.py",
+      "tests/test_snapshot_cli.py",
+      "tests/test_blob_cache.py"
+    ]
+  },
+  {
+    "what": "diff.py: old cycles taken before the rename rule",
+    "file": "bearing/snapshot/diff.py",
+    "find": "old_cycles = _cycles(old_edges)",
+    "replace": "old_cycles = _cycles({tuple(e) for e in old['imports']})",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_diff.py::StructureEventsTest::test_cycles_and_growth"
+    ]
+  },
+  {
+    "what": "diff.py: the cycle line without its first name repeated",
+    "file": "bearing/snapshot/diff.py",
+    "find": "return \" > \".join(cycle + (cycle[0],))",
+    "replace": "return \" > \".join(cycle)",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/contract/test_timeline.py"
+    ]
+  },
+  {
+    "what": "diff.py: grew fires while a module stays above 200",
+    "file": "bearing/snapshot/diff.py",
+    "find": "and old_length <= GREW_LINES",
+    "replace": "and old_length <= 10**9",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_timeline_cli.py::TimelineCliTest::test_lines"
+    ]
+  }
+]
