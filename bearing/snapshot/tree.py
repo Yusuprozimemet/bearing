@@ -1,4 +1,4 @@
-"""The Python files of one commit, read from git's object store: names, line counts and import edges."""
+"""The Python files of one commit, read from git's object store: names, line counts and import edges, and the renames between two commits."""
 
 import subprocess
 
@@ -85,3 +85,31 @@ def snapshot(repo, ref, cache=None):
         "modules": modules,
         "imports": import_edges(imports, names),
     }
+
+
+def renamed_paths(repo, old_sha, new_sha):
+    # Read-only, as snapshot is. -M finds the renames; -z keeps a path with odd bytes unquoted.
+    done = _git(
+        repo, "diff", "--no-ext-diff", "-M", "--name-status", "-z", old_sha, new_sha
+    )
+    if done.returncode != 0:
+        raise SnapshotError(done.stderr.decode().strip())
+    # Each entry is a status, then one path, or two for an R or C entry; empty fields are the ends.
+    fields = [field for field in done.stdout.split(b"\0") if field]
+    pairs = []
+    index = 0
+    while index < len(fields):
+        status = fields[index][:1]
+        if status in (b"R", b"C"):
+            old, new = fields[index + 1], fields[index + 2]
+            index += 3
+            if status == b"R":
+                pairs.append(
+                    (
+                        old.decode("utf-8", errors="surrogateescape"),
+                        new.decode("utf-8", errors="surrogateescape"),
+                    )
+                )
+        else:
+            index += 2
+    return sorted(pairs)
