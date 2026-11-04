@@ -5,6 +5,7 @@ changes the test or the module in the working tree and runs seen-red.py there as
 
     python scripts/test_seen_red.py
 """
+import importlib.util
 import os
 import shutil
 import subprocess
@@ -126,8 +127,11 @@ class SeenRedTest(unittest.TestCase):
         self.addCleanup(shutil.rmtree, venv, True)
         subprocess.run([sys.executable, "-m", "venv", "--system-site-packages", venv], check=True)
         python = os.path.join(venv, "Scripts" if os.name == "nt" else "bin", "python")
-        subprocess.run([python, "-m", "pip", "install", "-q", "--no-deps", "--no-build-isolation", "-e", self.dir],
-                       check=True, capture_output=True)
+        # Offline when setuptools is at hand; a runner's bare Python has none, and pip fetches it.
+        isolation = ["--no-build-isolation"] if importlib.util.find_spec("setuptools") else []
+        installed = subprocess.run([python, "-m", "pip", "install", "-q", "--no-deps", *isolation, "-e", self.dir],
+                                   capture_output=True, text=True)
+        self.assertEqual(installed.returncode, 0, installed.stdout + installed.stderr)
         self.write("pkg/extra/__init__.py", "def triple(x):\n    return x * 3\n")
         self.write("tests/test_extra.py", "import unittest\n\nclass E(unittest.TestCase):\n"
                                           "    def test_it(self):\n        from pkg.extra import triple\n"
