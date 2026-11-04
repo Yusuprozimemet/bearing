@@ -18,7 +18,7 @@
   three area branches fixed kit tooling: seen-red copied the code under test into the base
   (#4), the evidence workflow's install test (#5), and the replay compared pytest's run time
   (#7).
-- **Defects:** 23 in the Notes.
+- **Defects:** 24 in the Notes (D01.24 added after the close, in `tooling/step-guard`).
 
   | Field | Count |
   | --- | --- |
@@ -27,9 +27,9 @@
   | found: Track C | 1 |
   | found: close | 2 |
   | found: self | 1 |
-  | found: review | 1 |
+  | found: review | 2 |
   | cause: spec | 15 |
-  | cause: process | 5 |
+  | cause: process | 6 |
   | cause: environment | 3 |
 
   The spec-auditor found 11 of the 17 auditor defects (D01.7–D01.17) in the draft spec, before
@@ -38,7 +38,10 @@
   step in the same context. CLAUDE.md states the rule, and it was skipped anyway. The
   maintainer rejected a fix in the session's private memory: other users of the kit would never
   see it, and it would hide the gap from the measurement. The fix goes in the repository as a
-  hook (H01.7).
+  hook (H01.7). One merge later it happened again (D01.24): after #8's "merged" the session
+  launched the end-of-phase auditors in the same context, reading step 6's "after step 5" as
+  leave to go on. Prose alone held neither time; `scripts/step-guard.py` now refuses new work
+  after a "merged" until a new session.
 - **Tokens:** `docs/dashboard/token-usage.json` tags two rows with Day 1, both on 2026-11-04:
   the main session (92 replies, $5.15) and the implementer on Haiku (31 replies, $0.08). The
   folder's total from 2026-10-28 to 2026-11-04 is $168.85. Most of it was spent setting up the

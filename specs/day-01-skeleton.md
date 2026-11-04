@@ -343,3 +343,12 @@ grep -c -E '^\s+run: (pytest -q|ruff check \. && ruff format --check \.)\s*$' .g
   `git commit` and `gh pr create`. A new session or `/compact` clears the marker. CLAUDE.md's
   step 5 names `tooling/` and spec-change merges as boundaries too. Build it in a `tooling/` PR in
   a fresh session after this close, and copy it into the kit at a stop.
+- **Defect** D01.24 — found: review · cause: process · made: Day 01 · after #8's "merged" (in a
+  session just `/compact`ed), the session checked the evidence and ran `spec-drift.py`, then
+  launched the end-of-phase plan-auditors on Phase 0 and Phase 1 in the same context instead of
+  telling the maintainer to start a new session. CLAUDE.md's step 6 began "after step 5", which
+  the session read as leave to go on. The maintainer stopped it. The same failure as D01.23 one
+  merge later, with D01.23 and H01.7 already in the Notes: prose alone did not hold. The hook
+  H01.7 asked for, built at once on the maintainer's order rather than in a fresh session, is
+  `scripts/step-guard.py` (`tooling/step-guard`); it refuses subagents too, and step 6 now
+  starts "in a new session".
