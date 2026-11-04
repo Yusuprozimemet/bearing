@@ -1,0 +1,8 @@
+[areas]
+app = ["app/"]
+lib = ["src/"]
+tooling = ["scripts/", "ci.txt"]
+docs = ["docs/", "README.md"]
+
+[coupling]
+min_prs = 3

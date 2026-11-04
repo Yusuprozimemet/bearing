@@ -1,4 +1,4 @@
-"""The command line: --version, ingest (stores a repository's history and PRs), changelog (prints it), snapshot (prints a repository's modules and imports at one commit) and timeline (prints what each merge changed in the structure)."""
+"""The command line: --version, ingest (stores a repository's history and PRs), changelog (prints it), snapshot (prints a repository's modules and imports at one commit), timeline (prints what each merge changed in the structure) and direction (prints churn by area and week and the files that change together)."""
 
 import argparse
 import datetime
@@ -8,6 +8,8 @@ import sys
 from pathlib import Path
 
 from bearing import __version__
+from bearing.direction.config import ConfigError, load_config
+from bearing.direction.report import direction_report
 from bearing.ingest.changelog import format_changelog, read_entries
 from bearing.ingest.gh import GhError, fetch_prs
 from bearing.ingest.history import GitError, read_first_parent
@@ -75,6 +77,33 @@ def _timeline(args) -> int:
     return 0
 
 
+def _direction(args) -> int:
+    # The config is read first, so a missing or broken one is an error whatever the store holds.
+    try:
+        areas, min_prs = load_config(args.config)
+    except ConfigError as exc:
+        return _fail(str(exc))
+    # Never creates the store, as timeline: a missing file is an error.
+    db = Path(args.data) / "bearing.db"
+    if not db.is_file():
+        return _fail(f"no store at {db}: run bearing ingest first")
+    conn = None
+    try:
+        conn = sqlite3.connect(db)
+        # All lines are computed before any is printed, so an error prints nothing on stdout.
+        lines = direction_report(args.repo, conn, areas, min_prs)
+    except SnapshotError as exc:
+        return _fail(str(exc))
+    except sqlite3.Error as exc:
+        return _fail(f"cannot read store at {db}: {exc}")
+    finally:
+        if conn is not None:
+            conn.close()
+    for line in lines:
+        sys.stdout.write(f"{line}\n")
+    return 0
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="bearing")
     parser.add_argument("--version", action="version", version=f"bearing {__version__}")
@@ -102,6 +131,13 @@ def main(argv=None) -> int:
     tl.add_argument("repo")
     tl.add_argument("--data", default=".bearing")
     tl.add_argument("--stats", action="store_true")
+    direction = subparsers.add_parser(
+        "direction",
+        help="print churn by area and week and the files that change together",
+    )
+    direction.add_argument("repo")
+    direction.add_argument("--data", default=".bearing")
+    direction.add_argument("--config", default="bearing.toml")
     args = parser.parse_args(argv)
     # Output is UTF-8 whatever the console's code page; a stream without reconfigure (a test's
     # StringIO) is left as it is. Parsing comes first, so --version never touches the stream.
@@ -113,6 +149,8 @@ def main(argv=None) -> int:
         return _snapshot(args)
     if args.command == "timeline":
         return _timeline(args)
+    if args.command == "direction":
+        return _direction(args)
     if args.command != "ingest":
         return 0
 
