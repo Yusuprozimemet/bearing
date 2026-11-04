@@ -142,7 +142,7 @@ exist. C08.8 is `hold` and owned by this spec's PR, which ran its check and brea
 ## Acceptance criteria
 Tick each box in the closing PR once its evidence is in it; under a box left unticked, write
 `Not proven: <why>` (`specs/README.md`, "Evidence at the close").
-- [ ] C08.1 **new** — `load_config` on a file written in the test with `[areas]` `docs =
+- [x] C08.1 **new** — `load_config` on a file written in the test with `[areas]` `docs =
       ["docs/", "README.md"]`, `app = ["app/"]`, `deep = ["app/sub/"]` and `[coupling] min_prs
       = 2` returns the areas `[("docs", ("docs/", "README.md")), ("app", ("app/",)), ("deep",
       ("app/sub/",))]` in that order and `min_prs` 2; the same file without `[coupling]` gives
@@ -154,7 +154,11 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       `bearing.direction.config` fails ("No module named 'bearing.direction'").
       Test: `tests/test_config.py::ConfigTest::test_areas_and_threshold` and
       `tests/test_config.py::ConfigTest::test_errors`
-- [ ] C08.2 **new** — `parse_numstat(b"3\t1\tapp/a.py\x00-\t-\tlogo.png\x000\t0\t\x00scripts/helpers.py\x00scripts/tools.py\x00")`
+      Evidence: `ConfigTest.test_areas_and_threshold` and `ConfigTest.test_errors` (#48), each
+      seen red first on `ce40fbc`'s code with "No module named 'bearing.direction'";
+      `python -m pytest -q` (#48).
+      broken: load_config accepts min_prs = true → 1 failed, 1 passed, 6 subtests passed in 0.09s (#48)
+- [x] C08.2 **new** — `parse_numstat(b"3\t1\tapp/a.py\x00-\t-\tlogo.png\x000\t0\t\x00scripts/helpers.py\x00scripts/tools.py\x00")`
       returns `[("app/a.py", 3, 1), ("logo.png", 0, 0), ("scripts/tools.py", 0, 0)]`; and on
       the fixture, `changed_files(<dir>/repo, <#8's merge, fde93a4>)` returns
       `[("app/extra.py", 5, 0), ("app/legacy.py", 0, 3), ("scripts/run.py", 1, 1),
@@ -162,7 +166,11 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       `SnapshotError`. Red today: the import of `bearing.direction.changes` fails.
       Test: `tests/test_changes.py::ChangesTest::test_parse_numstat` and
       `tests/test_changes.py::ChangesTest::test_fixture_merge`
-- [ ] C08.3 **new** — `churn` on `[("2025-12-29T10:00:00+00:00", [("app/a.py", 2, 1),
+      Evidence: `ChangesTest.test_parse_numstat` and `ChangesTest.test_fixture_merge` (#48),
+      each seen red first on `ce40fbc`'s code with "No module named 'bearing.direction'";
+      `python -m pytest -q` (#48).
+      broken: parse_numstat keeps a rename's old path → 1 failed in 4.51s (#48)
+- [x] C08.3 **new** — `churn` on `[("2025-12-29T10:00:00+00:00", [("app/a.py", 2, 1),
       ("docs/x.md", 1, 0)]), ("2026-01-02T23:00:00+00:00", [("app/b.py", 3, 0)]),
       ("2027-01-01T00:00:00+00:00", [("z.txt", 0, 4)]), ("2026-01-05T08:00:00+00:00",
       [("docs/y.md", 0, 0)])]` with the areas `app = ["app/"]`, `docs = ["docs/"]` returns
@@ -172,25 +180,37 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       its week still makes its row; rows come sorted, whatever the input's order. Red today: the
       import of `bearing.direction.churn` fails.
       Test: `tests/test_churn.py::ChurnTest::test_weeks_and_areas`
-- [ ] C08.4 **new** — `coupling([(1, ["x/a", "y/b", "x/c"]), (3, ["x/a", "y/b"]), (2, ["x/a",
+      Evidence: `ChurnTest.test_weeks_and_areas` (#48), seen red first on `ce40fbc`'s code with
+      "No module named 'bearing.direction'"; `python -m pytest -q` (#48).
+      broken: churn labels the week with the calendar year, not the ISO year → 1 failed in 0.08s (#48)
+- [x] C08.4 **new** — `coupling([(1, ["x/a", "y/b", "x/c"]), (3, ["x/a", "y/b"]), (2, ["x/a",
       "x/c"]), (4, ["y/b", "x/a"]), (4, ["x/a", "y/b"])], [("x", ("x/",)), ("y", ("y/",))], 2)`
       returns exactly `[("x/a", "x/c", [1, 2], "x", "x"), ("x/a", "y/b", [1, 3, 4], "x",
       "y")]`: PR 4, listed twice, counts once, and its unsorted paths make the same pair; with
       `min_prs` 4 it returns `[]`. Red today: the import of `bearing.direction.coupling` fails.
       Test: `tests/test_coupling.py::CouplingTest::test_pairs`
-- [ ] C08.5 **new** — on the fixture, after `python -m bearing ingest <dir>/repo --prs
+      Evidence: `CouplingTest.test_pairs` (#50), seen red first on `454a13b`'s code with "No
+      module named 'bearing.direction.coupling'"; `python -m pytest -q` (#50).
+      broken: coupling keeps pairs above min_prs, not at it → 1 failed in 0.08s (#50)
+- [x] C08.5 **new** — on the fixture, after `python -m bearing ingest <dir>/repo --prs
       <dir>/prs.json --data <tmp>`, `python -m bearing direction <dir>/repo --data <tmp>
       --config tests/fixtures/bearing.toml` exits 0, stderr empty, and its stdout's bytes are
       exactly the 23 lines of "What the fixture gives", each ending `\n`. Red today: argparse
       rejects the subcommand ("invalid choice: 'direction'"), exit 2.
       Test: `tests/test_direction_cli.py::DirectionCliTest::test_fixture_report`
-- [ ] C08.6 **new** — the same run with a copy of the fixture's toml at `min_prs = 2`, written
+      Evidence: `DirectionCliTest.test_fixture_report` (#50), seen red first on `454a13b`'s
+      code: exit 2, "invalid choice: 'direction'"; `python -m pytest -q` (#50).
+      broken: churn reads the root commit too → 1 failed in 6.98s (#50)
+- [x] C08.6 **new** — the same run with a copy of the fixture's toml at `min_prs = 2`, written
       in the test, prints the three Coupling rows of "What the fixture gives" in that order, the
       Churn section unchanged; at `min_prs = 4` no row follows the Coupling table's separator
       line "|---|---|---|---|": the output ends there, or the next line is blank. Red today: as
       C08.5.
       Test: `tests/test_direction_cli.py::DirectionCliTest::test_threshold`
-- [ ] C08.7 **new** — `bearing direction` exits 1 with nothing on stdout and stderr exactly:
+      Evidence: `DirectionCliTest.test_threshold` (#50), seen red first on `454a13b`'s code:
+      exit 2, "invalid choice: 'direction'"; `python -m pytest -q` (#50).
+      broken: the report ignores the config's min_prs → 1 failed in 7.30s (#50)
+- [x] C08.7 **new** — `bearing direction` exits 1 with nothing on stdout and stderr exactly:
       "bearing: no config at <path>: pass --config FILE" for a `--config` that does not exist;
       a line starting "bearing: cannot read config <path>: " for a file holding `[areas`;
       "bearing: no store at <tmp>/bearing.db: run bearing ingest first" with the fixture's toml
@@ -198,13 +218,20 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       `--config` and no `--data`, run in an empty working directory, "bearing: no config at
       bearing.toml: pass --config FILE", the config read before the store. Red today: as C08.5.
       Test: `tests/test_direction_cli.py::DirectionCliTest::test_errors`
-- [ ] C08.8 **hold** — the frozen files stay as Day 7 left them, added files allowed outside
+      Evidence: `DirectionCliTest.test_errors` (#50), seen red first on `454a13b`'s code: exit
+      2, "invalid choice: 'direction'"; `python -m pytest -q` (#50).
+      broken: direction creates an empty store before its check → 1 failed in 7.16s (#50)
+- [x] C08.8 **hold** — the frozen files stay as Day 7 left them, added files allowed outside
       the migrations: `git -c core.safecrlf=false diff --diff-filter=DMRT --exit-code 43d5012 --
       tests/contract/ tests/fixtures/make_repo.py tests/fixtures/expected/` and
       `git -c core.safecrlf=false diff --exit-code 43d5012 -- bearing/migrations/` print
       nothing and exit 0. The second has no filter: the day adds no migration (plan.md, Course
       correction before Phase 3, item 5). It sees an added migration only once it is committed
       (in a PR, and at replay), not an untracked file, so its break edits an applied one.
+      Evidence: both commands above, exit 0 and nothing printed in #47, #48 and #50 and on
+      `5618d9c` at the close; CI's "Frozen files stay unedited" on #47, #48 and #50.
+      broken: the applied migration 001_history.sql edited → ); (#47)
+      broken: make_repo.py: the root commit's subject changed → # The outer branch's own commit takes the side PR's day. (#47)
 
 ## Verify
 ```bash
@@ -234,12 +261,14 @@ git -c core.safecrlf=false diff --exit-code 43d5012 -- bearing/migrations/
   end at the Coupling separator, which Day 9's section would break with no `Replaces:` for it;
   reworded in this PR.
 - **Defect** D08.7 — found: auditor · cause: spec · made: Day 08 · the spec gave no test count
-  for the day's end; the Notes now say "65 passed".
+  for the day's end; the spec-auditor found this before any code, and the Notes now say "65
+  passed".
 - **Defect** D08.8 — found: auditor · cause: spec · made: Day 07 · plan.md's Day 10 stop still
   named coupling as the next cut; Day 7's Course correction dropped only cycle detection from
   it (H05.1). Fixed in this PR's plan change.
 - **Defect** D08.9 — found: auditor · cause: spec · made: none · plan.md's "Target structure"
-  lists `bearing.toml.example`, which no day owned; given to Day 9 in H08.1.
+  lists `bearing.toml.example`, which no day owned; the spec-auditor found this before any
+  code, and it is given to Day 9 in H08.1.
 - **Defect** D08.1 — found: auditor · cause: spec · made: none · plan.md used "area" for a PR's
   branch prefix and for `bearing.toml`'s path areas, and the fixture's coupling pair changes
   only in `day-NN` PRs, so no branch area could put it apart; settled in this PR's Course
@@ -257,6 +286,31 @@ git -c core.safecrlf=false diff --exit-code 43d5012 -- bearing/migrations/
   C08.3 put its 0-and-0 file in a week and area that already had a row, so the case "a 0-and-0
   file still makes its row" could not fail; it now has a week of its own. Fixed in this PR
   before the audit.
+- **Defect** D08.10 — found: Track A · cause: environment · made: none · `scripts/seen-red.py`
+  reported track A's 5 new tests as passing on `main`, and so did CI's "Track tests seen red":
+  the editable install's finder served the new `bearing.direction` subpackage from the working
+  tree to the scratch worktree of the base. #48 recorded its seen red with the stash fallback
+  instead; `tooling/seen-red-editable-finder` (#49) drops the finder, and with `main` merged in,
+  #48's check passed.
+- **Defect** D08.11 — found: self · cause: process · made: Day 08 · in #50, the first try at
+  C08.7's break gave `scripts/break.py` a multi-line `--find`, which the CRLF working tree's
+  `bearing/cli.py` holds 0 times; `break.py` refused it, nothing was applied, and the rerun used
+  a one-line anchor.
+- At the close, on `5618d9c`: `python -m pytest -q` gave "65 passed, 58 subtests passed", the
+  count above. Verify's `grep -c` printed 2, and both of C08.8's diffs exited 0. All 9
+  `manifest:` lines parsed as JSON (2 in #47, 3 in #48, 4 in #50), and each `find` occurs once
+  in the merged code. I replayed each with `scripts/break.py` on `main`, and each failed its
+  check. `python scripts/seen-red.py --base ce40fbc` on track A's three test files reported "5
+  failed", and `--base 454a13b` on track B's two "4 failed": with #49 in, the tool now sees
+  track A's change. Each red text was the spec's: "No module named 'bearing.direction'" for
+  C08.1 to C08.3, "No module named 'bearing.direction.coupling'" for C08.4, and "invalid
+  choice: 'direction'" for C08.5 to C08.7.
+- The blind relabel at the close agreed on 8 of 11 stages, 11 of 11 causes and 11 of 11
+  `made:`. On D08.7 and D08.9 the rater answered "unclear" for the stage, with low confidence:
+  their texts did not say who found them. Both keep `found: auditor`, and their texts now say
+  the spec-auditor found them before any code. On D08.8 the rater gave "before code" where the
+  tag reads as an escape. The tag stays, as D07.5's did: Day 7 made the defect and it got past
+  Day 7's close, though Day 8 found it before any code.
 - **Hand-off** H08.1 → Day 9: said vs done as the Course correction before Phase 3 has it
   (items 1–3): the outside-area rule, checked only for a branch area that names a
   `bearing.toml` area, which flags the fixture's #5 with `scripts/run.py`; the contract-impact

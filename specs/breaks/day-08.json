@@ -1,0 +1,134 @@
+[
+  {
+    "what": "the applied migration 001_history.sql edited",
+    "file": "bearing/migrations/001_history.sql",
+    "find": "subject_number INTEGER NULL,",
+    "replace": "subject_number INTEGER NULL, ",
+    "command": [
+      "git",
+      "-c",
+      "core.safecrlf=false",
+      "diff",
+      "--exit-code",
+      "43d5012",
+      "--",
+      "bearing/migrations/"
+    ]
+  },
+  {
+    "what": "make_repo.py: the root commit's subject changed",
+    "file": "tests/fixtures/make_repo.py",
+    "find": "SUBJECTS = {\"root\": \"Initial commit\"",
+    "replace": "SUBJECTS = {\"root\": \"Initial commit!\"",
+    "command": [
+      "git",
+      "-c",
+      "core.safecrlf=false",
+      "diff",
+      "--diff-filter=DMRT",
+      "--exit-code",
+      "43d5012",
+      "--",
+      "tests/contract/",
+      "tests/fixtures/make_repo.py",
+      "tests/fixtures/expected/"
+    ]
+  },
+  {
+    "what": "load_config accepts min_prs = true",
+    "file": "bearing/direction/config.py",
+    "find": "if isinstance(min_prs, bool) or not",
+    "replace": "if not",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_config.py::ConfigTest::test_errors"
+    ]
+  },
+  {
+    "what": "parse_numstat keeps a rename's old path",
+    "file": "bearing/direction/changes.py",
+    "find": "path = fields[i + 1]",
+    "replace": "path = fields[i]",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_changes.py::ChangesTest::test_parse_numstat"
+    ]
+  },
+  {
+    "what": "churn labels the week with the calendar year, not the ISO year",
+    "file": "bearing/direction/churn.py",
+    "find": "iso_week = f\"{year}-W",
+    "replace": "iso_week = f\"{day.year}-W",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_churn.py::ChurnTest::test_weeks_and_areas"
+    ]
+  },
+  {
+    "what": "coupling keeps pairs above min_prs, not at it",
+    "file": "bearing/direction/coupling.py",
+    "find": "if len(numbers) >= min_prs",
+    "replace": "if len(numbers) > min_prs",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_coupling.py::CouplingTest::test_pairs"
+    ]
+  },
+  {
+    "what": "churn reads the root commit too",
+    "file": "bearing/direction/report.py",
+    "find": "WHERE parent_count > 0",
+    "replace": "WHERE parent_count >= 0",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_direction_cli.py::DirectionCliTest::test_fixture_report"
+    ]
+  },
+  {
+    "what": "the report ignores the config's min_prs",
+    "file": "bearing/direction/report.py",
+    "find": "coupling(prs, areas, min_prs)",
+    "replace": "coupling(prs, areas, 3)",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_direction_cli.py::DirectionCliTest::test_threshold"
+    ]
+  },
+  {
+    "what": "direction creates an empty store before its check",
+    "file": "bearing/cli.py",
+    "find": "# Never creates the store, as timeline: a missing file is an error.",
+    "replace": "# broken\n    Path(args.data, \"bearing.db\").touch()",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_direction_cli.py::DirectionCliTest::test_errors"
+    ]
+  }
+]
