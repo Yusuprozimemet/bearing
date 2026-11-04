@@ -225,7 +225,7 @@
   2026-10-28 to 2026-11-04 is $224.13, counted during the close, so the close's own session is
   only partly in it.
 
-### Day 06: Timeline (Phase 2), closed in the closing PR
+### Day 06: Timeline (Phase 2), closed in #43
 
 - **Delivered:** `bearing timeline <repo> [--data DIR] [--stats]` prints one line per
   structure event of each stored merge, `<sha7> #<pr or -> <event>`, in history order (#42).
@@ -268,6 +268,50 @@
   untagged main session rose from 560 to 646 replies. Day 5's close added a defect-rater row
   and raised Day 5's main row to 104 replies. The folder's total from 2026-10-28 to 2026-11-04
   is $234.96, counted during the close, so the close's own session is only partly in it.
+
+### Day 07: Cycles (Phase 2), closed in the closing PR
+
+- **Delivered:** `bearing timeline` adds `cycle+` and `cycle-` for each elementary import cycle
+  a merge introduces or breaks, started at its least name and compared after the rename rule.
+  It also adds `grew <name> <lines>` for a module that crosses 200 lines (#45). The timeline
+  has its golden file and contract test: 21 lines on the fixture, with `cycle+` at #3,
+  `grew app.core 253` at #6 and `cycle-` at #9. Phase 2's "Done when" on the targets, run at
+  the close: the kit's 94 merges give 42 lines and wordtally's 56 give 29, with 6 and 5 `grew`
+  and no cycle. A second run parses no blob ("blobs parsed 0  cache hits 204", and 94), in
+  under 30 s. `pytest -q`: 56 passed, 51 subtests passed.
+- **Criteria:** 5 of 5 ticked: 3 `new` and 2 `hold`.
+- **Breaks on purpose:** 4, all in `specs/breaks/day-07.json`: 1 in #44 and 3 in #45. The close
+  replayed all 4 on `main`, and each one failed its check. C07.4 was broken once by hand on
+  the kit, not replayed, since it needs the clone: with the cache not committed, the second
+  run printed "blobs parsed 204  cache hits 0".
+- **PRs:** 3 at the day-spec rung: the spec with a plan change (#44), Track A (#45) and the
+  close. There was no Track 0.
+- **Defects:** 5 in the Notes.
+
+  | Field | Count |
+  | --- | --- |
+  | found: auditor | 5 |
+  | cause: spec | 5 |
+
+  The blind relabel agreed on 3 of 5 stages, 4 of 5 causes and all 5 `made:`. On D07.4 the
+  rater could not tell the stage from the text, which now says it was found before any code,
+  and read the cause as process. On D07.5 it read Day 5's escape as found before code. No tag
+  changed.
+  The spec-auditor found all five before any code. Two would have let wrong code pass C07.1:
+  a `cycle-` with no renamed module (D07.1), and a claim about edge order that was false
+  (D07.2). Two were checks that could not fail: Verify's exit code (D07.3), and C07.4's check,
+  which no break reached (D07.4). One went back to Day 5: plan.md still listed cycles as a cut
+  (D07.5). Track A and the close found nothing, and for the first time this phase every red
+  text matched its run.
+- **Hand-offs:** H05.5 (`grew`) and H06.1 (the cycle's rotation and the rename rule) were
+  settled in #45. H05.6 (the module map) was cut, and H05.1 (plan.md's Day 10 cut list) was
+  settled by #44's plan change. H07.1, where `bearing.toml` is read from, goes to Day 8.
+- **Tokens:** `docs/dashboard/token-usage.json` tags three rows with Day 7, on 2026-11-04: the
+  main session (48 replies, $2.65), the spec-auditor (52 replies, $1.56) and the implementer on
+  Haiku (16 replies, $0.02). The untagged main session rose from 646 to 686 replies. Day 6's
+  close added a defect-rater row and raised Day 6's main row to 79 replies. The folder's total
+  from 2026-10-28 to 2026-11-04 is $242.83, counted during the close, so the close's own
+  session is only partly in it.
 
 ## What is being measured
 
