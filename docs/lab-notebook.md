@@ -178,7 +178,7 @@
   to 2026-11-04 is $206.89, counted during the close, so the close's own session is only
   partly in it.
 
-### Day 05: Snapshot (Phase 2), closed in the closing PR
+### Day 05: Snapshot (Phase 2), closed in #37
 
 - **Delivered:** `bearing snapshot <repo> <ref>` prints the `snapshot-v1` JSON of a repository
   at one commit: one module per `.py` file, with its dotted name, path, line count and whether
@@ -224,6 +224,50 @@
   a defect-rater row and raised Day 4's main row to 68 replies. The folder's total from
   2026-10-28 to 2026-11-04 is $224.13, counted during the close, so the close's own session is
   only partly in it.
+
+### Day 06: Timeline (Phase 2), closed in the closing PR
+
+- **Delivered:** `bearing timeline <repo> [--data DIR] [--stats]` prints one line per
+  structure event of each stored merge, `<sha7> #<pr or -> <event>`, in history order (#42).
+  The events are `+module`, `-module`, `renamed`, `+import` and `-import`, and come from
+  `structure_events`, which compares a merge's snapshot with its first parent's through git's
+  renames (#40). A blob cache in `002_blobs.sql` stores each blob's line count and parsed
+  imports by SHA, so a second run parses nothing (#41). On the fixture: 18 lines, "blobs parsed
+  28  cache hits 0", then "blobs parsed 0  cache hits 28". `pytest -q`: 54 passed, 51
+  subtests passed.
+- **Criteria:** 10 of 10 ticked: 8 `new` and 2 `hold`.
+- **Breaks on purpose:** 14, all in `specs/breaks/day-06.json`: 1 in #39, 4 in #40, 4 in #41 and
+  5 in #42. The close replayed all 14 in an LF worktree, and each one failed its check.
+- **PRs:** 5 at the day-spec rung: the spec (#39), Tracks A, B and C (#40–#42) and the close.
+  There was no Track 0.
+- **Defects:** 8 in the Notes.
+
+  | Field | Count |
+  | --- | --- |
+  | found: auditor | 4 |
+  | found: break on purpose | 2 |
+  | found: self | 1 |
+  | found: Track B | 1 |
+  | cause: spec | 6 |
+  | cause: process | 2 |
+
+  The blind relabel agreed on 7 of 8 stages and all 8 causes and `made:`. On D06.8 the rater
+  could not tell the stage from the text, which now names Track B's red run. No tag changed.
+  The spec-auditor found four gaps before any code (D06.1–D06.4). Two of them would have let
+  a wrong rename rule pass C06.1. Breaks on purpose found two more defects: a spec condition
+  that no test could catch (D06.5), and a break that could not reach its test (D06.6). A
+  hand-run stash mixed old and new code (D06.7). C06.4's red gave a second reason that no run
+  reaches (D06.8, same-as D05.10). For the second day running, a red message was reasoned out
+  rather than run. Nothing escaped to the close.
+- **Hand-offs:** H05.2–H05.4 were settled in the spec. H05.5 and H05.6 stay with Day 7, and
+  H06.1 (the `cycle+` rotation, and whether cycles go through the rename rule) joins them. H05.1
+  stays with the maintainer.
+- **Tokens:** `docs/dashboard/token-usage.json` tags two rows with Day 6, on 2026-11-04: the
+  main session (60 replies, $2.57) and the implementer on Haiku (36 replies, $0.04). Day 6's
+  spec-auditor run is in the untagged spec-auditor row, which rose from 85 to 122 replies. The
+  untagged main session rose from 560 to 646 replies. Day 5's close added a defect-rater row
+  and raised Day 5's main row to 104 replies. The folder's total from 2026-10-28 to 2026-11-04
+  is $234.96, counted during the close, so the close's own session is only partly in it.
 
 ## What is being measured
 
