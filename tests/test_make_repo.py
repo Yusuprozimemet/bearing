@@ -1,5 +1,6 @@
 """The fixture history that make_repo.py builds, asked of git and of prs.json."""
 
+import ast
 import json
 import subprocess
 import sys
@@ -127,3 +128,135 @@ class HistoryTest(unittest.TestCase):
         )
         self.assertTrue(raw.endswith(b"\n"))
         self.assertNotIn(b"\r", raw)
+
+
+class FixtureCase(unittest.TestCase):
+    # Builds the fixture once for a class; its tests ask git and prs.json, not the builder.
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
+        cls.out = Path(cls.tmp.name) / "out"
+        cls.result = subprocess.run(
+            [sys.executable, str(BUILDER), str(cls.out)],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def git(self, *args):
+        result = subprocess.run(
+            ["git", "-C", str(self.out / "repo"), *args],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return result.stdout
+
+    def blob(self, rev, path):
+        # The file's bytes as git stores them: no line-ending conversion.
+        result = subprocess.run(
+            ["git", "-C", str(self.out / "repo"), "show", f"{rev}:{path}"],
+            check=False,
+            capture_output=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return result.stdout
+
+    def step(self, n):
+        # Step N is the N-th commit of main's first-parent line, oldest first.
+        shas = self.git("log", "--first-parent", "--format=%H", "main").split()
+        return shas[::-1][n - 1]
+
+
+class StructureTest(FixtureCase):
+    def test_cases(self):
+        self.assertEqual(self.result.returncode, 0, self.result.stderr)
+        # Step 5 is #3's merge, which adds the cycle; step 10 is #9's, which breaks it.
+        self.assertIn(b"import app.b", self.blob(self.step(5), "app/a.py"))
+        self.assertIn(b"import app.a", self.blob(self.step(5), "app/b.py"))
+        self.assertNotIn(b"import app.a", self.blob(self.step(10), "app/b.py"))
+        self.assertIn(b"\r\n", self.blob("HEAD", "app/crlf.py"))
+
+        # ast.parse must reject app/broken.py and accept every other .py file at HEAD.
+        paths = [
+            p
+            for p in self.git("ls-tree", "-r", "--name-only", "HEAD").splitlines()
+            if p.endswith(".py")
+        ]
+        self.assertIn("app/broken.py", paths)
+        for path in paths:
+            source = self.blob("HEAD", path)
+            if path == "app/broken.py":
+                with self.assertRaises(SyntaxError):
+                    ast.parse(source)
+            else:
+                ast.parse(source)
+
+        # Step 7 is #5's merge, before the squash; step 8 is the squash, which grows the core.
+        core_7 = self.blob(self.step(7), "app/core.py")
+        core_8 = self.blob(self.step(8), "app/core.py")
+        self.assertLess(len(core_7.splitlines()), 200)
+        self.assertGreater(len(core_8.splitlines()), 200)
+
+        # Step 9 is #8's merge: helpers.py is renamed, extra.py added, legacy.py deleted.
+        merge_9 = self.step(9)
+        changes = [
+            line.split("\t")
+            for line in self.git(
+                "diff", "-M", "--name-status", f"{merge_9}^1", merge_9
+            ).splitlines()
+        ]
+        self.assertTrue(
+            any(
+                c[0].startswith("R")
+                and c[1:] == ["scripts/helpers.py", "scripts/tools.py"]
+                for c in changes
+            ),
+            changes,
+        )
+        self.assertIn(["A", "app/extra.py"], changes)
+        self.assertIn(["D", "app/legacy.py"], changes)
+
+        self.assertIn(b"from ..pkg import", self.blob("HEAD", "app/sub/mod.py"))
+        self.assertIn(b"from ..core import", self.blob("HEAD", "app/sub/mod.py"))
+        self.assertIn(b"from . import core", self.blob("HEAD", "app/__init__.py"))
+        self.assertIn(b"import tools", self.blob("HEAD", "scripts/run.py"))
+        self.assertIn(b"import config", self.blob("HEAD", "scripts/tools.py"))
+
+
+class TextTest(FixtureCase):
+    def parents(self, sha):
+        return self.git("rev-list", "--parents", "-n", "1", sha).split()[1:]
+
+    def changed(self, sha):
+        # What a merge brings in: its diff against the first parent, the main line.
+        return self.git("diff", "--name-only", f"{sha}^1", sha).splitlines()
+
+    def test_cases(self):
+        self.assertEqual(self.result.returncode, 0, self.result.stderr)
+        raw = (self.out / "prs.json").read_bytes()
+        records = {r["number"]: r for r in json.loads(raw)}
+        self.assertIn("## What I built", records[1]["body"])
+        self.assertTrue(records[2]["body"])
+        self.assertNotIn("What I built", records[2]["body"])
+        self.assertEqual(records[4]["body"], "")
+        self.assertTrue(records[5]["headRefName"].startswith("docs/"))
+        self.assertIn("scripts/run.py", self.changed(records[5]["mergeCommit"]["oid"]))
+        self.assertIn("Contract impact: None", records[9]["body"])
+        merge_9 = records[9]["mergeCommit"]["oid"]
+        self.assertIn("tests/contract/test_api.py", self.changed(merge_9))
+
+        # The PR merges are the records whose merge commit has two parents; the squash has one.
+        merges = {
+            n: r["mergeCommit"]["oid"]
+            for n, r in records.items()
+            if len(self.parents(r["mergeCommit"]["oid"])) == 2
+        }
+        for path in ("app/core.py", "src/lib/util.py"):
+            touched = {n for n, sha in merges.items() if path in self.changed(sha)}
+            self.assertEqual(touched, {1, 3, 9}, path)
