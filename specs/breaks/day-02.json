@@ -43,10 +43,10 @@
     ]
   },
   {
-    "what": "load_prs reads with the locale's code page",
+    "what": "load_prs reads with cp1252, Windows' code page",
     "file": "bearing/ingest/mapping.py",
     "find": "read_text(encoding=\"utf-8\")",
-    "replace": "read_text()",
+    "replace": "read_text(encoding=\"cp1252\")",
     "command": [
       "python",
       "-m",

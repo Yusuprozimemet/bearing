@@ -144,7 +144,7 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       Test: `tests/test_mapping.py::FallbackTest::test_absent_and_null`
       Evidence: `FallbackTest.test_absent_and_null` (#14), seen red first on `058e841`'s code;
       `python -m pytest -q` (#14).
-      broken: the subject fallback never matches → 1 failed in 4.89s (close; D02.14)
+      broken: the subject fallback never matches → 1 failed in 4.89s (#17)
 - [x] C02.5 **new** — never guessed: a copy of `prs.json` with only #1's `mergeCommit.oid` set to
       forty `0`s (every other record as built) gives exactly
       "merges 10  matched 8  unmatched merges 2  unmatched PRs 2  direct 2",
@@ -190,7 +190,7 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       Test: `tests/test_mapping.py::LoadPrsTest::test_utf8`
       Evidence: `LoadPrsTest.test_utf8` (#14), seen red first on `058e841`'s code;
       `python -m pytest -q` (#14).
-      broken: load_prs reads with the locale's code page → 1 failed in 0.10s (#14)
+      broken: load_prs reads with cp1252, Windows' code page → 1 failed in 0.09s (#18)
 - [x] C02.11 **new** — errors: `bearing ingest <dir>/repo --prs <missing file>` and
       `bearing ingest <an empty directory> --prs <dir>/prs.json`, run from the repository root,
       each exit 1 with stdout empty and stderr starting "bearing: ". Red today: argparse's
@@ -289,6 +289,12 @@ git -c core.safecrlf=false diff --exit-code 31eaca5 -- tests/contract/test_fixtu
   files, the close ran `git -C <scratch worktree> config core.autocrlf false`, which writes the
   repository's shared config. The main tree's next `git add` staged four files as CRLF, every
   line changed. Seen in the staged `--numstat` before any commit; the setting was removed.
+- **Defect** D02.16 — found: close · cause: process · made: Day 02 · the Evidence replay after
+  #17 (run 41819412148) failed two `broken:` lines. C02.4's ended in "(close; D02.14)", not the
+  PR number the replay strips; it is the close's break, so "(#17)". C02.10's break,
+  `read_text()` with no encoding, only fails where the locale's code page is not UTF-8: on the
+  Linux runner the check passed with it in. It now names cp1252, the Windows code page #14 broke
+  it with, and fails on any platform; its manifest entry changed with it (#18).
 - **Hand-off** H02.1 → Day 4: two `gh` records with the same `oid` (D02.7). Check the kit's list
   for one, and pin which record wins in a test.
 - **Hand-off** H02.2 → Day 3: write the CLI's output as UTF-8 whatever the console's code page
