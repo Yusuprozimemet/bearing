@@ -11,8 +11,9 @@ the spec), its breaks in specs/breaks/<slug>.json:
 - every line of the Verify block runs, with bash, in a scratch worktree at that commit, and gives
   what its comment says. A comment is a list split at ", ", a trailing "(...)" dropped: "nothing"
   wants no output, "exit N" that exit status, and anything else a line of output that is it or
-  starts with it and a space. A line with no comment wants exit 0. `main` in a line means the
-  close's first parent, so a line written as `git diff main` reads the day's base, not today's;
+  starts with it and a space. A line with no comment wants exit 0. `main` given to git on this
+  repository means the close's first parent, so a line written as `git diff main` reads the day's
+  base, not today's; given to any other command, or to `git -C`, it is left as written;
 - every `broken:` line under a ticked criterion re-runs through scripts/break.py, from the
   arguments recorded for it in specs/breaks/day-NN.json, and reports what the line says, temporary
   directory names aside, and a report pasted across lines or with its backslashes undoubled read
@@ -223,11 +224,24 @@ def expected(comment, code, output):
     return None
 
 
+def at_base(command, base):
+    """The command with `main` read as `base` in each part (split at |, &&, || and ;) that runs
+    git on this repository: a `git` with no -C. Elsewhere `main` may be another repository's
+    branch (Day 05: `bearing snapshot <fixture repo> main`) and is left as written."""
+    parts = re.split(r"(\|\||&&|\||;)", command)
+    return "".join(
+        re.sub(r"\bmain\b", base, part)
+        if re.match(r"\s*git\s", part) and not re.search(r"\s-C\b", part)
+        else part
+        for part in parts
+    )
+
+
 def run_verify(line, worktree, base, env):
     m = COMMENT.match(line)
     command, comment = (m.group(1), m.group(2)) if m else (line, None)
-    command = re.sub(r"\bmain\b", base, command)
-    run = subprocess.run([bash(), "-c", command], cwd=worktree, capture_output=True, text=True,
+    command = at_base(command, base)
+    run =subprocess.run([bash(), "-c", command], cwd=worktree, capture_output=True, text=True,
                          encoding="utf-8", errors="replace", env=env)
     if comment is None:
         return None if run.returncode == 0 else f"exit {run.returncode}"
