@@ -18,7 +18,7 @@
   three area branches fixed kit tooling: seen-red copied the code under test into the base
   (#4), the evidence workflow's install test (#5), and the replay compared pytest's run time
   (#7).
-- **Defects:** 22 in the Notes.
+- **Defects:** 23 in the Notes.
 
   | Field | Count |
   | --- | --- |
@@ -27,12 +27,18 @@
   | found: Track C | 1 |
   | found: close | 2 |
   | found: self | 1 |
+  | found: review | 1 |
   | cause: spec | 15 |
-  | cause: process | 4 |
+  | cause: process | 5 |
   | cause: environment | 3 |
 
   The spec-auditor found 11 of the 17 auditor defects (D01.7–D01.17) in the draft spec, before
   any code was written. Two defects were found only after merge, at the close (D01.20, D01.21).
+- **The workflow's own gap (D01.23):** after a "merged", the session carried on into the next
+  step in the same context. CLAUDE.md states the rule, and it was skipped anyway. The
+  maintainer rejected a fix in the session's private memory: other users of the kit would never
+  see it, and it would hide the gap from the measurement. The fix goes in the repository as a
+  hook (H01.7).
 - **Tokens:** `docs/dashboard/token-usage.json` tags two rows with Day 1, both on 2026-11-04:
   the main session (92 replies, $5.15) and the implementer on Haiku (31 replies, $0.08). The
   folder's total from 2026-10-28 to 2026-11-04 is $168.85. Most of it was spent setting up the

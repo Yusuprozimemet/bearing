@@ -329,3 +329,17 @@ grep -c -E '^\s+run: (pytest -q|ruff check \. && ruff format --check \.)\s*$' .g
 - **Defect** D01.22 — found: self · cause: process · made: none · in #7, the break on purpose
   ran while a background run of every `scripts/test_*.py` was still reading the same file, which
   then reported 4 failures; alone, the file passed.
+- **Defect** D01.23 — found: review · cause: process · made: Day 01 · after #7's "merged", the
+  session ran `spec-drift.py` but neither reported the next step nor suggested a new session;
+  it went straight on into this close in the same context. CLAUDE.md's step 5 and "One session
+  per step" say so in plain words, and the session read past them because #7 was a detour
+  before the close rather than a step of the day. The maintainer caught it in review. The
+  session had first saved the lesson to its private memory; the maintainer rejected that, since
+  a fix that lives in one person's memory leaves the kit as weak as it was and distorts the
+  measurement. The memory was deleted. The fix is the repository's (H01.7).
+- **Hand-off** H01.7 → the maintainer: enforce the step boundary after every "merged" with a hook,
+  not prose alone. A `UserPromptSubmit` hook on "merged" sets a marker and reminds the turn of
+  step 5. A `PreToolUse` guard refuses new work while the marker is set: creating a branch,
+  `git commit` and `gh pr create`. A new session or `/compact` clears the marker. CLAUDE.md's
+  step 5 names `tooling/` and spec-change merges as boundaries too. Build it in a `tooling/` PR in
+  a fresh session after this close, and copy it into the kit at a stop.
