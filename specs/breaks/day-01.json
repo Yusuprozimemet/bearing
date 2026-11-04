@@ -1,0 +1,161 @@
+[
+  {
+    "what": "the test step replaced by an echo in tests.yml",
+    "file": ".github/workflows/tests.yml",
+    "find": "run: pytest -q",
+    "replace": "run: echo skipped",
+    "command": [
+      "grep",
+      "-c",
+      "-E",
+      "^\\s+run: (pytest -q|ruff check \\. && ruff format --check \\.)\\s*$",
+      ".github/workflows/tests.yml"
+    ],
+    "expect_stdout": "^2$"
+  },
+  {
+    "what": "near miss: the test step narrowed to tests/unit",
+    "file": ".github/workflows/tests.yml",
+    "find": "run: pytest -q",
+    "replace": "run: pytest -q tests/unit",
+    "command": [
+      "grep",
+      "-c",
+      "-E",
+      "^\\s+run: (pytest -q|ruff check \\. && ruff format --check \\.)\\s*$",
+      ".github/workflows/tests.yml"
+    ],
+    "expect_stdout": "^2$"
+  },
+  {
+    "what": "near miss: the style step without the format check",
+    "file": ".github/workflows/tests.yml",
+    "find": "run: ruff check . && ruff format --check .",
+    "replace": "run: ruff check .",
+    "command": [
+      "grep",
+      "-c",
+      "-E",
+      "^\\s+run: (pytest -q|ruff check \\. && ruff format --check \\.)\\s*$",
+      ".github/workflows/tests.yml"
+    ],
+    "expect_stdout": "^2$"
+  },
+  {
+    "what": "python -m bearing exits 1 without running main",
+    "file": "bearing/__main__.py",
+    "find": "sys.exit(main())",
+    "replace": "sys.exit(1)",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_cli.py::CliTest::test_version_module"
+    ]
+  },
+  {
+    "what": "the version line printed as bearing-0.1.0",
+    "file": "bearing/cli.py",
+    "find": "version=f\"bearing {__version__}\"",
+    "replace": "version=f\"bearing-{__version__}\"",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_cli.py::CliTest::test_console_script"
+    ]
+  },
+  {
+    "what": "the data directory ignored under another name",
+    "file": ".gitignore",
+    "find": ".bearing/",
+    "replace": ".bearing-data/",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_repo_files.py::RepoFilesTest::test_gitignore"
+    ]
+  },
+  {
+    "what": "the fixtures rule without eol=lf",
+    "file": ".gitattributes",
+    "find": "tests/fixtures/** text eol=lf",
+    "replace": "tests/fixtures/** text",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_repo_files.py::RepoFilesTest::test_fixtures_eol_lf"
+    ]
+  },
+  {
+    "what": "PR #5's merge dated 01-20, not 01-19",
+    "file": "tests/fixtures/make_repo.py",
+    "find": "(\"19\", \"merge\", 5,",
+    "replace": "(\"20\", \"merge\", 5,",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_make_repo.py::HistoryTest::test_first_parent_line"
+    ]
+  },
+  {
+    "what": "#7's record based on main, not release",
+    "file": "tests/fixtures/make_repo.py",
+    "find": "record(side_pr, side_head, head, side_day",
+    "replace": "record(side_pr, side_head, \"main\", side_day",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_make_repo.py::HistoryTest::test_pr_records"
+    ]
+  },
+  {
+    "what": "app/a.py no longer imports app.b (no cycle at step 5)",
+    "file": "tests/fixtures/make_repo.py",
+    "find": "\"\"\"One half of the cycle.\"\"\"\\n\\nimport app.b\\n",
+    "replace": "\"\"\"One half of the cycle.\"\"\"\\n",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_make_repo.py::StructureTest::test_cases"
+    ]
+  },
+  {
+    "what": "#3 changes app/sub/mod.py instead of src/lib/util.py",
+    "file": "tests/fixtures/make_repo.py",
+    "find": "\"src/lib/util.py\": \"\\n\\ndef w()",
+    "replace": "\"app/sub/mod.py\": \"\\n\\ndef w()",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_make_repo.py::TextTest::test_cases"
+    ]
+  },
+  {
+    "what": "author dates shifted by one second",
+    "file": "tests/fixtures/make_repo.py",
+    "find": "GIT_AUTHOR_DATE=f\"2026-01-{day}T12:00:00+0000\"",
+    "replace": "GIT_AUTHOR_DATE=f\"2026-01-{day}T12:00:01+0000\"",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/contract/test_fixture.py::FixtureTest::test_head_sha"
+    ]
+  }
+]
