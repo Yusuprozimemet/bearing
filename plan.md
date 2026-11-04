@@ -21,7 +21,7 @@ real, messy histories (squash merges, flat script folders, relative imports) and
 | **PR ↔ commit mapping** | The kit's history at the copied SHA (`44d7a55`) has 91 merge commits, 11 direct commits before the first PR, and one PR closed unmerged (#71); it has no squash merge and no fork PR, and neither has wordtally's. The squash merge exists only in the fixture; a fork PR exists in no history Bearing is tested on, the fixture included | Phase 1: `mergeCommit` from `gh` first, the "Merge pull request #N" subject as fallback, an unmatched list reported, never guessed; a direct commit is listed as such, not as an error; a fork's subject ("from other-owner/patch-1") is tested as a string, the fixture being frozen |
 | **Merges out of order, merges with two parents** | PR numbers, `mergedAt` and the first-parent order disagree (a PR opened early and merged late); a merge's diff is against its first parent only | Phase 1: history is the first-parent line of `main`, in that order; every diff is `merge^1..merge`; a PR record whose commit is not on that line is unmatched |
 | **Renames** | A moved file is one module removed and one added unless git pairs them | Phase 2: `git diff -M` pairs them; the timeline prints a rename line; the blob cache is unaffected, the blob SHA is the same |
-| **Import resolution** | Relative imports, `src/` layouts, and flat `scripts/` folders that are not packages | Phase 2: a module map that is configurable, with flat files as their own modules by default |
+| **Import resolution** | Relative imports, `src/` layouts, and flat `scripts/` folders that are not packages | Phase 2: every `.py` file is one module, named by its path from its import root with `.` for `/`, no `.py`, and `__init__.py` named by its package; the root is the repository's, or `src/` in a `src/` layout, and the module map in `bearing.toml` can change it; a flat folder's `import helpers` resolves to the file beside the importer |
 | **Files that will not parse** | A syntax error, non-UTF-8 bytes, CRLF endings | Phase 2: lines are counted on the bytes, imports are empty, the module carries `"parse_error": true`; never a crash. The fixture holds the syntax error and the CRLF file, not non-UTF-8 bytes: that case is tested on bytes given to the parser |
 | **PR text that is not the template** | An empty body, no "What I built" heading, a heading spelt differently | Phase 1: the first paragraph of the body is the fallback; an empty body gives an empty entry, never a missing PR |
 | **False flags in "said vs done"** | A `docs/` PR that fixes a typo in a script is not a lie | Phase 3: rules read from config, each flag shows its evidence, and a stopping point judges them on the kit's history |
@@ -54,8 +54,11 @@ real, messy histories (squash merges, flat script folders, relative imports) and
 
 ## Output contracts
 
-Each format has a version string in its output, a golden file under `tests/fixtures/expected/`
-and a test in `tests/contract/` that compares bytes after `\r\n` is read as `\n`. JSON is
+Each format has a golden file under `tests/fixtures/expected/` and a test in `tests/contract/`
+that compares bytes after `\r\n` is read as `\n`. The JSON formats carry a version string
+(`snapshot-v1`, `page-v1`); the text formats (the ingest line, the changelog, the timeline, the
+direction report) carry none, and their golden file is their version: a new shape is a new
+contract with new golden files, decided in a plan-change PR. JSON is
 `json.dumps(sort_keys=True, indent=2)` with a final newline; lists are sorted where this section
 says. The shape below is the contract; the names of columns and keys inside it are fixed by the
 day spec that first writes the golden file, and then by the golden file.
@@ -124,7 +127,7 @@ Each phase is a series of <400-line PRs, so CI stays green.
     a syntax error; a file with CRLF endings; a non-Python file changed on its own;
   - PR text: a body with the kit's template; one with no "What I built" heading; an empty
     body; a `docs/` PR that touches a script (a typo fix); a PR saying "Contract impact: None"
-    while touching `tests/contract/`; two files across modules changed together in at least
+    while touching `tests/contract/`; two files in different areas changed together in at least
     the coupling threshold of PRs.
 - The project's own test workflow in CI; `STYLE_CHECK_COMMAND` and `TRACK_RED_RUNNER=pytest` set.
 - **Done when:** `pytest -q` passes in CI, and `tests/contract/test_fixture.py` asserts the
@@ -145,8 +148,9 @@ Each phase is a series of <400-line PRs, so CI stays green.
 
 ### Phase 2 — Structure snapshots
 **Goal:** the module and import graph at every merge, and what changed between two merges.
-- `bearing snapshot <ref>`: modules (package, or file for flat folders), their line counts, and
-  the in-repository imports between them, as `snapshot-v1` JSON.
+- `bearing snapshot <ref>`: modules (one `.py` file each, with a dotted name: `app/core.py` is
+  `app.core`, `src/lib/util.py` is `lib.util`; see "Import resolution"), their line counts,
+  and the in-repository imports between them, as `snapshot-v1` JSON.
 - A blob cache, so each file version is parsed once across the whole history.
 - `bearing timeline`: one line per merge that changed structure: module added or removed, import
   edge added or removed, a cycle introduced or broken, a module that grew past a set size.
@@ -159,8 +163,8 @@ Each phase is a series of <400-line PRs, so CI stays green.
 **Goal:** where the work goes, and where a PR's words and its diff disagree.
 - Churn per area, by week. (Per module is cut: the timeline's `grew` events already show
   where a module grows.)
-- Co-change coupling: file pairs that change together in at least N PRs, with pairs across
-  modules flagged as a hidden dependency.
+- Co-change coupling: file pairs that change together in at least N PRs, with pairs whose
+  files lie in different `bearing.toml` areas flagged as a hidden dependency.
 - Said vs done, from `bearing.toml`'s areas: a PR whose changed files lie outside its area's
   paths; a PR whose body says "Contract impact: none" while touching a contract path. Each flag
   names the PR, the claim and the files.
@@ -241,6 +245,29 @@ kit's repository). For it to count:
 ## Course corrections
 
 <!-- Added by plan-change PRs, newest first. Empty at the start. -->
+
+### 2026-11-04: Course correction before Day 5
+
+The maintainer's two decisions before Phase 2's first spec.
+
+- **A module is one `.py` file with a dotted name.** Phase 2 said "package, or file for flat
+  folders", yet the rest of the plan already counted files: the Renames row ("a moved file is
+  one module removed and one added"), and the fixture, four of whose structure events lie inside
+  the one package `app` (`app/a.py` and `app/b.py` make and break the cycle, `app/core.py`
+  grows past 200 lines, `app/extra.py` is added and `app/legacy.py` deleted). Counted by
+  package, the timeline would show none of these four. "Import resolution" now says how a file is named;
+  `snapshot-v1`'s shape is unchanged, its `name` dotted and its `path` the file.
+- **Co-change coupling flags pairs across areas, not modules.** With a file per module, every
+  pair of files is across modules and every pair would be flagged. A hidden dependency is now
+  a pair in different `bearing.toml` areas, the areas "said vs done" reads; the fixture's pair
+  (`app/core.py` and `src/lib/util.py`, changed together in #1, #3 and #9) is the one Phase 3's
+  areas must put apart. The maintainer chose this over "no import between them", which would
+  not flag that pair, since `util.py` imports `app.core`.
+- **H03.3: the text formats carry no version string.** "Output contracts" said every format
+  has one; Day 2's ingest line and Day 3's changelog shipped without, and the changelog's
+  golden file is a contract that may not change. The JSON formats keep theirs (`snapshot-v1`,
+  `page-v1`); for the ingest line, the changelog, the timeline and the direction report, the
+  golden file is the version, and a new shape is a new contract, decided here.
 
 ### 2026-11-04: Course correction after Phase 1
 
