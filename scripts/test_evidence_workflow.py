@@ -50,7 +50,10 @@ class EvidenceWorkflowTest(unittest.TestCase):
         # Git's bash on Windows wants PATH entries as /c/..., which cygpath gives; elsewhere it is absent
         path = f'export PATH="$(cygpath -u "{self.path}" 2>/dev/null || echo "{self.path}"):$PATH"\n'
         p = subprocess.run([BASH, "-c", path + step()], cwd=self.work, capture_output=True, text=True)
-        calls = open(self.calls).read().splitlines() if os.path.exists(self.calls) else []
+        calls = []
+        if os.path.exists(self.calls):
+            with open(self.calls) as f:
+                calls = f.read().splitlines()
         return p.returncode, p.stdout + p.stderr, calls
 
     def test_the_install_comes_before_the_replay(self):
@@ -59,16 +62,12 @@ class EvidenceWorkflowTest(unittest.TestCase):
         self.assertIn(STEP, names)
         self.assertLess(names.index(STEP), names.index(REPLAY))
 
-    def test_a_requirements_txt_is_installed(self):
-        open(os.path.join(self.work, "requirements.txt"), "w").close()
+    def test_the_package_and_its_dev_tools_are_installed(self):
+        # Bearing has no requirements.txt: the replay installs the package editable with its dev
+        # tools, as tests.yml does.
         code, out, calls = self.run_step()
         self.assertEqual(code, 0, out)
-        self.assertEqual(calls, ["-m pip install -r requirements.txt"])
-
-    def test_with_no_requirements_txt_nothing_is_installed(self):
-        code, out, calls = self.run_step()
-        self.assertEqual(code, 0, out)
-        self.assertEqual(calls, [])
+        self.assertEqual(calls, ["-m pip install -e .[dev]"])
 
 
 if __name__ == "__main__":
