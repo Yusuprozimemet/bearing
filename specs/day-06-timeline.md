@@ -159,7 +159,7 @@ the track that changes `snapshot`.
 ## Acceptance criteria
 Tick each box in the closing PR once its evidence is in it; under a box left unticked, write
 `Not proven: <why>` (`specs/README.md`, "Evidence at the close").
-- [ ] C06.1 **new** — `structure_events(old, new, renames)` on snapshots written in the test:
+- [x] C06.1 **new** — `structure_events(old, new, renames)` on snapshots written in the test:
       `old` with the modules `app` `app/__init__.py`, `app.b` `app/b.py`, `app.c` `app/c.py`,
       `app.old` `app/old.py`, `scripts.helpers` `scripts/helpers.py`, `scripts.run`
       `scripts/run.py` and the imports `[["app", "app.b"], ["app.b", "app.c"], ["app.c",
@@ -183,7 +183,13 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       `app.new`) are no renames. And `structure_events(old, old, [])` returns `[]`. Red today:
       "No module named 'bearing.snapshot.diff'".
       Test: `tests/test_diff.py::StructureEventsTest::test_events`
-- [ ] C06.2 **new** — `BlobCache` round trip, on a store `open_store` made in a temporary
+      Evidence: `StructureEventsTest.test_events` (#40), seen red first on `1e7a4c5`'s code
+      with "No module named 'bearing.snapshot.diff'"; `python -m pytest -q` (#40).
+      broken: structure_events renaming a module whose old name is still in new → 1 failed in 0.08s (#40)
+      broken: structure_events renaming to a name already in old → 1 failed in 0.07s (#40)
+      broken: structure_events comparing old edges without renaming → 1 failed in 0.08s (#40)
+      broken: structure_events listing a rename's new name as +module → 1 failed in 0.07s (#40)
+- [x] C06.2 **new** — `BlobCache` round trip, on a store `open_store` made in a temporary
       directory: `get("a" * 40, read)`, `read` returning `b"import b\nfrom . import c\n"`,
       returns `(2, [(0, "b", ()), (1, "", ("c",))])`, and `parsed` is 1, `hits` 0; asked again
       with a `read` that raises, it returns the same and the counts stay; `get("b" * 40, read)`
@@ -192,14 +198,20 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       raises, and has `parsed` 0, `hits` 2. Red today: "No module named
       'bearing.snapshot.cache'".
       Test: `tests/test_blob_cache.py::BlobCacheTest::test_round_trip`
-- [ ] C06.3 **new** — on the fixture, with a `BlobCache` on a fresh store:
+      Evidence: `BlobCacheTest.test_round_trip` (#41), seen red first on `bbd43ed`'s code with
+      "No module named 'bearing.snapshot.cache'"; `python -m pytest -q` (#41).
+      broken: cached imports come back with names as lists → 1 failed in 0.18s (#41)
+- [x] C06.3 **new** — on the fixture, with a `BlobCache` on a fresh store:
       `snapshot(repo, "448fc4dc915289f0b3f0254cf80360b56f48513a", cache)` equals the uncached
       `snapshot` at that SHA, with `parsed` 15 and `hits` 0; then `snapshot(repo, "main",
       cache)` equals the uncached one at `main`, with `parsed` 21 and `hits` 0; after
       `conn.commit()`, a new `BlobCache` on the same store gives `snapshot(repo, "main", ...)`
       equal again, with `parsed` 0 and `hits` 16. Red today: as C06.2.
       Test: `tests/test_blob_cache.py::SnapshotCacheTest::test_counts`
-- [ ] C06.4 **new** — `open_store` and `save` run twice on the fixture into one data
+      Evidence: `SnapshotCacheTest.test_counts` (#41), seen red first on `bbd43ed`'s code as
+      C06.2; `python -m pytest -q` (#41).
+      broken: a cache hit is not counted → 1 failed in 8.72s (#41)
+- [x] C06.4 **new** — `open_store` and `save` run twice on the fixture into one data
       directory: after each, the counts of C02.6 hold and `schema_migrations` holds exactly
       `001_history.sql` and `002_blobs.sql`, in that order; and a row inserted into `blobs`
       between the two runs is still there after the second `save`. Red today: the migration
@@ -207,7 +219,11 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       table: blobs".
       Test: `tests/test_store.py::StoreTest::test_stored_once`
       Replaces: C02.6 — was: "`schema_migrations` holds exactly `001_history.sql`".
-- [ ] C06.5 **new** — after `python -m bearing ingest <dir>/repo --prs <dir>/prs.json --data
+      Evidence: `StoreTest.test_stored_once` (#41), seen red first on `bbd43ed`'s code with
+      "[('001_history.sql',)] != [('001_history.sql',), ('002_blobs.sql',)]"; the insert's
+      "no such table: blobs" is never reached there (D06.8); `python -m pytest -q` (#41).
+      broken: save also empties blobs → 1 failed, 1 passed, 1 subtests passed in 7.05s (#41)
+- [x] C06.5 **new** — after `python -m bearing ingest <dir>/repo --prs <dir>/prs.json --data
       <tmp>`, `python -m bearing timeline <dir>/repo --data <tmp>` exits 0, stderr is empty, and
       stdout is exactly the 18 lines of "What the fixture gives", each ending in a newline. With
       the store's `pr_number` set to `NULL` for `fde93a4` by the test, in a second data
@@ -215,13 +231,20 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       app.legacy` and `fde93a4 #- renamed scripts.helpers -> scripts.tools`, the other 15
       unchanged. Red today: argparse's "invalid choice: 'timeline'" (exit 2).
       Test: `tests/test_timeline_cli.py::TimelineCliTest::test_lines`
-- [ ] C06.6 **new** — `--stats`, on a fresh ingest: the first `python -m bearing timeline
+      Evidence: `TimelineCliTest.test_lines` (#42), seen red first on `5cd202c`'s code with
+      "invalid choice: 'timeline'" (exit 2); `python -m pytest -q` (#42).
+      broken: timeline.py: #- for a NULL pr_number → 1 failed in 10.07s (#42)
+      broken: tree.py: renamed_paths returns no pair → 1 failed in 8.25s (#42)
+- [x] C06.6 **new** — `--stats`, on a fresh ingest: the first `python -m bearing timeline
       <dir>/repo --data <tmp> --stats` exits 0 with the 18 lines on stdout and stderr exactly
       "blobs parsed 28  cache hits 0\n"; the second, "blobs parsed 0  cache hits 28\n"; and
       after the same `ingest` is run again into `<tmp>`, a third, "blobs parsed 0  cache hits
       28\n" (an ingest keeps the cache). Red today: as C06.5.
       Test: `tests/test_timeline_cli.py::TimelineCliTest::test_stats`
-- [ ] C06.7 **new** — errors, each exit 1, stdout empty, stderr exactly as given:
+      Evidence: `TimelineCliTest.test_stats` (#42), seen red first on `5cd202c`'s code as
+      C06.5; `python -m pytest -q` (#42).
+      broken: cli.py: the cache is not committed → 1 failed in 10.67s (#42)
+- [x] C06.7 **new** — errors, each exit 1, stdout empty, stderr exactly as given:
       `python -m bearing timeline <dir>/repo --data <empty>`, `<empty>` an empty directory,
       gives "bearing: no store at <empty>/bearing.db: run bearing ingest first\n" (the path as
       `str(Path(<empty>) / "bearing.db")`) and `<empty>` stays empty; with an ingested store,
@@ -233,22 +256,34 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       <bad>/bearing.db: file is not a database\n" (the path as above): `open_store` raises
       that `sqlite3.DatabaseError`, so it lies inside the `try`. Red today: as C06.5.
       Test: `tests/test_timeline_cli.py::TimelineCliTest::test_errors`
-- [ ] C06.8 **new** — the target is read-only (plan.md, "Decisions"): after the C06.5 and
+      Evidence: `TimelineCliTest.test_errors` (#42), seen red first on `5cd202c`'s code as
+      C06.5; `python -m pytest -q` (#42).
+      broken: timeline.py: the parent snapshot taken first → 1 failed, 1 passed, 3 subtests passed in 6.35s (#42)
+- [x] C06.8 **new** — the target is read-only (plan.md, "Decisions"): after the C06.5 and
       C06.6 commands, which the test runs itself (track-red runs each test alone),
       `<dir>/repo`'s `git status --porcelain --ignored` prints nothing, and
       `git for-each-ref` and `git rev-parse HEAD` print what they printed before them. Red
       today: the commands exit 2, so the test fails on their exit code.
       Test: `tests/test_timeline_cli.py::TimelineCliTest::test_read_only`
-- [ ] C06.9 **hold** — the frozen files stay as Day 5 left them: the fixture, the contract tests
+      Evidence: `TimelineCliTest.test_read_only` (#42), seen red first on `5cd202c`'s code,
+      failing on the commands' exit code 2; `python -m pytest -q` (#42).
+      broken: tree.py: snapshot writes a ref → 1 failed in 5.63s (#42)
+- [x] C06.9 **hold** — the frozen files stay as Day 5 left them: the fixture, the contract tests
       and their golden files, the applied migration, and C06.10's two snapshot tests:
       `git -c core.safecrlf=false diff --exit-code 9ecc9d1 -- tests/contract/ tests/fixtures/make_repo.py tests/fixtures/expected/ bearing/migrations/001_history.sql tests/test_snapshot_tree.py tests/test_snapshot_cli.py`
       prints nothing and exits 0. The directories are named whole: the day adds no file to
       them.
-- [ ] C06.10 **hold** — `bearing snapshot` is unchanged by the cache:
+      Evidence: the command above, exit 0 in #39, #41 and #42 and on `21251d3` at the close; CI's
+      "Frozen files stay unedited" on #39–#42.
+      broken: the applied migration 001_history.sql edited → committed_at TEXT NOT NULL, (#39)
+- [x] C06.10 **hold** — `bearing snapshot` is unchanged by the cache:
       `python -m pytest -q tests/contract/test_snapshot.py tests/test_snapshot_tree.py
       tests/test_snapshot_cli.py` passes on every track's head; C06.9 checks the three files
       are unedited. Track B, which changes `snapshot`, breaks the uncached path once and
       records what it reported.
+      Evidence: the three files inside `python -m pytest -q`, and CI's "Tests", on the heads of
+      #40 (`a51818b`), #41 (`3d49318`) and #42 (`100e75e`), and on `21251d3` at the close.
+      broken: the uncached snapshot counts one line more per module → 3 failed, 2 passed, 2 subtests passed in 19.69s (#41)
 
 ## Verify
 ```bash
@@ -298,6 +333,46 @@ git -c core.safecrlf=false diff --exit-code 9ecc9d1 -- tests/contract/ tests/fix
   criterion, and `open_store` raises before any read; C06.7 now has a corrupt store.
 - **Defect** D06.4 — found: auditor · cause: spec · made: Day 06 · C06.10 said "unedited" with
   no check of the two snapshot tests outside `tests/contract/`; C06.9's diff now names them.
+- **Defect** D06.5 — found: break on purpose · cause: spec · made: Day 06 · the rename rule
+  listed "the two names differ" as a condition of its own, but "the old name is not a name in
+  `new`" already implies it. The implementer's draft gave it a line of its own, and a break
+  that removed that line reported "The check passed with the break in" (1 passed in 0.03s).
+  No test can catch the line, so #40 removed it, with the reason in a comment.
+- **Defect** D06.6 — found: break on purpose · cause: process · made: Day 06 · Track B's first
+  break of the tuple decode turned the rows into lists inside the comprehension, and the outer
+  `tuple(names)` turned them back. `break.py` reported "The check passed with the break in".
+  The break was wrong, not the test. The recorded break removes `tuple(...)` itself, and the
+  failed run is not in the manifest (#41).
+- **Defect** D06.7 — found: self · cause: process · made: Day 06 · a hand-run red check in
+  Track B used `git stash push -- bearing/`, which stashed `tree.py` only. The untracked
+  `cache.py` and `002_blobs.sql` stayed in place, so the run mixed old and new code ("1
+  failed, 2 passed"). #41 discarded that run and used `seen-red.py` instead, as CLAUDE.md
+  advises.
+- **Defect** D06.8 — found: Track B · cause: spec · made: Day 06 · same-as: D05.10 · C06.4's
+  red gave two reasons, but only the first comes from a run. Track B's red run, before #41
+  merged, showed it: on `bbd43ed`'s code, the
+  migration-list assertion fails first, so the insert's "no such table: blobs" is never
+  reached. #41's break "save also empties blobs" covers the insert half. Like D05.10, this
+  red text was reasoned out, not run.
+- Not covered, from #40: two qualifying pairs that share a name (one old path to two new
+  paths). The events are the same in any order, because the pairs are sorted, but the edge
+  mapping takes the last pair for that name. `renamed_paths` never gives that case: git's `-M`
+  gives one `R` entry per path.
+- At the close, on `21251d3`: `python -m pytest -q` gave "54 passed, 51 subtests passed", the
+  count above. Verify's two `timeline --stats` runs each exited 0 with the same 18 lines; stderr
+  was "blobs parsed 28  cache hits 0", then "blobs parsed 0  cache hits 28". C06.9's diff
+  exited 0. All 14 `manifest:` lines parsed as JSON (1 in #39, 4 in #40, 4 in #41, 5 in #42),
+  and each `find` occurs once in the merged code. I replayed each with `scripts/break.py` in an
+  LF worktree of `main`, and each failed its check. I also ran `main`'s new tests on each
+  track's base code (`1e7a4c5`, `bbd43ed`, `5cd202c`). Each red matched the spec's text,
+  except C06.4's second reason (D06.8). Every criterion already had a break from a track or
+  the spec PR, so the close ran no break of its own.
+- The blind relabel at the close agreed on 7 of 8 stages, 8 of 8 causes and 8 of 8 `made:`.
+  On D06.8 the rater answered "unclear" for the stage, with low confidence, because the text
+  did not say when the defect was found. It keeps `found: Track B`, since #41's red run found
+  it before the merge, and its text now says so. The rater also marked D06.8 as mixed, with a
+  process side, because the red text was not run. It keeps `spec`: the wrong claim is in the
+  criterion.
 - **Hand-off** H06.1 → Day 7: the `cycle+` line's rotation (plan-auditor F6 on Day 5, carried
   by H05.3): which module a cycle's line starts from, so it is the same on every run; and
   whether `cycle+`/`cycle-` compare cycles after the rename rule, as `structure_events` does

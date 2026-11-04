@@ -1,0 +1,217 @@
+[
+  {
+    "what": "the applied migration 001_history.sql edited",
+    "file": "bearing/migrations/001_history.sql",
+    "find": "position INTEGER NOT NULL UNIQUE,",
+    "replace": "position INTEGER NOT NULL,",
+    "command": [
+      "git",
+      "-c",
+      "core.safecrlf=false",
+      "diff",
+      "--exit-code",
+      "9ecc9d1",
+      "--",
+      "tests/contract/",
+      "tests/fixtures/make_repo.py",
+      "tests/fixtures/expected/",
+      "bearing/migrations/001_history.sql",
+      "tests/test_snapshot_tree.py",
+      "tests/test_snapshot_cli.py"
+    ]
+  },
+  {
+    "what": "structure_events renaming a module whose old name is still in new",
+    "file": "bearing/snapshot/diff.py",
+    "find": "            and old_by_path[old_path] not in new_names\n",
+    "replace": "",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_diff.py::StructureEventsTest::test_events"
+    ]
+  },
+  {
+    "what": "structure_events renaming to a name already in old",
+    "file": "bearing/snapshot/diff.py",
+    "find": "            and new_by_path[new_path] not in old_names\n",
+    "replace": "",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_diff.py::StructureEventsTest::test_events"
+    ]
+  },
+  {
+    "what": "structure_events comparing old edges without renaming",
+    "file": "bearing/snapshot/diff.py",
+    "find": "(moved.get(a, a), moved.get(b, b))",
+    "replace": "(a, b)",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_diff.py::StructureEventsTest::test_events"
+    ]
+  },
+  {
+    "what": "structure_events listing a rename's new name as +module",
+    "file": "bearing/snapshot/diff.py",
+    "find": "old_names - came)",
+    "replace": "old_names)",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_diff.py::StructureEventsTest::test_events"
+    ]
+  },
+  {
+    "what": "the uncached snapshot counts one line more per module",
+    "file": "bearing/snapshot/tree.py",
+    "find": "lines, found = count_lines(data), parse_imports(data)",
+    "replace": "lines, found = count_lines(data) + 1, parse_imports(data)",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/contract/test_snapshot.py",
+      "tests/test_snapshot_tree.py",
+      "tests/test_snapshot_cli.py"
+    ]
+  },
+  {
+    "what": "cached imports come back with names as lists",
+    "file": "bearing/snapshot/cache.py",
+    "find": "(level, module, tuple(names))",
+    "replace": "(level, module, names)",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_blob_cache.py::BlobCacheTest::test_round_trip"
+    ]
+  },
+  {
+    "what": "a cache hit is not counted",
+    "file": "bearing/snapshot/cache.py",
+    "find": "self.hits += 1",
+    "replace": "self.hits += 0",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_blob_cache.py::SnapshotCacheTest::test_counts"
+    ]
+  },
+  {
+    "what": "save also empties blobs",
+    "file": "bearing/store/db.py",
+    "find": "conn.execute(\"DELETE FROM prs\")",
+    "replace": "conn.executescript(\"DELETE FROM prs; DELETE FROM blobs\")",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_store.py::StoreTest::test_stored_once"
+    ]
+  },
+  {
+    "what": "timeline.py: #- for a NULL pr_number",
+    "file": "bearing/snapshot/timeline.py",
+    "find": "\"-\" if pr_number is None else pr_number",
+    "replace": "pr_number",
+    "command": [
+      "python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_timeline_cli.py::TimelineCliTest::test_lines"
+    ]
+  },
+  {
+    "what": "tree.py: renamed_paths returns no pair",
+    "file": "bearing/snapshot/tree.py",
+    "find": "if status == b\"R\":",
+    "replace": "if False:",
+    "command": [
+      "python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_timeline_cli.py::TimelineCliTest::test_lines"
+    ]
+  },
+  {
+    "what": "cli.py: the cache is not committed",
+    "file": "bearing/cli.py",
+    "find": "conn.commit()",
+    "replace": "pass",
+    "command": [
+      "python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_timeline_cli.py::TimelineCliTest::test_stats"
+    ]
+  },
+  {
+    "what": "timeline.py: the parent snapshot taken first",
+    "file": "bearing/snapshot/timeline.py",
+    "find": "snapshot(repo, sha, cache)",
+    "replace": "snapshot(repo, sha + \"^1\", cache) and snapshot(repo, sha, cache)",
+    "command": [
+      "python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_timeline_cli.py::TimelineCliTest::test_errors"
+    ]
+  },
+  {
+    "what": "tree.py: snapshot writes a ref",
+    "file": "bearing/snapshot/tree.py",
+    "find": "_git(repo, \"rev-parse\", \"--git-dir\")",
+    "replace": "_git(repo, \"update-ref\", \"refs/bearing/x\", \"HEAD\") or _git(repo, \"rev-parse\", \"--git-dir\")",
+    "command": [
+      "python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_timeline_cli.py::TimelineCliTest::test_read_only"
+    ]
+  }
+]
