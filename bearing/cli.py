@@ -8,6 +8,7 @@ from pathlib import Path
 
 from bearing import __version__
 from bearing.ingest.changelog import format_changelog, read_entries
+from bearing.ingest.gh import GhError, fetch_prs
 from bearing.ingest.history import GitError, read_first_parent
 from bearing.ingest.mapping import format_report, load_prs, map_history
 from bearing.store.db import open_store, save
@@ -43,7 +44,7 @@ def main(argv=None) -> int:
         "ingest", help="store a repository's history and PRs"
     )
     ingest.add_argument("repo")
-    ingest.add_argument("--prs", required=True)
+    ingest.add_argument("--prs", default=None)
     ingest.add_argument("--data", default=".bearing")
     changelog = subparsers.add_parser(
         "changelog", help="print the changelog from a stored history"
@@ -61,19 +62,26 @@ def main(argv=None) -> int:
     if args.command != "ingest":
         return 0
 
-    # Read git and the PR file before the store is opened, so an error leaves no store behind.
+    # Read git and the PR records (file or gh) before the store is opened, so an error leaves
+    # no store behind.
     try:
         commits = read_first_parent(args.repo)
     except GitError as exc:
         return _fail(str(exc) or f"not a git repository: {args.repo}")
     except OSError as exc:
         return _fail(f"cannot run git in {args.repo}: {exc.strerror or exc}")
-    try:
-        records = load_prs(args.prs)
-    except FileNotFoundError as exc:
-        return _fail(f"cannot read {args.prs}: {exc.strerror}")
-    except (OSError, ValueError) as exc:
-        return _fail(str(exc))
+    if args.prs is None:
+        try:
+            records = fetch_prs(args.repo)
+        except GhError as exc:
+            return _fail(str(exc))
+    else:
+        try:
+            records = load_prs(args.prs)
+        except FileNotFoundError as exc:
+            return _fail(f"cannot read {args.prs}: {exc.strerror}")
+        except (OSError, ValueError) as exc:
+            return _fail(str(exc))
 
     result = map_history(commits, records)
     try:
