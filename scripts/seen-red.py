@@ -6,7 +6,8 @@ A `new` check must fail on the code before the change (specs/README.md). This ma
 mechanical: it checks the base out into a scratch git worktree, copies in every file under tests/
 (or a tests.py at the root) that differs from the base in the working tree (committed or not,
 untracked included), except the paths the project file's `code_under_tests` names (code a test
-checks that lives under tests/, such as a fixture builder), and runs the command there, as an argument list with no shell. Nothing in the working tree is touched.
+checks that lives under tests/, such as a fixture builder), and runs the command there, as an
+argument list with no shell. Nothing in the working tree is touched.
 
 It exits 0 only when the command failed there, and prints the record for the PR:
 `seen red: <command> on <base> → <what it reported>`. A command that passes on the base exits 1:
@@ -41,7 +42,7 @@ def git(*args, cwd="."):
 
 def code_under_tests(path=CONFIG):
     """The project file's `code_under_tests` patterns: paths under tests/ that are the code a test
-    checks, such as a fixture builder, not the test. None with no file or no field."""
+    checks, such as a fixture builder, not the test. Empty with no file or no field."""
     try:
         with open(path, encoding="utf-8") as f:
             return [re.compile(p) for p in json.load(f).get("code_under_tests", [])]
