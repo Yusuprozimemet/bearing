@@ -1,4 +1,4 @@
-"""The command line: --version, ingest (stores a repository's history and PRs), changelog (prints it) and snapshot (prints a repository's modules and imports at one commit)."""
+"""The command line: --version, ingest (stores a repository's history and PRs), changelog (prints it), snapshot (prints a repository's modules and imports at one commit) and timeline (prints what each merge changed in the structure)."""
 
 import argparse
 import datetime
@@ -12,6 +12,8 @@ from bearing.ingest.changelog import format_changelog, read_entries
 from bearing.ingest.gh import GhError, fetch_prs
 from bearing.ingest.history import GitError, read_first_parent
 from bearing.ingest.mapping import format_report, load_prs, map_history
+from bearing.snapshot.cache import BlobCache
+from bearing.snapshot.timeline import timeline
 from bearing.snapshot.tree import SnapshotError, snapshot
 from bearing.store.db import open_store, save
 
@@ -47,6 +49,32 @@ def _snapshot(args) -> int:
     return 0
 
 
+def _timeline(args) -> int:
+    # Never creates the store, as changelog: a missing file is an error.
+    db = Path(args.data) / "bearing.db"
+    if not db.is_file():
+        return _fail(f"no store at {db}: run bearing ingest first")
+    conn = None
+    try:
+        conn = open_store(args.data)  # applies 002_blobs.sql to a Day 5 store
+        cache = BlobCache(conn)
+        # All lines are computed before any is printed, so an error prints nothing on stdout.
+        lines = timeline(args.repo, conn, cache)
+        for line in lines:
+            sys.stdout.write(f"{line}\n")
+        conn.commit()
+    except SnapshotError as exc:
+        return _fail(str(exc))
+    except sqlite3.Error as exc:
+        return _fail(f"cannot read store at {db}: {exc}")
+    finally:
+        if conn is not None:
+            conn.close()
+    if args.stats:
+        print(f"blobs parsed {cache.parsed}  cache hits {cache.hits}", file=sys.stderr)
+    return 0
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="bearing")
     parser.add_argument("--version", action="version", version=f"bearing {__version__}")
@@ -68,6 +96,12 @@ def main(argv=None) -> int:
     )
     snap.add_argument("repo")
     snap.add_argument("ref")
+    tl = subparsers.add_parser(
+        "timeline", help="print what each merge changed in the structure"
+    )
+    tl.add_argument("repo")
+    tl.add_argument("--data", default=".bearing")
+    tl.add_argument("--stats", action="store_true")
     args = parser.parse_args(argv)
     # Output is UTF-8 whatever the console's code page; a stream without reconfigure (a test's
     # StringIO) is left as it is. Parsing comes first, so --version never touches the stream.
@@ -77,6 +111,8 @@ def main(argv=None) -> int:
         return _changelog(args)
     if args.command == "snapshot":
         return _snapshot(args)
+    if args.command == "timeline":
+        return _timeline(args)
     if args.command != "ingest":
         return 0
 
