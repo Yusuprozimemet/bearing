@@ -69,7 +69,7 @@ days on a small Python CLI. What that evidence does and does not show is in
 5. Optional: a tracker key, as a repository variable `JIRA_KEY` (Settings, Secrets and
    variables, Actions, Variables). "Compare the names" in `.github/workflows/pr-checks.yml`
    reads it; unset, no key is checked.
-6. Optional: set the repository variable `TRACK_RED_RUNNER` to `unittest`, `pytest`, `maven`, or `npm`. "Track tests seen red" runs each named test on the base and head. Unset, it reports "not configured" and passes; an unknown value fails. Use unittest test names, pytest node IDs, Maven class names, or npm test file paths, respectively. The replay copies changed files under `tests/` only; test files elsewhere must already exist on the base. Runner dependencies must be available in CI. Evidence replay still resolves Python classes under `tests/`.
+6. Optional: set the repository variable `TRACK_RED_RUNNER` to `unittest`, `pytest`, `maven`, or `npm`. "Track tests seen red" runs each named test on the base and head. Unset, it reports "not configured" and passes; an unknown value fails. Use unittest test names, pytest node IDs, Maven class names, or npm test file paths, respectively. The replay copies changed files under `tests/` only; test files elsewhere must already exist on the base. Code a test checks that lives under `tests/`, such as a fixture builder, is listed in `spec-drift.config.json` as `code_under_tests` (regular expressions over the path) and is not copied in, so the base keeps its own. Runner dependencies must be available in CI. Evidence replay still resolves Python classes under `tests/`.
 
 ### Style check setup
 
