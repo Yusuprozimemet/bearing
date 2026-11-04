@@ -1,7 +1,8 @@
-"""The command line: --version, ingest (stores a repository's history and PRs) and changelog (prints it)."""
+"""The command line: --version, ingest (stores a repository's history and PRs), changelog (prints it) and snapshot (prints a repository's modules and imports at one commit)."""
 
 import argparse
 import datetime
+import json
 import sqlite3
 import sys
 from pathlib import Path
@@ -11,6 +12,7 @@ from bearing.ingest.changelog import format_changelog, read_entries
 from bearing.ingest.gh import GhError, fetch_prs
 from bearing.ingest.history import GitError, read_first_parent
 from bearing.ingest.mapping import format_report, load_prs, map_history
+from bearing.snapshot.tree import SnapshotError, snapshot
 from bearing.store.db import open_store, save
 
 
@@ -36,6 +38,15 @@ def _changelog(args) -> int:
     return 0
 
 
+def _snapshot(args) -> int:
+    try:
+        snap = snapshot(args.repo, args.ref)
+    except SnapshotError as exc:
+        return _fail(str(exc))
+    sys.stdout.write(json.dumps(snap, sort_keys=True, indent=2) + "\n")
+    return 0
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="bearing")
     parser.add_argument("--version", action="version", version=f"bearing {__version__}")
@@ -52,6 +63,11 @@ def main(argv=None) -> int:
     changelog.add_argument("--since", type=datetime.date.fromisoformat, default=None)
     changelog.add_argument("--until", type=datetime.date.fromisoformat, default=None)
     changelog.add_argument("--data", default=".bearing")
+    snap = subparsers.add_parser(
+        "snapshot", help="print the modules and imports of a repository at one commit"
+    )
+    snap.add_argument("repo")
+    snap.add_argument("ref")
     args = parser.parse_args(argv)
     # Output is UTF-8 whatever the console's code page; a stream without reconfigure (a test's
     # StringIO) is left as it is. Parsing comes first, so --version never touches the stream.
@@ -59,6 +75,8 @@ def main(argv=None) -> int:
         sys.stdout.reconfigure(encoding="utf-8")
     if args.command == "changelog":
         return _changelog(args)
+    if args.command == "snapshot":
+        return _snapshot(args)
     if args.command != "ingest":
         return 0
 
