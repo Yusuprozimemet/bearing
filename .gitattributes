@@ -1,3 +1,6 @@
 # A shell script with a CRLF line ending breaks under bash, in CI and in containers alike.
 # Keep shell scripts LF on every checkout, Windows included.
 *.sh text eol=lf
+
+# Fixture output must be the same bytes on Windows and Linux (plan.md, "hard parts").
+tests/fixtures/** text eol=lf

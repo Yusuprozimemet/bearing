@@ -8,3 +8,7 @@ __pycache__/
 
 # --- local secrets ---
 .env
+
+# --- Bearing: the editable install's metadata and the default data directory ---
+*.egg-info/
+.bearing/
