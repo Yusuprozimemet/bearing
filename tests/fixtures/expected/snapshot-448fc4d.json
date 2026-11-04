@@ -1,0 +1,130 @@
+{
+  "imports": [
+    [
+      "app",
+      "app.core"
+    ],
+    [
+      "app.a",
+      "app.b"
+    ],
+    [
+      "app.b",
+      "app.a"
+    ],
+    [
+      "app.sub.mod",
+      "app.core"
+    ],
+    [
+      "app.sub.mod",
+      "app.pkg"
+    ],
+    [
+      "lib.util",
+      "app.core"
+    ],
+    [
+      "scripts.helpers",
+      "scripts.config"
+    ],
+    [
+      "scripts.run",
+      "scripts.helpers"
+    ]
+  ],
+  "modules": [
+    {
+      "lines": 1,
+      "name": "app",
+      "parse_error": false,
+      "path": "app/__init__.py"
+    },
+    {
+      "lines": 3,
+      "name": "app.a",
+      "parse_error": false,
+      "path": "app/a.py"
+    },
+    {
+      "lines": 7,
+      "name": "app.b",
+      "parse_error": false,
+      "path": "app/b.py"
+    },
+    {
+      "lines": 2,
+      "name": "app.broken",
+      "parse_error": true,
+      "path": "app/broken.py"
+    },
+    {
+      "lines": 253,
+      "name": "app.core",
+      "parse_error": false,
+      "path": "app/core.py"
+    },
+    {
+      "lines": 5,
+      "name": "app.crlf",
+      "parse_error": false,
+      "path": "app/crlf.py"
+    },
+    {
+      "lines": 3,
+      "name": "app.legacy",
+      "parse_error": false,
+      "path": "app/legacy.py"
+    },
+    {
+      "lines": 5,
+      "name": "app.pkg",
+      "parse_error": false,
+      "path": "app/pkg/__init__.py"
+    },
+    {
+      "lines": 1,
+      "name": "app.sub",
+      "parse_error": false,
+      "path": "app/sub/__init__.py"
+    },
+    {
+      "lines": 8,
+      "name": "app.sub.mod",
+      "parse_error": false,
+      "path": "app/sub/mod.py"
+    },
+    {
+      "lines": 1,
+      "name": "lib",
+      "parse_error": false,
+      "path": "src/lib/__init__.py"
+    },
+    {
+      "lines": 13,
+      "name": "lib.util",
+      "parse_error": false,
+      "path": "src/lib/util.py"
+    },
+    {
+      "lines": 3,
+      "name": "scripts.config",
+      "parse_error": false,
+      "path": "scripts/config.py"
+    },
+    {
+      "lines": 7,
+      "name": "scripts.helpers",
+      "parse_error": false,
+      "path": "scripts/helpers.py"
+    },
+    {
+      "lines": 5,
+      "name": "scripts.run",
+      "parse_error": false,
+      "path": "scripts/run.py"
+    }
+  ],
+  "ref": "448fc4dc915289f0b3f0254cf80360b56f48513a",
+  "version": "snapshot-v1"
+}
