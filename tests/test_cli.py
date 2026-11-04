@@ -15,6 +15,7 @@ class CliTest(unittest.TestCase):
     def test_version_module(self):
         result = subprocess.run(
             [sys.executable, "-m", "bearing", "--version"],
+            check=False,
             cwd=REPO,
             capture_output=True,
         )

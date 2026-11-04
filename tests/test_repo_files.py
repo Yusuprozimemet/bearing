@@ -11,6 +11,7 @@ class RepoFilesTest(unittest.TestCase):
     def test_gitignore(self):
         result = subprocess.run(
             ["git", "check-ignore", "bearing.egg-info/PKG-INFO", ".bearing/bearing.db"],
+            check=False,
             cwd=REPO,
             capture_output=True,
             text=True,
@@ -22,6 +23,7 @@ class RepoFilesTest(unittest.TestCase):
     def test_fixtures_eol_lf(self):
         result = subprocess.run(
             ["git", "check-attr", "eol", "--", "tests/fixtures/make_repo.py"],
+            check=False,
             cwd=REPO,
             capture_output=True,
             text=True,
