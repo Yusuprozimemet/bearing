@@ -28,6 +28,17 @@ None
 
 ```
 
+## Human interventions
+
+<!-- One line per intervention the maintainer made in this step's chat,
+     `human: <type> — <what, in one clause>`, where <type> is `correction` (changed what the
+     session did or was about to do), `park` (stopped or deferred something), `kit` (changed
+     the kit, a spec rule or plan.md because of this step) or `approve` (merged with no change
+     asked). Add a line for each change asked after the PR opened. Your own self-corrections
+     are Defect lines, not these. -->
+
+human: none yet
+
 ## Self-check
 
 - [ ] I ran this and it works

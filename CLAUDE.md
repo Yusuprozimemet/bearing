@@ -274,3 +274,8 @@ The dashboard script and the PR checks:
   the self-check. Spec-change PRs tick the `new`/`hold` line.
 - Record mistakes, including your own, in the PR and the day's Notes. The corrections are part of
   what this repository measures.
+- Record what the maintainer did. Before opening a PR, write one `human:` line under "Human
+  interventions" for each intervention the maintainer made in this step's chat (types in the
+  template), or `human: none yet`. When the maintainer asks for changes and you push a fix, add a
+  line for that request to the PR body. Never invent one or count your own self-corrections:
+  those stay Defect lines. The maintainer reviews in chat, so GitHub holds no other record.
