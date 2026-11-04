@@ -148,12 +148,15 @@ spec's PR, which runs its check first.
 ## Acceptance criteria
 Tick each box in the closing PR once its evidence is in it; under a box left unticked, write
 `Not proven: <why>` (`specs/README.md`, "Evidence at the close").
-- [ ] C03.1 **new** — `area` gives "day-03" for "day-03/track-a-rename", "docs" for
+- [x] C03.1 **new** — `area` gives "day-03" for "day-03/track-a-rename", "docs" for
       "docs/guide", "tooling" for "tooling/ci", "other" for "release", "" and `None`, and
       "other-owner" for "other-owner/patch-1/x". Red today: "No module named
       'bearing.ingest.text'".
       Test: `tests/test_text.py::AreaTest::test_areas`
-- [ ] C03.2 **new** — `what_i_built` gives, for make_repo.py's template body, "A small change to
+      Evidence: `AreaTest.test_areas` (#21), seen red first on `681cca2`'s code;
+      `python -m pytest -q` (#21).
+      broken: area cut at the last "/" → 1 failed, 1 passed, 6 subtests passed in 0.09s (#21)
+- [x] C03.2 **new** — `what_i_built` gives, for make_repo.py's template body, "A small change to
       the fixture, so the tests have a real case to read."; for #2's body ("## What was
       built" heading), "A script that prints a greeting, and the helper module it imports.";
       for #9's, "app/b.py stops importing app.a, so the cycle is gone."; for "", "";
@@ -162,7 +165,10 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       for "## What I built\n\n## Why\n\nBecause.\n", "Because."; and for "## Heading only\n", "".
       Red today: as C03.1.
       Test: `tests/test_text.py::ParagraphTest::test_paragraphs`
-- [ ] C03.3 **new** — on the fixture ingested into a store in the test, `read_entries` returns 10
+      Evidence: `ParagraphTest.test_paragraphs` (#21), seen red first on `681cca2`'s code;
+      `python -m pytest -q` (#21).
+      broken: what_i_built: an empty What I built section returns "", no fallback → 1 failed, 1 passed, 7 subtests passed in 4.59s (#21)
+- [x] C03.3 **new** — on the fixture ingested into a store in the test, `read_entries` returns 10
       entries whose numbers, in order, are `1 2 4 3 5 6 8 9 10 11`; whose areas are
       "day-01 tooling docs day-02 docs day-02 day-03 day-03 other tooling"; whose first date is
       "2026-01-07" and last "2026-01-30"; #4's paragraph is ""; and #11's title is
@@ -172,7 +178,11 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       "No module named 'bearing.ingest.changelog'".
       Test: `tests/test_entries.py::EntriesTest::test_fixture_entries` and
       `tests/test_entries.py::EntriesTest::test_date_is_the_commit`
-- [ ] C03.4 **new** — `format_changelog(read_entries(conn))` on that store, each line ending in
+      Evidence: `EntriesTest.test_fixture_entries` and `EntriesTest.test_date_is_the_commit`
+      (#22), seen red first on `9612e53`'s code; `python -m pytest -q` (#22).
+      broken: the date read from the record's merged_at → 1 failed in 4.78s (#22)
+      broken: an inner join, dropping the unmatched merge → 1 failed in 5.53s (#22)
+- [x] C03.4 **new** — `format_changelog(read_entries(conn))` on that store, each line ending in
       `\n`, is the bytes of `tests/fixtures/expected/changelog.md`, the 37 lines under "What
       the fixture gives"; `format_changelog([])` is `["# Changelog"]`; and one hand-built
       `Entry(None, "Merge branch 'x'", "2026-02-01", "other", "")` gives exactly
@@ -182,18 +192,27 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       gives exactly "# Changelog", "", "## docs", "", "- #5 five (2026-02-03)",
       "- #3 three (2026-02-02)". Red today: as C03.3.
       Test: `tests/test_entries.py::ChangelogFormatTest::test_golden_and_edges`
-- [ ] C03.5 **new** — after `bearing ingest` of the fixture into `<tmp>`,
+      Evidence: `ChangelogFormatTest.test_golden_and_edges` (#22), seen red first on
+      `9612e53`'s code; `python -m pytest -q` (#22).
+      broken: entries in an area sorted by number → 1 failed, 1 passed, 2 subtests passed in 5.66s (#22)
+- [x] C03.5 **new** — after `bearing ingest` of the fixture into `<tmp>`,
       `python -m bearing changelog --data <tmp>`, run from the repository root, exits 0 and
       prints, with `\r\n` read as `\n`, the bytes of `tests/fixtures/expected/changelog.md`;
       and `grep -c '^- #'` on that output would count 10, the ingest line's `merges`. Red
       today: argparse's "invalid choice: 'changelog'", exit 2.
       Test: `tests/test_changelog_cli.py::ChangelogCliTest::test_golden` and
       `tests/contract/test_changelog.py::ChangelogContractTest::test_golden`
-- [ ] C03.6 **new** — `python -m bearing changelog --data <tmp> --since 2026-01-14 --until
+      Evidence: `ChangelogCliTest.test_golden` and `ChangelogContractTest.test_golden` (#23),
+      seen red first on `05c91b0`'s code; `python -m pytest -q` (#23).
+      broken: changelog prints nothing → 1 failed in 5.44s (#23)
+- [x] C03.6 **new** — `python -m bearing changelog --data <tmp> --since 2026-01-14 --until
       2026-01-23` on that store exits 0 and prints exactly the 18 lines under "What the fixture
       gives"; `--since 2026-02-01` prints exactly "# Changelog". Red today: as C03.5.
       Test: `tests/test_changelog_cli.py::ChangelogCliTest::test_range`
-- [ ] C03.7 **new** — UTF-8 stdout (H02.2): with a copy of `prs.json` whose #1 and #7 titles are
+      Evidence: `ChangelogCliTest.test_range` (#23), seen red first on `05c91b0`'s code;
+      `python -m pytest -q` (#23).
+      broken: changelog ignores --since → 1 failed in 4.57s (#23)
+- [x] C03.7 **new** — UTF-8 stdout (H02.2): with a copy of `prs.json` whose #1 and #7 titles are
       "Café → bar", written as UTF-8 bytes, and `PYTHONIOENCODING=cp1252` in the
       environment (stdout a pipe), `bearing ingest` exits 0 and its stdout, decoded as UTF-8,
       holds the line "unmatched PR #7 e21c62d Café → bar"; `bearing changelog` on that store
@@ -202,17 +221,26 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       Red today: ingest exits 1 with "UnicodeEncodeError: 'charmap' codec can't encode
       character" (seen in the spec's prototype run and the auditor's, on Windows).
       Test: `tests/test_changelog_cli.py::OutputEncodingTest::test_utf8_stdout`
-- [ ] C03.8 **new** — `--data` errors (H02.3): `bearing ingest <dir>/repo --prs <dir>/prs.json
+      Evidence: `OutputEncodingTest.test_utf8_stdout` (#23), seen red first on `05c91b0`'s code;
+      `python -m pytest -q` (#23).
+      broken: cli.py stdout left in its own encoding → 1 failed in 4.38s (#23)
+- [x] C03.8 **new** — `--data` errors (H02.3): `bearing ingest <dir>/repo --prs <dir>/prs.json
       --data <a file>` and `bearing changelog --data <a file>` each exit 1, stdout empty, stderr
       starting "bearing: "; `bearing changelog --data <an empty directory>` does the same and
       leaves no `bearing.db` in it; `bearing changelog --since 2026-13-01` exits 2 with
       "--since" in stderr. Red today: ingest's stderr starts "Traceback" (a `FileExistsError`,
       exit 1), and changelog is argparse's invalid choice.
       Test: `tests/test_changelog_cli.py::DataDirTest::test_errors`
-- [ ] C03.9 **hold** — the frozen files stay as Day 2 left them: the fixture, the ingest contract
+      Evidence: `DataDirTest.test_errors` (#23), seen red first on `05c91b0`'s code;
+      `python -m pytest -q` (#23).
+      broken: changelog opens a missing store → 1 failed in 5.55s (#23)
+      broken: ingest lets an OSError from --data through → 1 failed in 4.51s (#23)
+- [x] C03.9 **hold** — the frozen files stay as Day 2 left them: the fixture, the ingest contract
       and its golden file, and the applied migration:
       `git -c core.safecrlf=false diff --exit-code 3f8958b -- tests/contract/test_fixture.py tests/contract/test_ingest.py tests/fixtures/make_repo.py tests/fixtures/expected/ingest.txt bearing/migrations/001_history.sql`
       prints nothing and exits 0.
+      Evidence: the command above, exit 0 in #19 and on `a33c3f9` at the close.
+      broken: the applied migration 001_history.sql edited → pr_number INTEGER NULL, (#19)
 
 ## Verify
 ```bash
@@ -294,3 +322,18 @@ git -c core.safecrlf=false diff --exit-code 3f8958b -- tests/contract/test_fixtu
 - **Hand-off** H03.3 → the maintainer: plan.md's "Each format has a version string" against the
   ingest line and the changelog, which have none: exempt the text formats, or give them one, in
   a plan-change PR.
+- At the close, on `a33c3f9`: `python -m pytest -q` gave "30 passed, 22 subtests passed", the
+  count above. Verify's ingest printed `merges 10  matched 9  unmatched merges 1  unmatched PRs 1
+  direct 2`, and its changelog matched `changelog.md` with 10 lines starting "- #". All 11
+  `manifest:` lines (1 in #19, 2 in #21, 3 in #22, 5 in #23) parsed as JSON, and each `find`
+  occurs once in the merged code. Replayed with `scripts/break.py` in an LF worktree, each failed
+  its check. Every criterion had a break from a track or the spec PR, so the close ran no first
+  break.
+- **Defect** D03.11 — found: Track B · cause: environment · made: Day 03 · the implementer's
+  Track B session ended before it reported, and Ruff's cache was left corrupt: `ruff check .`
+  panicked with "wrong package cache for file" on every file. `--no-cache` runs passed, and
+  deleting `.ruff_cache` fixed it (#22).
+- **Defect** D03.12 — found: self · cause: process · made: Day 03 · the close's scratch script that
+  replays the breaks printed each `broken:` line, arrow included, to a cp1252 stdout. It stopped
+  at the first with a `UnicodeEncodeError`, D02.10's failure in the close's own tooling. Rerun
+  with `PYTHONIOENCODING=utf-8`; nothing was committed.

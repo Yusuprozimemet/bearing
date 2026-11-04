@@ -1,0 +1,152 @@
+[
+  {
+    "what": "the applied migration 001_history.sql edited",
+    "file": "bearing/migrations/001_history.sql",
+    "find": "subject TEXT NOT NULL,",
+    "replace": "subject TEXT,",
+    "command": [
+      "git",
+      "-c",
+      "core.safecrlf=false",
+      "diff",
+      "--exit-code",
+      "3f8958b",
+      "--",
+      "tests/contract/test_fixture.py",
+      "tests/contract/test_ingest.py",
+      "tests/fixtures/make_repo.py",
+      "tests/fixtures/expected/ingest.txt",
+      "bearing/migrations/001_history.sql"
+    ]
+  },
+  {
+    "what": "area cut at the last \"/\"",
+    "file": "bearing/ingest/text.py",
+    "find": "branch.split(\"/\", 1)[0]",
+    "replace": "branch.rsplit(\"/\", 1)[0]",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_text.py::AreaTest::test_areas"
+    ]
+  },
+  {
+    "what": "what_i_built: an empty What I built section returns \"\", no fallback",
+    "file": "bearing/ingest/text.py",
+    "find": "            if section:\n                return section\n            break",
+    "replace": "            return section",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_text.py::ParagraphTest::test_paragraphs"
+    ]
+  },
+  {
+    "what": "the date read from the record's merged_at",
+    "file": "bearing/ingest/changelog.py",
+    "find": "SELECT commits.pr_number, commits.subject, commits.committed_at,",
+    "replace": "SELECT commits.pr_number, commits.subject, COALESCE(prs.merged_at, commits.committed_at),",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_entries.py::EntriesTest::test_date_is_the_commit"
+    ]
+  },
+  {
+    "what": "entries in an area sorted by number",
+    "file": "bearing/ingest/changelog.py",
+    "find": "        for entry in kept:",
+    "replace": "        for entry in sorted(kept, key=lambda e: e.number or 0):",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_entries.py::ChangelogFormatTest::test_golden_and_edges"
+    ]
+  },
+  {
+    "what": "an inner join, dropping the unmatched merge",
+    "file": "bearing/ingest/changelog.py",
+    "find": " FROM commits LEFT JOIN prs",
+    "replace": " FROM commits JOIN prs",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_entries.py::EntriesTest::test_fixture_entries"
+    ]
+  },
+  {
+    "what": "cli.py stdout left in its own encoding",
+    "file": "bearing/cli.py",
+    "find": "sys.stdout.reconfigure(encoding=\"utf-8\")",
+    "replace": "pass",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_changelog_cli.py::OutputEncodingTest::test_utf8_stdout"
+    ]
+  },
+  {
+    "what": "changelog ignores --since",
+    "file": "bearing/cli.py",
+    "find": "since=args.since, until=args.until",
+    "replace": "since=None, until=args.until",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_changelog_cli.py::ChangelogCliTest::test_range"
+    ]
+  },
+  {
+    "what": "changelog opens a missing store",
+    "file": "bearing/cli.py",
+    "find": "    if not db.is_file():",
+    "replace": "    if False:",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_changelog_cli.py::DataDirTest::test_errors"
+    ]
+  },
+  {
+    "what": "ingest lets an OSError from --data through",
+    "file": "bearing/cli.py",
+    "find": "except (OSError, sqlite3.Error) as exc:",
+    "replace": "except sqlite3.Error as exc:",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_changelog_cli.py::DataDirTest::test_errors"
+    ]
+  },
+  {
+    "what": "changelog prints nothing",
+    "file": "bearing/cli.py",
+    "find": "        return _changelog(args)",
+    "replace": "        return 0",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/contract/test_changelog.py::ChangelogContractTest::test_golden"
+    ]
+  }
+]
