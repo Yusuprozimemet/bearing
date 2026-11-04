@@ -47,6 +47,47 @@
   folder's total from 2026-10-28 to 2026-11-04 is $168.85. Most of it was spent setting up the
   repository before the spec, and the script tags none of that to a day.
 
+### Day 02: Ingest (Phase 1), closed in the closing PR
+
+- **Delivered:** `bearing ingest <repo> --prs <file> [--data DIR]`. It reads the first-parent
+  line of `main` (#13) and maps the `gh` records to it, `mergeCommit` first and the merge subject
+  only when there is no `oid` (#14). It stores both in SQLite through migration
+  `001_history.sql` (#15). It prints the counts line and each unmatched item against the golden
+  file `tests/fixtures/expected/ingest.txt` (#16). On the fixture:
+  `merges 10  matched 9  unmatched merges 1  unmatched PRs 1  direct 2`. `pytest -q`: 20 passed,
+  4 subtests passed.
+- **Criteria:** 11 of 11 ticked: 10 `new` and 1 `hold`.
+- **Breaks on purpose:** 11, all in `specs/breaks/day-02.json`: 1 in #11, 2 in #13, 3 in #14, 1
+  in #15, 3 in #16, and 1 at the close. No track broke C02.4, so the close ran its first break
+  (D02.14). Two `manifest:` lines had lost a level of backslashes in their PR bodies, as on Day 1
+  (D02.12, D02.13). The close restored them and replayed all 11 in an LF worktree. Each one
+  failed its check.
+- **PRs:** 7 at the day-spec rung: the spec (#11), Tracks 0 and A–D (#12–#16), and the close.
+  Before them, #10 was a plan-change PR from the Phase 0/1 plan-auditor.
+- **Defects:** 15 in the Notes, 2 of them recurrences of D01.21.
+
+  | Field | Count |
+  | --- | --- |
+  | found: auditor | 6 |
+  | found: Track B | 1 |
+  | found: Track D | 2 |
+  | found: review | 2 |
+  | found: close | 3 |
+  | found: self | 1 |
+  | cause: spec | 9 |
+  | cause: implementation | 1 |
+  | cause: process | 5 |
+
+  The spec-auditor's six findings (D02.1–D02.6) all landed in the spec before any code. Four of
+  them would have produced a criterion that could not be met or a test that could not fail. Two
+  spec gaps came up only in Track D, both on the output side: the report crashes on a non-ASCII
+  title when stdout is piped on Windows (D02.10), and a bad `--data` gives a traceback (D02.11).
+  Both go to Day 3 (H02.2, H02.3).
+- **Tokens:** `docs/dashboard/token-usage.json` tags three rows with Day 2, all on 2026-11-04:
+  the main session (76 replies, $3.20), the spec-auditor (33 replies, $1.14) and the
+  implementer on Haiku (39 replies, $0.04). The folder's total from 2026-10-28 to 2026-11-04 is
+  $184.22, counted during the close, so the close's own session is only partly in it.
+
 ## What is being measured
 
 | Question | Evidence it will be judged on |

@@ -231,6 +231,11 @@ On Windows, in Git Bash and PowerShell:
 - Long heredocs break in Git Bash, and PowerShell has none. Write commit messages and PR bodies
   to a scratch file (`git commit -F`, `gh pr create --body-file`); give the maintainer one-line
   commands, with any JSON in a file (`gh api --input <file>`).
+- Backslashes do not survive a Bash-tool heredoc intact (Day 2's close: a Python regex lost
+  them). Write any file holding a backslash, a `manifest:` line above all, with the Write tool;
+  two PR bodies lost a level this way or another (D01.21, D02.12, D02.13).
+- `git -C <worktree> config` writes the repository's shared config, not the worktree's: give a
+  scratch worktree its settings with `git -c` on each command (D02.15).
 - The Write tool will not overwrite a file this session has not read, even one a shell made.
 
 Breaks on purpose:
