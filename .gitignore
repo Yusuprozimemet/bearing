@@ -12,3 +12,6 @@ __pycache__/
 # --- Bearing: the editable install's metadata and the default data directory ---
 *.egg-info/
 .bearing/
+
+# --- the step guard's marker: set on "merged", cleared by a new session (scripts/step-guard.py) ---
+.claude/state/
