@@ -44,8 +44,10 @@ real, messy histories (squash merges, flat script folders, relative imports) and
   A branch with no `/` has the area `other`. This is the changelog's area. A file's area is
   another thing, a path area from `bearing.toml`, which Phase 3 reads; the two meet only in
   said vs done (Course correction before Phase 3).
-- **The layered layout is the simplest deterministic one:** a module's layer is its longest
-  import path from a module nothing imports; within a layer, modules are in name order. No
+- **The layered layout is the simplest deterministic one:** each cycle of imports (a strongly
+  connected component) is one node, and every other module is a node of its own; a node's layer
+  is its longest import path from a node nothing imports, and a module takes its node's layer;
+  within a layer, modules are in name order (Course correction after Phase 3). No
   crossing minimisation in v1. It is less pretty and is the same on every run and machine.
 - **No LLM calls in v1.** Every output is computed, so it can be tested against golden files. A
   summarising layer may come after Phase 4 as an optional extra.
@@ -186,9 +188,9 @@ Each phase is a series of <400-line PRs, so CI stays green.
 - `bearing page --out <file>`: a single static file, data embedded as JSON, no external scripts,
   opens offline. The graph uses a layered layout computed in Python, so it is the same each run.
 - Each step shows the merge, the structure change, the PR's title and "What I built", and any
-  flag on it.
+  flag on it, marked unverified (Course correction after Phase 3).
 - **Done when:** the embedded data matches its golden file on the fixture; on the kit's
-  history, the page's step count equals `bearing ingest`'s `merges`, and
+  history at `c12cfe5` with `docs/kit/bearing.toml`, the page's step count equals `bearing ingest`'s `merges`, and
   `grep -c -E 'src=|href="http' <file>` prints 0; and the maintainer has stepped through the
   first and last merge in a browser (a screenshot of each in Day 12's closing PR).
 
@@ -253,6 +255,79 @@ kit's repository). For it to count:
 
 <!-- Added by plan-change PRs, newest first. Empty at the start. -->
 
+### 2026-11-05: Course correction after Phase 3: the Day 10 stop
+
+The Phase 3 stop (H10.1). The plan-auditor ran on Phase 3, on Phase 4 and on the whole plan, on
+fresh `main` at `b352eb2`. All three say to go on to Phase 4 once this entry is made, and none
+found code that argues against the page. Items 1 to 4 are the maintainer's decisions.
+
+1. **The page is built, and nothing is cut.** Phase 4 stays as planned, Days 11 and 12.
+   Coupling and cycles were built before the stop (Course correction before Phase 3, item 5),
+   and the schedule has not slipped: 66 PRs in 10 days. Whether Bearing is proposed to the kit
+   is a kit decision, made in the kit's repository, not here.
+2. **The page marks its flags as unverified.** Phase 3's bar was met with no margin: "Marks:
+   real 13, rule 13" (`docs/kit/flags.md`, #64). The rules were fitted to the same history that
+   judged them, the kit at `c12cfe5`. Two of the 13, #16 and #31, are low-confidence marks
+   where a blind Fable reading differed; under Fable's marks alone the count is 11. So the page
+   shows each flag as unverified: its rules have not been judged on a history they were not
+   fitted to. There is no new run and no new marking. Coupling's hidden-dependency column
+   (91 of the kit's 133 rows) was never judged either: the noise bar covered said vs done only.
+3. **Layers in an import cycle.** "Decisions" gave a module's layer as its longest import path
+   from a module nothing imports, and that is undefined inside a cycle. The fixture's `app.a`
+   and `app.b` import each other from #3 until #9 removes it, in four of the page's steps
+   (#3, #5, #6 and #8, by the changelog's dates). Each cycle
+   is now one node for layering (Decisions).
+4. **The kit is copied in at `9a50a3e`** (kit #96), in a kit-update PR after this one: a split
+   in the measurement. Bearing's kit files are `c12cfe5` plus four area-branch PRs that changed
+   them here, against "Constraints", with no Course correction (9 files, +216/-19 since
+   `e994832`):
+   - #38 `scripts/evidence.py` and its test: it rewrites `main` only in git commands on this
+     repository;
+   - #49 `scripts/seen-red.py` and its test: it drops the editable install's finder in its run
+     on the base;
+   - #55 `scripts/spec-drift.py`, `scripts/close-evidence.py`, `scripts/evidence.py`, their
+     tests and `.github/workflows/dashboard.yml`: the replay report at build, fixtures out of
+     the tests ratio, and two attention rules;
+   - #56 `scripts/spec-drift.py` and its test: a reader's "Not proven" line counts as cited.
+
+   The kit-update PR states, for each one, whether the kit at `9a50a3e` has it or it stays
+   Bearing's, as the Phase 1 stop did, and records the models and the Claude Code version.
+5. **Tokens: no split at a kit copy.** `--split` takes a day and counts `day >= d`. The copy at
+   `c12cfe5` (#30) and every PR since fall on 2026-11-04 or 2026-11-05, so no date separates
+   before and after it. `python scripts/token-usage.py --compare --split 2026-11-05` separates
+   the two days only, main sessions only: before, 1,426 replies, $79.44, 47 PRs merged on
+   2026-11-04, 30.3 replies per merged PR; after, 810 replies, $42.74, 19 PRs, 42.6 replies per
+   merged PR. A split at a kit-update PR needs a time or a PR number in the kit's
+   `token-usage.py`; that is a kit fault, for the kit. Until then Bearing's windows are days.
+   Merged PRs per rung, #30 to #66, from the merged branches: day spec 30 (#32–#37, #39–#48,
+   #50–#54, #57–#59, #61–#66), area branch 7 (#30, #31, #38, #49, #55, #56, #60), short spec 0.
+6. **Phase 4's premises, for Day 11's spec to settle:**
+   - The command's arguments. Every other command takes `repo` and `--data`, and flags need
+     `--config` (only `direction` reads it today), so the spec gives `bearing page`'s full
+     arguments and what a missing config does. ("Decisions" also writes
+     `bearing snapshot <ref>`; the code takes `repo ref`.)
+   - A merge with no PR record: the timeline prints `#-` and `direction` prints the merge
+     subject's number (the fixture's #11). The spec picks the page's number and title.
+   - A check that can fail if the layout changes between runs: `page-v1` holds no positions,
+     and the HTML is not under contract.
+   - `<` escaped in the embedded JSON. The kit's #18 has `</script>` in its body; the page is
+     safe today only because it lies outside "What I built".
+   - The graph is SVG drawn in Python with Mermaid's look, not Mermaid: the maintainer's choice.
+   - The paragraph is the changelog's, as "Output contracts" says. The Phase 1 stop's "one or two
+     sentences" rule stays unowned.
+
+   Phase 4's "Done when" now names the kit's history it runs on: `c12cfe5` with
+   `docs/kit/bearing.toml`, where the flags were judged (94 merges).
+7. **Corrected here.** Item 1 of the round 1 entry below said round 1's 17 `real` flags survive
+   a fix of all four causes; D10.17 showed 13 do under the `shared` list chosen, and round 2
+   gave 13. The lab notebook's Day 10 entry now names #65, counts D10.20, and records that CI's
+   replay of #65's merge failed before #66.
+8. **Left open; no day owns them:** H03.1 (stderr is not UTF-8); H04.2 (`gh`'s 1000-PR cap;
+   the kit has 96); H02.4 in the kit, a check that a `manifest:` line replays, of which D10.19
+   and D10.20 are new cases; test data in `scripts/test_spec_drift.py` that the dashboard reads
+   as a hand-off "to Day 12", a kit fault; and `README.md`, still the kit's own, with none of
+   the Findings CLAUDE.md says it keeps.
+
 ### 2026-11-05: Course correction at the Day 10 stop: the kit's flags, round 1
 
 The maintainer's marks on the 72 flags of `docs/kit/direction.md` (Day 10 Track A, #59), kept
@@ -261,8 +336,8 @@ half, so Track B does not open (Phase 3's "Done when"; H10.2). The maintainer to
 of a Fable reading of each flagged PR's diff and body at `c12cfe5`, over 39 `real` that Claude
 had first proposed from the file names alone; and chose the fix in item 2.
 
-1. **Where the noise came from.** Four causes, by that reading; the 17 `real` flags survive
-   a fix of all four:
+1. **Where the noise came from.** Four causes, by that reading; 13 of the 17 `real` flags
+   survive a fix of all four with the `shared` list chosen (D10.17; corrected after Phase 3):
    - `kit/` is given to `docs`, but it holds tools (`kit/replay/`, `kit/compare-page.py`), the
      page's fixtures and the change record.
    - The `dashboard` area misses the dashboard's own files: its test workflow, its config, its

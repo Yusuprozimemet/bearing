@@ -423,7 +423,7 @@
   mostly the two `tooling/` branches. The folder's total from 2026-10-28 to 2026-11-05 is
   $273.69, counted during the close, so the close's own session is only partly in it.
 
-### Day 10: The kit's flags and the Phase 3 stop (Phase 3), closed in the closing PR
+### Day 10: The kit's flags and the Phase 3 stop (Phase 3), closed in #65
 
 - **Delivered:** `bearing direction` run on the kit at `c12cfe5`, its flags judged by the
   maintainer, in two rounds. Round 1 (#59, #60): the kit's `docs/kit/bearing.toml`, a report of
@@ -440,23 +440,25 @@
   adapted to run on CI and on a CRLF tree (D10.19).
 - **PRs:** 8: the spec (#58), Track A (#59), a plan change (#60), a second spec change for
   round 2 (#61), Tracks C (#62), D (#63) and B (#64), and the close. No Track 0.
-- **Defects:** 19 in the Notes.
+- **Defects:** 20 in the Notes: 19 at the close, and D10.20 added by #66.
 
   | Field | Count |
   | --- | --- |
   | found: auditor | 15 |
   | found: spec-change PR | 2 |
   | found: Track C | 1 |
-  | found: close | 1 |
+  | found: close | 2 |
   | cause: spec | 18 |
-  | cause: process | 1 |
+  | cause: process | 2 |
 
   The spec-auditor found 15 before any code, the most of any day so far. They included a
   C10.5 test that passed on any well-formed file (D10.2), holds that were really `new` (D10.3,
   D10.13), and literal output in backticks (D10.10). Round 2 found one more in plan.md's own
   sentence (D10.17): round 1's 17 `real` flags shrink to 13 under the `shared` list it chose.
   Round 2's marks then gave exactly 13. Two got past the review: a break whose text `ruff
-  format` had moved (D10.18) and a `manifest:` line CI could not replay (D10.19).
+  format` had moved (D10.18) and a `manifest:` line CI could not replay (D10.19). CI's replay of
+  #65's merge (`6036555`) then failed, "4 failed": four `broken:` lines the close kept could not
+  be replayed (D10.20). #66 fixed them, and the replay on `b352eb2` holds (run 42038468893).
 - **Human interventions:** 17 `human:` lines in #58 to #64, 12 of them in the marking. In
   round 1 (#60) the maintainer asked to be asked rather than read the 72 lines, and asked for a
   Fable analysis and Mermaid graphs of the choices. They chose Fable's marks (17 `real`) and
