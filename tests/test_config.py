@@ -169,12 +169,69 @@ class ConfigTest(unittest.TestCase):
                         "scripts/spec-drift.py",
                         "scripts/test_spec_drift.py",
                         "docs/dashboard/",
+                        ".github/workflows/spec-drift-tests.yml",
+                        "spec-drift.config.json",
+                        "scripts/demo-data.py",
+                        "scripts/test_demo_data.py",
+                        "kit/compare-page.py",
+                        "kit/page/",
+                        "kit/starter-check.py",
                     ),
                 ),
-                ("tooling", ("scripts/", ".github/", ".claude/")),
+                (
+                    "tooling",
+                    (
+                        "scripts/",
+                        ".github/",
+                        ".claude/",
+                        "kit/replay/",
+                        "kit/compare-page.py",
+                        "kit/page/",
+                        ".gitignore",
+                        ".gitattributes",
+                        ".flake8",
+                    ),
+                ),
                 ("specs", ("specs/",)),
-                ("docs", ("docs/", "kit/", "README.md", "CLAUDE.md", "plan.md")),
+                (
+                    "docs",
+                    (
+                        "docs/",
+                        "kit/ASSESSMENT.md",
+                        "kit/comparison/",
+                        "kit/examples/",
+                        "kit/jobmatch/",
+                        "kit/lessons/",
+                        "kit/six-kits-assessment.md",
+                        "kit/six-kits-plan.md",
+                        "kit/v2-manifest.md",
+                        "README.md",
+                        "CLAUDE.md",
+                        "plan.md",
+                    ),
+                ),
             ],
         )
         self.assertEqual(min_prs, 3)
-        self.assertEqual(load_rules(path), [("outside-area", ())])
+        self.assertEqual(
+            load_rules(path),
+            [
+                (
+                    "outside-area",
+                    (
+                        "kit/CHANGES.md",
+                        "kit/SOURCE.md",
+                        "CHANGES.md",
+                        "SOURCE.md",
+                        "CLAUDE.md",
+                        "README.md",
+                        "AGENTS.md",
+                        "plan.md",
+                        "specs/README.md",
+                        "specs/_template.md",
+                        "specs/_short-template.md",
+                        "templates/",
+                    ),
+                )
+            ],
+        )
