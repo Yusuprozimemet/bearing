@@ -219,7 +219,7 @@ changed in Track D.
 ## Acceptance criteria
 Tick each box in the closing PR once its evidence is in it; under a box left unticked, write
 `Not proven: <why>` (`specs/README.md`, "Evidence at the close").
-- [ ] C10.1 **new** — `docs/kit/bearing.toml` holds round 2's In scope text: `load_config` on
+- [x] C10.1 **new** — `docs/kit/bearing.toml` holds round 2's In scope text: `load_config` on
       it returns the four areas `dashboard`, `tooling`, `specs`, `docs`, in that order, each
       with exactly round 2's prefixes as a tuple in file order (10, 9, 1 and 12 of them), and
       `min_prs` 3; and `load_rules` returns `[("outside-area", ("kit/CHANGES.md",
@@ -232,7 +232,11 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       Test: `tests/test_config.py::ConfigTest::test_kit_config`
       The track's break: in `docs/kit/bearing.toml`, "kit/starter-check.py" made
       "kit/starter.py" → the test fails on the `dashboard` area.
-- [ ] C10.2 **hold** — H09.1: on the fixture, `bearing direction` with the config of In scope
+      Evidence: `ConfigTest.test_kit_config` (#59, round 1's values; #63, round 2's), seen red
+      first in #63 on `3beb69e`'s code, where the file was round 1's ("2 failed", with C10.3's
+      test), and again at the close; `python -m pytest -q` (#63).
+      broken: docs/kit/bearing.toml "kit/starter-check.py" made "kit/starter.py" → 1 failed in 0.10s (#63)
+- [x] C10.2 **hold** — H09.1: on the fixture, `bearing direction` with the config of In scope
       ("tooling = ["scripts/"]") exits 0, and the lines after "## Said vs done" are exactly
       "", "- #5 outside-area: area docs | scripts/run.py", "- #9 contract-impact: no contract
       impact | tests/contract/test_api.py", "- #11 outside-area: area tooling | ci.txt"; the
@@ -242,7 +246,10 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       The track's break: in `bearing/direction/report.py`,
       `COALESCE(prs.head_ref, commits.subject_branch)` made `COALESCE(prs.head_ref, '')`: the
       run still exits 0 and prints #5 and #9, and the test fails on the missing #11 line.
-- [ ] C10.3 **new** — Phase 3's run on the kit, round 2, from Track D's merge: with the
+      Evidence: `DirectionCliTest.test_branch_from_subject` (#59), passing on `main` from #59
+      on; `python -m pytest -q` (#59, #62, #63, #64, and at the close on `87b6f33`).
+      broken: report.py's branch COALESCE(prs.head_ref, commits.subject_branch) made COALESCE(prs.head_ref, '') → 1 failed in 9.78s (#59)
+- [x] C10.3 **new** — Phase 3's run on the kit, round 2, from Track D's merge: with the
       scratch clone, records and commands of "What the kit gives", `docs/kit/bearing.toml` in
       place of `<s>/kit.toml`, `ingest` prints exactly "merges 94  matched 94  unmatched
       merges 0  unmatched PRs 0  direct 11", `direction` exits 0, its stdout piped to `grep -c
@@ -265,13 +272,25 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       prints 73, not 26 (`scripts/break.py --expect-stdout '^26$'`). The kit break is not
       replayable on CI, which has no clone of the kit, so its `manifest:` line stays out of
       `specs/breaks/day-10.json`.
-- [ ] C10.4 **hold** — the fixture's direction report still matches its golden file, and no
+      Evidence: `KitReportTest.test_round_2` (#63), seen red first in #63 on `3beb69e`'s code
+      and again at the close; the kit run by hand in #63 and again at the close, on `87b6f33`,
+      the kit's clone at `c12cfe5` and a new data directory: `ingest` printed "merges 94
+      matched 94  unmatched merges 0  unmatched PRs 0  direct 11", `direction` exited 0, `grep
+      -c '^- #'` printed 26, and `diff --strip-trailing-cr` against `docs/kit/direction.md`
+      exited 0.
+      broken: the last "- #" line (#94) emptied in docs/kit/direction.md, 25 flags left → 1 failed in 0.09s (#63)
+      broken: said_vs_done.py "and not p.startswith(prefixes)" removed from the outside-area filter, on the kit → 73 (#63)
+- [x] C10.4 **hold** — the fixture's direction report still matches its golden file, and no
       contract file changed: `python -m pytest -q tests/contract/test_direction.py` passes,
       and `git -c core.safecrlf=false diff --exit-code 64baca6 -- tests/contract
       tests/fixtures/expected` prints nothing. True today ("1 passed"; the diff exits 0).
       This PR's break: in `tests/fixtures/expected/direction.md`, "| scripts/run.py" made
       "| scripts/runX.py" → the test reports "1 failed" and the diff exits 1.
-- [ ] C10.5 **new** — `docs/kit/flags.md` lists every flag of `docs/kit/direction.md`, each
+      Evidence: `DirectionContractTest.test_golden` and the diff above, "1 passed" and exit 0
+      in #58, #62 and at the close on `87b6f33`.
+      broken: the golden file's #5 file made scripts/runX.py → 1 failed in 5.23s (#58)
+      broken: the golden file's #5 file made scripts/runX.py → - #9 contract-impact: no contract impact | tests/contract/test_api.py (#58)
+- [x] C10.5 **new** — `docs/kit/flags.md` lists every flag of `docs/kit/direction.md`, each
       marked by the maintainer, as In scope says, and at least half are `real`: the test
       passes, `grep -c '^- #' docs/kit/flags.md` prints 26, and `grep -c -- ' -- real$'
       docs/kit/flags.md` prints 13 or more. The test stands in for the greps' near misses: it
@@ -283,7 +302,13 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       Test: `tests/test_kit_flags.py::KitFlagsTest::test_marks`
       The track's break: the last flag line deleted from `docs/kit/flags.md`: the test must
       fail on the lines no longer matching the report's 26.
-- [ ] C10.6 **new** — `load_rules` reads `shared`: on a file written in the test holding
+      Evidence: `KitFlagsTest.test_marks` (#64), seen red first in #64 on `6a5f0dc`'s code,
+      where the file was missing ("1 failed"), and again at the close; the greps printed 26
+      and 13 in #64 and at the close: the maintainer's marks are real 13, rule 13 (the
+      "Marks:" line of `docs/kit/flags.md`), exactly half, which closes H10.2.
+      broken: the last flag line (#94) deleted from docs/kit/flags.md → 1 failed in 0.07s (#64)
+      broken: the last flag line (#94) emptied in docs/kit/flags.md, 25 flags left → 1 failed in 0.08s (close, D10.19)
+- [x] C10.6 **new** — `load_rules` reads `shared`: on a file written in the test holding
       `[areas] app = ["app/"]` and `[rules.outside-area] shared = ["CHANGES.md",
       "docs/shared/"]`, it returns `[("outside-area", ("CHANGES.md", "docs/shared/"))]`; with
       `[rules.outside-area] paths = ["x/"]` and no `shared`, `[("outside-area", ())]`. And,
@@ -295,7 +320,11 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       The track's break: in `bearing/direction/config.py`, `found.append((rule_id,
       tuple(shared)))` made `found.append((rule_id, ()))` → the test fails on the first file's
       prefixes.
-- [ ] C10.7 **new** — `said_vs_done` leaves shared files out: with the areas `[("docs",
+      Evidence: `ConfigTest.test_outside_area_shared` (#62), seen red first in #62 on
+      `7b5288c`'s code ("2 failed", with C10.7's test), and again at the close; `python -m
+      pytest -q` (#62).
+      broken: config.py's found.append((rule_id, tuple(shared))) made found.append((rule_id, ())) → 1 failed in 0.22s (#62)
+- [x] C10.7 **new** — `said_vs_done` leaves shared files out: with the areas `[("docs",
       ("docs/",)), ("app", ("app/",))]`, the rules `[("outside-area", ("CHANGES.md",
       "docs/shared/"))]` and the PRs `[(1, "app/x", None, ["app/a.py", "CHANGES.md",
       "docs/shared/n.md", "docs/b.md"]), (2, "app/y", None, ["app/a.py", "CHANGES.md"]), (3,
@@ -308,6 +337,10 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       The track's break: in `bearing/direction/said_vs_done.py`, " and not
       p.startswith(prefixes)" removed from the `outside-area` filter → the test fails on #1's
       files.
+      Evidence: `SaidVsDoneTest.test_shared` (#62), seen red first in #62 on `7b5288c`'s code,
+      and again at the close; `python -m pytest -q` (#62). The break removes the text without
+      its leading space (D10.18).
+      broken: said_vs_done.py's 'and not p.startswith(prefixes)' removed from the outside-area filter → 1 failed in 0.10s (#62)
 
 ## Verify
 ```bash
@@ -388,7 +421,9 @@ before then, a track runs it without them.
   four" causes. With the `shared` list it chose, four do not: #18, #39, #45 and #48 named only
   files round 1's own marks give the PR's area or the shared list. 13 survive. The marks
   are made again in round 2, so the count of `real` that round 1 predicts is 13, not 17;
-  plan.md's sentence is left for the maintainer to correct or keep.
+  plan.md's sentence is left for the maintainer to correct or keep. The sentence came in #60,
+  a plan-change PR outside any day that merged before this spec change (#61), which found it
+  before any round 2 code.
 - **Hand-off** H10.2 → the maintainer: if round 2's marks give fewer than 13 `real` of 26,
   Track B does not open and plan.md names no round 3. What follows, a further rule change or a
   stop with Phase 3's "Done when" unmet, is the maintainer's, in a Course correction before the
@@ -403,3 +438,33 @@ before then, a track runs it without them.
   nothing: `scripts/token-usage.py` splits by day (`day >= d`), and every merge so far, #30
   included, falls on or after it, as the Phase 1 stop found (plan.md, the Day 4 stop). The stop
   names a split that separates something, or says why none can.
+- The tracks ran C (#62), D (#63), B (#64), as the table says. Track B opened after the
+  maintainer marked all 26 round 2 flags: "Marks: real 13, rule 13" (`docs/kit/flags.md`),
+  exactly the half Phase 3's "Done when" asks. Two of the 13, #16 and #31, are low-confidence
+  `real` marks on which a blind Fable reading differed (#64); under Fable's marks alone the
+  count would have been 11 and Track B would not have opened. H10.2 is closed by #64.
+- D10.17's sentence in plan.md is unchanged: round 1's marks predicted 13 `real`, and round 2's
+  marks gave 13.
+- **Defect** D10.18 — found: Track C · cause: spec · made: Day 10 · C10.7's break named the text
+  " and not p.startswith(prefixes)" with a leading space; after `ruff format` wrapped the
+  comprehension, that text starts its own line and the space is not there. #62 removed the text
+  without the space, the same change, and #63's kit break did the same.
+- **Defect** D10.19 — found: close · cause: process · made: Day 10 · #64's `manifest:` line
+  named this machine's `python.exe` by its full path, which CI's replay cannot run, and its
+  `find` ended in a newline, which matches on CI's LF checkout but not on this CRLF working
+  tree, where `break.py` refused it ("--find occurs 0 times"). `specs/breaks/day-10.json`
+  runs it with `python` and empties the line's text instead of deleting it, as #63's break
+  does; replayed at the close, the test failed on it ("1 failed").
+- The close, on `87b6f33`: `python -m pytest -q` gave "78 passed, 107 subtests passed", the 78
+  Verify predicts; the focused line "18 passed, 56 subtests passed"; the style check passed;
+  C10.4's diff exited 0; the greps printed 26 and 13. `specs/breaks/day-10.json` holds 8
+  breaks from the PRs' `manifest:` lines (2 from #58, 1 from #59, 2 from #62, 2 from #63, 1
+  from #64), each replayed through `scripts/break.py` and each failing its check. #63's kit
+  break stays out, as C10.3 says. `scripts/seen-red.py` gave each track's red again on its base:
+  "2 failed" on `7b5288c` (#62), "2 failed" on `3beb69e` (#63), "1 failed" on `6a5f0dc` (#64).
+- The blind relabel of the 19 Defect lines agreed on 18 stages, 19 causes and 18 `made:`. The
+  rater could not tell D10.17's stage or the day that made it: the text did not say when #60
+  merged or when the sentence was found. The tags are kept, and the text now says both. On
+  D10.19 the rater agreed on `process` and marked it mixed with `environment` for the CRLF
+  tree. The tag stays `process`: CLAUDE.md already names the CRLF tree, and the fault was a
+  `manifest:` line that no one replayed before #64 merged.
