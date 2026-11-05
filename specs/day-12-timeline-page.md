@@ -89,7 +89,7 @@ no track branch carries it.
 Tick each box in the closing PR once its evidence is in it; under a box left unticked, write
 `Not proven: <why>` (`specs/README.md`, "Evidence at the close").
 
-- [ ] C12.1 **new** — `draw` draws and marks what the In scope says. With `old` holding
+- [x] C12.1 **new** — `draw` draws and marks what the In scope says. With `old` holding
       modules `a`, `b`, `gone`, `keep` and imports `a -> gone`, `b -> keep`, and `new` holding
       modules `a`, `b`, `c`, `keep` and imports `a -> b`, `b -> a`, `c -> keep`, `b -> keep`,
       and events "+module c", "-module gone", "+import a -> b", "+import b -> a",
@@ -105,7 +105,12 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       Red today: there is no `bearing.page.svg` (the test imports it when it runs, so it fails,
       not errors at collection: D11.13).
       Test: `tests/test_page_svg.py::DrawTest::test_classes`.
-- [ ] C12.2 **new** — The boxes follow `layers`, top to bottom, in name order, wrapped at 960.
+      Evidence: `DrawTest.test_classes` (#75), seen red in #75 on `main` and again at the close
+      on `ba6615e` ("2 failed", with C12.2's test: no `bearing.page.svg`); `python -m pytest -q`
+      at the close on `dc1c024`.
+      broken: an import marked cycle when only its importer is in a cycle → 1 failed in 0.11s (#75)
+      broken: module names written unescaped → 1 failed in 0.17s (#75)
+- [x] C12.2 **new** — The boxes follow `layers`, top to bottom, in name order, wrapped at 960.
       With 41 modules "top" and "m00" … "m39", and "top" importing every "m" module: "top"
       is the only box in the first row, at x = 16 and y = 16; every "m" box's `y` is greater
       than "top"'s; the "m" boxes, each 32 high and 48 wide (64 apart from left edge to left
@@ -115,7 +120,10 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       the largest right edge plus 16.
       Red today: no `bearing.page.svg`.
       Test: `tests/test_page_svg.py::DrawTest::test_positions`.
-- [ ] C12.3 **new** — On the fixture, `render` writes one `<section class="step">` per step:
+      Evidence: `DrawTest.test_positions` (#75), seen red with C12.1's test in #75 and at the
+      close on `ba6615e`; `python -m pytest -q` at the close on `dc1c024`.
+      broken: a row wraps at a right edge of 960, not past it → 1 failed in 0.14s (#75)
+- [x] C12.3 **new** — On the fixture, `render` writes one `<section class="step">` per step:
       10, in `page-v1`'s order by `data-sha`, the first without `hidden` and the other nine
       with it; section 4 (00394fb) has the heading text "Step 4 of 10", "2026-01-14", "#3"
       and "day-02/track-a-cycle", its 6 events as 6 `<li>` in order, and no `ul.flags`; section 10
@@ -123,21 +131,31 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       with `html.parser` on `bearing page`'s output (`tests/fixtures/bearing.toml`).
       Red today: the page has no section ("0 != 10").
       Test: `tests/test_page_html.py::PageHtmlTest::test_sections`.
-- [ ] C12.4 **new** — Every flag is shown as unverified: on the fixture the file holds exactly
+      Evidence: `PageHtmlTest.test_sections` (#77), seen red in #77 on `main` and again at the
+      close on `fac2cd8` ("4 failed": `PageHtmlTest`'s four tests, C12.3 to C12.6);
+      `python -m pytest -q` at the close on `dc1c024`.
+      broken: every section hidden → 1 failed in 8.79s (#77)
+- [x] C12.4 **new** — Every flag is shown as unverified: on the fixture the file holds exactly
       two `<li class="flag">`, in section 5 (bd726c8) "unverified: outside-area: area docs
       (scripts/run.py)" and in section 8 (e5fa51f) "unverified: contract-impact: no contract
       impact (tests/contract/test_api.py)", and the line "Flags are unverified: their rules
       have not been judged on a history they were not fitted to." once.
       Red today: no `li.flag`.
       Test: `tests/test_page_html.py::PageHtmlTest::test_flags_unverified`.
-- [ ] C12.5 **new** — PR text cannot add an element: with the store's `prs.body` of #3 set
+      Evidence: `PageHtmlTest.test_flags_unverified` (#77), seen red with C12.3's test in #77
+      and at the close on `fac2cd8`; `python -m pytest -q` at the close on `dc1c024`.
+      broken: flag without unverified: → 1 failed in 10.90s (#77)
+- [x] C12.5 **new** — PR text cannot add an element: with the store's `prs.body` of #3 set
       so its "What I built" paragraph reads "x </script><script>alert(1)</script><!-- y" (an
       UPDATE on the ingested store), the file holds `<script` twice and `</script` twice
       (the data and the controls), section 4's `<p>` text read by `html.parser` is that
       paragraph exactly, and the `bearing-data` element still parses as JSON holding it.
       Red today: `<script` once (no controls).
       Test: `tests/test_page_html.py::PageHtmlTest::test_pr_text_escaped`.
-- [ ] C12.6 **new** — The controls are in the page: `button#prev` "Previous",
+      Evidence: `PageHtmlTest.test_pr_text_escaped` (#77), seen red with C12.3's test in #77
+      and at the close on `fac2cd8`; `python -m pytest -q` at the close on `dc1c024`.
+      broken: paragraph not escaped → 1 failed in 12.81s (#77)
+- [x] C12.6 **new** — The controls are in the page: `button#prev` "Previous",
       `button#next` "Next", `span#counter` "1 / 10", one `<style>`, a second `<script>` with
       no `src` that names "ArrowLeft", "ArrowRight" and "hidden"; and
       `grep -c -E 'src=|href="http'` on the fixture's file prints 0, so neither the script
@@ -146,7 +164,10 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       C12.10's browser check: no test runs the script.
       Red today: no `button#prev`.
       Test: `tests/test_page_html.py::PageHtmlTest::test_controls`.
-- [ ] C12.7 **new** — Each step's graph is in its section: on the fixture, 10 `<svg>`, one per
+      Evidence: `PageHtmlTest.test_controls` (#77), seen red with C12.3's test in #77 and at
+      the close on `fac2cd8`; `python -m pytest -q` at the close on `dc1c024`.
+      broken: controls script given a src → 1 failed in 9.11s (#77)
+- [x] C12.7 **new** — Each step's graph is in its section: on the fixture, 10 `<svg>`, one per
       section; section 4 (00394fb, #3) has `app.a` and `app.b` as "module added cycle",
       `app.crlf` as "module added", and `app.a -> app.b` and `app.b -> app.a` as
       "import added cycle"; section 7 (fde93a4, #8) has `app.extra` "module added",
@@ -155,16 +176,27 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       "module added", and no `cycle` class.
       Red today: no `<svg>`.
       Test: `tests/test_page_html.py::PageGraphTest::test_fixture_graphs`.
-- [ ] C12.8 **new** — The page's bytes, graphs included, do not depend on the hash seed:
+      Evidence: `PageGraphTest.test_fixture_graphs` (#80), seen red in #80 on `main` and again
+      at the close on `d5c2bd0` ("2 failed", with C12.8's test: "0 != 10");
+      `python -m pytest -q` at the close on `dc1c024`.
+      broken: graph drawn from the first-parent snapshot → 1 failed in 11.55s (#80)
+- [x] C12.8 **new** — The page's bytes, graphs included, do not depend on the hash seed:
       `bearing page` on the fixture under `PYTHONHASHSEED=0` and `PYTHONHASHSEED=1` writes the
       same bytes, and each file holds 10 `<svg>`.
       Red today: the file holds no `<svg>` ("0 != 10"); the bytes already match.
       Test: `tests/test_page_html.py::PageGraphTest::test_same_under_two_seeds`.
-- [ ] C12.9 **hold** — No existing contract test or golden file changes, `page-v1.json`
+      Evidence: `PageGraphTest.test_same_under_two_seeds` (#80), seen red with C12.7's test in
+      #80 and at the close on `d5c2bd0`; `python -m pytest -q` at the close on `dc1c024`.
+      broken: imports drawn in set order → 1 failed in 11.50s (#80)
+- [x] C12.9 **hold** — No existing contract test or golden file changes, `page-v1.json`
       included: `git -c core.safecrlf=false diff --exit-code --diff-filter=MDR 4c2143a -- tests/contract tests/fixtures/expected`
       prints nothing and exits 0 on the closing commit, and `python -m pytest -q tests/contract`
       passes on every track's head.
-- [ ] C12.10 **new** — plan.md's Phase 4 "Done when" on the kit: on `c12cfe5` with
+      Evidence: the diff exited 0 with no output at the close on `dc1c024`; CI's "Frozen files
+      stay unedited" and "Tests" passed on the heads of #75, #77 and #80. The break's report
+      reads "6 passed": `tests/contract` holds seven tests, as it did after Day 11.
+      broken: page_data writes each step's title in capitals → 1 failed, 6 passed in 52.99s (#74)
+- [x] C12.10 **new** — plan.md's Phase 4 "Done when" on the kit: on `c12cfe5` with
       `docs/kit/bearing.toml`, after `bearing ingest` (its `merges`, 94), `bearing page` writes
       a file in which `grep -c '<section class="step"'` prints 94, `grep -c -E 'src=|href="http'`
       prints 0, and `grep -o '<script' | wc -l` and `grep -o '</script' | wc -l` each print 2;
@@ -173,6 +205,15 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       command and what it printed.
       Red today: `grep -c '<section class="step"'` prints 0.
       Test: the commands in Verify, run in the closing PR.
+      Evidence: at the close, with Bearing at `dc1c024` and the kit's bare clone and 94-record
+      `--prs` file from Day 10's run: `bearing ingest` printed "merges 94  matched 94  unmatched
+      merges 0  unmatched PRs 0  direct 11"; `bearing page` exited 0 and wrote 5317 lines; the
+      four greps printed 94, 0, 2 and 2; the file holds 94 `<svg>`. Its first heading reads
+      "Step 1 of 94 · 2026-10-28 · #1 · Add a README for the kit" and its last "Step 94 of 94 ·
+      2026-11-04 · #95 · Lift a stop only on an entry for it, not on any mention of the phase".
+      Red: on `ba6615e`, before the day's code, the same command wrote a file in which the
+      section grep printed 0 and `<script` counted 1. The maintainer stepped through #1 and #95
+      in a browser; the two screenshots are in the closing PR.
 
 ## Verify
 ```bash
@@ -226,7 +267,27 @@ grep -o '</script' <s>/kit.html | wc -l
 - **Defect** D12.7 — found: self · cause: process · made: Day 12 · the first break for C12.9 ran
   the diff, whose last line is a bare "}", so its `broken:` line said nothing; the break was
   run again on the contract tests, in this PR.
-- **Defect** D12.8 — found: CI · cause: spec · made: Day 12 · the Tracks table named neither
+- **Defect** D12.8 — found: Track A · cause: spec · made: Day 12 · the Tracks table named neither
   C12.8 (`new` since D12.4) nor C12.10, so CI's "Track tests seen red" failed on track A's PR
   (#75): "C12.8 is new and no row of the Tracks table names it", and the same for C12.10.
   Track C now names C12.8, and a close row names C12.10, in a spec-change PR.
+- The tracks ran in the spec's order: A (#75), then B (#77), then C (#80), each from fresh
+  `main` and each in one commit. #75 also merged `main` after #76, the spec change for D12.8.
+  The implementer added one thing the brief did not ask for in #77: with zero steps the script
+  does nothing and the counter reads "0 / 0". It was kept.
+- The close, on `dc1c024`: `python -m pytest -q` gave "97 passed, 109 subtests passed" (Day 11's
+  89 plus the day's 8 tests); Verify's focused line gave "10 passed"; `ruff check .` and
+  `ruff format --check .` passed; C12.9's diff exited 0. `specs/breaks/day-12.json` holds the 10
+  `manifest:` lines of #74, #75, #77 and #80, parsed from the raw bodies by a script, and each
+  replayed through `scripts/break.py` failed its check.
+- The kit's page has 5317 lines, against the 1185 lines of the shell before the graphs. Its
+  paragraphs hold no `src=`, so the departure the Note above allowed for did not occur.
+- **Defect** D12.9 — found: self · cause: environment · made: Day 12 · the close's replay script
+  wrote its `broken:` lines to a file through Windows' default cp1252 and stopped at the first
+  "→" before printing anything; run again with `PYTHONIOENCODING=utf-8`, at the close.
+- Blind relabel at the close (`scripts/relabel.py`, the defect-rater): stage 7 of 8 agree (one
+  untagged), cause 9 of 9, made 8 of 9. The untagged stage was D12.8's "found: CI", not a
+  README value: CI caught it on track A's PR before the merge, so it is now `found: Track A`.
+  The rater read D12.9 as an escape made outside any day (low confidence). It is kept
+  `found: self`, `made: Day 12`: the main session caught its own slip in the close's work
+  before the close merged, and the close is the day's work.

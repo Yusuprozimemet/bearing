@@ -532,6 +532,60 @@
   $3.83, and 105 replies, $4.03). The folder's total from 2026-10-28 to 2026-11-05 is $325.53,
   counted during the close, so the close's own session is only partly in it.
 
+### Day 12: The timeline page, its graph and its controls (Phase 4), closed in #81
+
+- **Delivered:** `bearing page` now writes a page a person can step through. #75 added
+  `bearing/page/svg.py`: `draw(old, new, events)` draws a step's import graph as inline SVG in
+  Mermaid's look, with the boxes in `layers`' rows, a wide layer wrapped at 960, added parts
+  marked, removed ones faded, cycles in red, and module names escaped. #77 wrote one section per
+  step around Day 11's data element: date, number, branch, events and paragraph, each flag as
+  "unverified: ...", and a Previous/Next script with the arrow keys and a counter, with no
+  `src=` and no outside URL. #80 put each step's graph into its section, the same bytes under
+  two hash seeds. `page-v1` and every golden file are unchanged. No migration. `pytest -q`: 97
+  passed, 109 subtests passed.
+- **Criteria:** 10 of 10 ticked: 9 `new` and 1 `hold`.
+- **Phase 4's "Done when", on the kit:** at `c12cfe5`, the page has 94 sections and 94 graphs,
+  0 `src=` or `href="http`, and 2 `<script` and 2 `</script` (5317 lines). The maintainer
+  stepped through the first merge (#1, 2026-10-28) and the last (#95, 2026-11-04) in a
+  browser; the screenshots are in #81.
+- **Breaks on purpose:** 10, all in `specs/breaks/day-12.json`: 1 in #74, 3 in #75, 4 in #77
+  and 2 in #80. The close replayed all 10 on `main`, and each failed its check.
+- **PRs:** 6 at the day-spec rung: the spec (#74), a second spec change (#76), Tracks A (#75),
+  B (#77) and C (#80), and the close. No Track 0.
+- **Defects:** 9 in the Notes.
+
+  | Field | Count |
+  | --- | --- |
+  | found: auditor | 6 |
+  | found: self | 2 |
+  | found: Track A | 1 |
+  | cause: spec | 7 |
+  | cause: process | 1 |
+  | cause: environment | 1 |
+
+  The spec-auditor found six before any code (D12.1 to D12.6). Two were wrong numbers in the
+  layout criterion, one was a drawing the spec left open, one a `hold` that passed with no
+  graphs, one a grep that could not see CSS URLs, and one a repeat of D11.7's backticks. CI's
+  "Track tests seen red" found the seventh on track A's PR: the Tracks table owned neither
+  C12.8 nor C12.10 (D12.8), fixed in #76. The tracks recorded no mistake of their own. The close
+  found two of its own slips: a break whose report said nothing (D12.7) and a replay script
+  stopped by Windows' cp1252 (D12.9). The blind relabel agreed on all 9 causes, 7 of 8
+  stages and 8 of 9 `made:` tags. D12.8's "found: CI" was not a README value and is now
+  `found: Track A`. The rater read D12.9 as an escape outside any day; it stays `self` and
+  `Day 12`.
+- **Human interventions:** 5 `human:` lines in #74 to #80. In #74 the maintainer started the
+  day and set its order: the plan-auditor, then the spec-auditor, then the spec. In #76 they
+  chose the spec-change PR over leaving #75's check red. Each track and the close began from
+  the previous session's suggested prompt. At the close the maintainer stepped through the kit's
+  page in a browser (C12.10).
+- **Hand-offs:** Phase 4 ends here. The plan-auditor runs on Phase 4 and on the next phase, and
+  the three end-of-phase auditors run once, all on fresh `main` after this close merges.
+- **Tokens:** `docs/dashboard/token-usage.json` tags four rows with Day 12, on 2026-11-05: the
+  main session (110 replies, $5.14), the implementer on Haiku (29 replies, $0.05), the
+  plan-auditor (8 replies, $0.30) and the spec-auditor (27 replies, $0.88). The folder's total
+  from 2026-10-28 to 2026-11-05 is $341.09, counted during the close, so the close's own
+  session is only partly in it.
+
 ## What is being measured
 
 | Question | Evidence it will be judged on |
