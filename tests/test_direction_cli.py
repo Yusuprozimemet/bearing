@@ -44,6 +44,13 @@ THRESHOLD_ROWS = [
     "| app/b.py | src/lib/util.py | #3, #9 | app, lib |",
     ROW_APP_LIB,
 ]
+SAID_VS_DONE = [
+    "",
+    "## Said vs done",
+    "",
+    "- #5 outside-area: area docs | scripts/run.py",
+    "- #9 contract-impact: no contract impact | tests/contract/test_api.py",
+]
 
 
 def run(*args, cwd=REPO):
@@ -108,12 +115,16 @@ class DirectionCliTest(unittest.TestCase):
     def test_fixture_report(self):
         self.assertEqual(self.result.returncode, 0, self.result.stderr)
         self.assertEqual(len(EXPECTED), 23)
+        self.assertEqual(len(EXPECTED + SAID_VS_DONE), 28)
         data = self.data_dir("report")
         self.ingest(data)
         result = self.direction(data, TOML)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stderr, b"")
-        self.assertEqual(text(result.stdout), "".join(line + "\n" for line in EXPECTED))
+        self.assertEqual(
+            text(result.stdout),
+            "".join(line + "\n" for line in EXPECTED + SAID_VS_DONE),
+        )
 
     def test_threshold(self):
         self.assertEqual(self.result.returncode, 0, self.result.stderr)
@@ -187,3 +198,41 @@ class DirectionCliTest(unittest.TestCase):
             "bearing: no config at bearing.toml: pass --config FILE\n",
         )
         self.assertFalse((bare / ".bearing").exists())
+
+    def test_rules_config(self):
+        self.assertEqual(self.result.returncode, 0, self.result.stderr)
+        data = self.data_dir("rules")
+        self.ingest(data)
+        raw = TOML.read_bytes().replace(b"\r\n", b"\n")
+
+        # Without its rules tables the config still reads, and no PR is flagged.
+        cut = raw.index(b"\n[rules.")
+        no_rules = Path(self.tmp.name) / "no-rules.toml"
+        no_rules.write_bytes(raw[:cut].rstrip(b"\n") + b"\n")
+        self.assertNotIn(b"[rules", no_rules.read_bytes())
+        result = self.direction(data, no_rules)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(
+            text(result.stdout),
+            "".join(
+                line + "\n"
+                for line in EXPECTED + ["", "## Said vs done", "", "No flags."]
+            ),
+        )
+
+        # An unknown rule fails before anything is printed, with or without a store.
+        typo = Path(self.tmp.name) / "typo.toml"
+        typo.write_bytes(raw + b"\n[rules.typo]\n")
+        message = f"bearing: config {typo}: unknown rule typo: the rules are outside-area, contract-impact\n"
+        result = self.direction(data, typo)
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(result.stdout, b"")
+        self.assertEqual(text(result.stderr), message)
+
+        fresh = Path(self.tmp.name) / "fresh"
+        fresh.mkdir()
+        result = self.direction(fresh, typo)
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(result.stdout, b"")
+        self.assertEqual(text(result.stderr), message)
+        self.assertFalse((fresh / "bearing.db").exists())
