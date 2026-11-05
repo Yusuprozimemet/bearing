@@ -155,8 +155,9 @@ CAVEATS = [
     "They match names, not meaning: prose is not understood, so a spec can name a thing the code has "
     "and still describe it wrongly.",
     "A name a spec says should disappear still counts as shared vocabulary while the code has it.",
-    "Name coverage counts test and tooling files as code, and a file or folder named after a spec name "
-    "as that name in the code. Python's own names, such as ImportError, are not counted.",
+    "Name coverage counts test and tooling files as code.",
+    "A code file or folder named after a spec name counts as that name in the code; Python's own "
+    "names, such as ImportError, are not spec names.",
     "Production name coverage counts only files the path rules call production: a path, not proof "
     "that the file runs in the product. Test and tool names may legitimately be absent from it.",
 ]
