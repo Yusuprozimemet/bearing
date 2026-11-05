@@ -3,12 +3,7 @@
 
 def layers(modules, imports):
     names = sorted(set(modules))
-    known = set(names)
-    succ = {name: set() for name in names}
-    for importer, imported in imports:
-        if importer in known and imported in known and importer != imported:
-            succ[importer].add(imported)
-    succ = {name: sorted(targets) for name, targets in succ.items()}
+    succ = _succ(names, imports)
     comp = _components(names, succ)
     nodes = sorted(set(comp.values()))
     out = {node: set() for node in nodes}
@@ -35,6 +30,21 @@ def layers(modules, imports):
     for name in names:
         result[depth[comp[name]]].append(name)
     return result
+
+
+def components(modules, imports):
+    # Each module maps to the smallest name in its strongly connected component.
+    names = sorted(set(modules))
+    return _components(names, _succ(names, imports))
+
+
+def _succ(names, imports):
+    known = set(names)
+    succ = {name: set() for name in names}
+    for importer, imported in imports:
+        if importer in known and imported in known and importer != imported:
+            succ[importer].add(imported)
+    return {name: sorted(targets) for name, targets in succ.items()}
 
 
 def _components(names, succ):
