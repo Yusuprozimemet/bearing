@@ -7,7 +7,6 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from bearing.page.layout import layers
 from bearing.snapshot.tree import snapshot
 
 REPO = Path(__file__).resolve().parents[1]
@@ -28,6 +27,13 @@ for sha in [step["sha"] for step in steps]:
     snap = snapshot(repo, sha)
     print(json.dumps(layers([m["name"] for m in snap["modules"]], snap["imports"])))
 """
+
+
+def layers(modules, imports):
+    # Imported here, so on the code before the track the test fails, not the module's import.
+    from bearing.page.layout import layers
+
+    return layers(modules, imports)
 
 
 def run(*args):
