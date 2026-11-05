@@ -606,4 +606,15 @@
 | Can each criterion's check fail? | The `broken:` lines under the ticked criteria, `specs/breaks/day-NN.json`, and the post-merge evidence replay (`evidence.yml`) |
 | Does the work stay reviewable? | The PR diff stays under 400 changed lines; uses of `Oversized:` so far: none |
 
+**The name gap and name coverage were recounted after Day 12's close** (branch
+`tooling/spec-drift-file-names`). Name coverage had stayed near 84% since Day 03 with every
+planned name built: 36 of the 41 names it called missing were test files the specs cite by path
+(`tests/test_config.py`), whose names no line of code holds, and 3 were Python's own errors the
+specs cite for a failure. A file or folder named after a spec name now counts as that name in
+the code, and Python's own names are not spec names. Every past point moved. At the last merge,
+name coverage went from 84.2% to 99.2% (the 2 left, "DatabaseError" and "ruff_cache", are not in
+Bearing's code), the gap from 40.7° to 33.6°, and its distance below chance from 4.4° to 6.9°.
+The shapes did not change: the daily dips, and spec changes opening the gap while code tracks
+close it.
+
 ## Retrospective
