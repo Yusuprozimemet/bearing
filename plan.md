@@ -170,7 +170,8 @@ Each phase is a series of <400-line PRs, so CI stays green.
 - Co-change coupling: file pairs that change together in at least N PRs, with pairs whose
   files lie in different `bearing.toml` areas flagged as a hidden dependency.
 - Said vs done, from `bearing.toml`'s areas: a PR whose changed files lie outside its area's
-  paths, checked only when its branch area names one of them; a PR whose body says "Contract
+  paths and the rule's `shared` paths, checked only when its branch area names one of them;
+  a PR whose body says "Contract
   impact: none" while touching a contract path. Each flag names the PR, the claim and the files.
 - `bearing direction` prints all three. `bearing.toml` is read from `--config FILE`, default
   `bearing.toml` in the working directory, never from the target repository.
@@ -251,6 +252,37 @@ kit's repository). For it to count:
 ## Course corrections
 
 <!-- Added by plan-change PRs, newest first. Empty at the start. -->
+
+### 2026-11-05: Course correction at the Day 10 stop: the kit's flags, round 1
+
+The maintainer's marks on the 72 flags of `docs/kit/direction.md` (Day 10 Track A, #59), kept
+in [`docs/kit/flags-round-1.md`](docs/kit/flags-round-1.md): real 17, rule 55. Fewer than
+half, so Track B does not open (Phase 3's "Done when"; H10.2). The maintainer took the marks
+of a Fable reading of each flagged PR's diff and body at `c12cfe5`, over 39 `real` that Claude
+had first proposed from the file names alone; and chose the fix in item 2.
+
+1. **Where the noise came from.** Four causes, by that reading; the 17 `real` flags survive
+   a fix of all four:
+   - `kit/` is given to `docs`, but it holds tools (`kit/replay/`, `kit/compare-page.py`), the
+     page's fixtures and the change record.
+   - The `dashboard` area misses the dashboard's own files: its test workflow, its config, its
+     demo data, the page comparison and the hash it writes.
+   - Shared text is edited from every area to record or document the PR's own change:
+     `kit/CHANGES.md` and `kit/SOURCE.md` (at the root before the kit's #15), `CLAUDE.md`,
+     `README.md`, `AGENTS.md`, `plan.md`, `specs/README.md` and the spec templates.
+   - Root tool configuration (`.gitignore`, `.gitattributes`, `.flake8`) has no area.
+2. **The outside-area rule takes a `shared` list.** `[rules.outside-area] shared = [<path
+   prefixes>]`: a PR's file under one of them is never outside its area. Without the key the
+   rule is as today, so the fixture's report and its golden file do not change. Listing the
+   shared files under every area instead needs no code, but a file's area is the first that
+   lists it, so churn and coupling would count them in the wrong area.
+3. **Round 2.** The kit's `bearing.toml` is fixed for the first, second and fourth causes, and
+   its `shared` list holds the third's files, all from round 1's reading and before the new
+   report is made. The report is made again at `c12cfe5`, and the maintainer marks every flag
+   it prints, as in round 1. The bar stays at least half `real`, and neither the config nor the
+   rule changes after round 2's first mark. A Day 10 spec-change PR sets the tracks: the
+   `shared` key and its test, the new config and report, then the marks (C10.5's 72 becomes the
+   new report's count).
 
 ### 2026-11-04: Course correction before Day 5
 
