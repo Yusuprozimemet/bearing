@@ -1,0 +1,14 @@
+# The kit's bearing.toml, for Day 10's run of bearing direction on the kit at c12cfe5.
+# The area names are the four the kit's merged branches use. The kit gives them no paths:
+# these are Day 10's spec's, starting from the kit README's layout sentence. Fixed before
+# any flag was judged.
+[areas]
+dashboard = ["scripts/spec-drift.py", "scripts/test_spec_drift.py", "docs/dashboard/"]
+tooling = ["scripts/", ".github/", ".claude/"]
+specs = ["specs/"]
+docs = ["docs/", "kit/", "README.md", "CLAUDE.md", "plan.md"]
+
+[coupling]
+min_prs = 3
+
+[rules.outside-area]
