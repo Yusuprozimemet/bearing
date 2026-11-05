@@ -476,6 +476,62 @@
   a `general-purpose` Fable row is new ($7.36). The folder's total from 2026-10-28 to
   2026-11-05 is $303.23, counted during the close.
 
+### Day 11: The page's data and its layout (Phase 4), closed in #73
+
+- **Delivered:** `bearing page <repo> --out <file>` writes one HTML file holding the
+  `page-v1` data in a `bearing-data` element: one step per first-parent merge, with its number,
+  title and paragraph (the changelog's choice), its structural events (the timeline's) and its
+  flags (direction's, computed per merge). The contract is new: `tests/contract/test_page.py`
+  and `tests/fixtures/expected/page-v1.json` (138 lines), in #70. #71 added the command's
+  one-line errors, `--out` left alone when one happens, and every `<` in the element written as
+  a JSON escape, so PR text cannot end it. #72 added `bearing/page/layout.py`: `layers`, the
+  layered layout plan.md decided, each import cycle one node, the same under two hash seeds.
+  The page does not draw yet (Day 12). No migration; no existing contract changed. `pytest -q`:
+  89 passed, 109 subtests passed.
+- **Criteria:** 9 of 9 ticked: 7 `new` and 2 `hold`.
+- **Breaks on purpose:** 12, all in `specs/breaks/day-11.json`: 2 in #69, 3 in #70, 4 in #71
+  and 3 in #72. The close replayed all 12 on `main`, each failing its check. #69's contract
+  break now reports "6 passed" where it read "5 passed": Track A added a contract test.
+- **PRs:** 5 at the day-spec rung: the spec (#69), Tracks A (#70), B (#71) and C (#72), and the
+  close. No Track 0. Track A's diff was 398 changed lines, so the split the spec planned for
+  it (D11.6) was not needed.
+- **Defects:** 14 in the Notes.
+
+  | Field | Count |
+  | --- | --- |
+  | found: auditor | 7 |
+  | found: self | 1 |
+  | found: break on purpose | 2 |
+  | found: Track C | 2 |
+  | found: review | 1 |
+  | found: close | 1 |
+  | cause: spec | 7 |
+  | cause: process | 6 |
+  | cause: implementation | 1 |
+
+  The spec-auditor found seven before any code (D11.1 to D11.7), among them a JSON escape the
+  Write tool had turned into its character, two wrong reds after Track A, and a stderr whose
+  order the spec did not pin. In the tracks, five were the record around the code: the same
+  Write tool escape in a commit message (D11.8), break finds that did not match (D11.9,
+  D11.10), a brief's wrong merge walk (D11.11) and a test module that failed to load on `main`,
+  which local `seen-red.py` printed as an error and CI's "Track tests seen red" refused
+  (D11.13). One was the implementer's: a walk that gave the wrong 10 merges (D11.12). The close
+  found Verify's subtest count off by two (D11.14). The blind relabel agreed on all 14 stages
+  and `made:` tags and on 11 of 14 causes. The rater read D11.1 and D11.8 as `environment` and
+  D11.13 as `implementation`. No tag changed; D11.8's and D11.13's texts now say why.
+- **Human interventions:** 6 `human:` lines in #69 to #72. In #69 the maintainer started the
+  day with the plan-auditor on Phase 4, pointed out a failing template check, and kept the
+  spec's two decisions: a missing config is an error, and the layout stays out of `page-v1`.
+  Each track and the close began from the previous session's suggested prompt.
+- **Hand-offs:** H11.1 → Day 12: the graph drawn from `layers` as inline SVG in Mermaid's look,
+  the step-through controls, every flag marked "unverified", the HTML's bytes the same under two
+  hash seeds, and Phase 4's "Done when" on the kit at `c12cfe5`.
+- **Tokens:** `docs/dashboard/token-usage.json` tags two rows with Day 11, on 2026-11-05: the
+  main session (104 replies, $5.34) and the implementer on Haiku (59 replies, $0.08). The
+  plan-auditor's and spec-auditor's runs are in the untagged rows for that date (109 replies,
+  $3.83, and 105 replies, $4.03). The folder's total from 2026-10-28 to 2026-11-05 is $325.53,
+  counted during the close, so the close's own session is only partly in it.
+
 ## What is being measured
 
 | Question | Evidence it will be judged on |
