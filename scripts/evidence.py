@@ -128,6 +128,13 @@ def close_commit(day, ref):
     return None
 
 
+def closed_specs(ref):
+    """Each day spec on ref whose day has a closing commit there, in path order: what the dashboard replays."""
+    paths = git("ls-tree", "--name-only", ref, "--", "specs/").split()
+    days = [(p, re.match(r"specs/day-(\d{2})-[^/]*\.md$", p)) for p in sorted(paths)]
+    return [p for p, m in days if m and close_commit(m.group(1), ref)]
+
+
 def change_spec(commit, count, subject):
     """The short spec a commit with that many parents and that subject lands: the merge of
     `change/<slug>`, or a squash that adds one `specs/changes/<slug>.md`; or None."""
