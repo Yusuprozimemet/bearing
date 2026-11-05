@@ -4,8 +4,6 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from bearing.direction.config import ConfigError, load_config, load_rules
-
 
 class ConfigTest(unittest.TestCase):
     def setUp(self):
@@ -80,6 +78,8 @@ class ConfigTest(unittest.TestCase):
                     self.assertEqual(str(cm.exception), message)
 
     def test_rules(self):
+        from bearing.direction.config import load_rules
+
         path = self.write(
             "[areas]\n"
             'app = ["app/"]\n'
@@ -96,6 +96,8 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(load_rules(path), [])
 
     def test_rule_errors(self):
+        from bearing.direction.config import ConfigError, load_rules
+
         areas = '[areas]\napp = ["app/"]\n'
         missing = self.dir / "missing.toml"
         table_message = f"config {self.dir / 'bearing.toml'}: [rules] must be a table of rule tables"
@@ -118,6 +120,8 @@ class ConfigTest(unittest.TestCase):
                 self.assertEqual(str(cm.exception), message)
 
     def test_example(self):
+        from bearing.direction.config import load_config, load_rules
+
         path = Path(__file__).resolve().parents[1] / "bearing.toml.example"
         areas, min_prs = load_config(path)
         self.assertGreaterEqual(len(areas), 1)

@@ -2,11 +2,11 @@
 
 import unittest
 
-from bearing.direction.said_vs_done import said_vs_done, says_no_contract_impact
-
 
 class SaidVsDoneTest(unittest.TestCase):
     def test_claim(self):
+        from bearing.direction.said_vs_done import says_no_contract_impact
+
         claims = [
             "## Contract impact\n\nNone\n",
             "## Contract impact\r\n\r\nNone. The format is unchanged.\r\n",
@@ -32,6 +32,8 @@ class SaidVsDoneTest(unittest.TestCase):
                 self.assertFalse(says_no_contract_impact(body))
 
     def test_flags(self):
+        from bearing.direction.said_vs_done import said_vs_done
+
         areas = [
             ("docs", ("docs/", "README.md")),
             ("app", ("app/",)),
