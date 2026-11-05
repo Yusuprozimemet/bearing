@@ -1,14 +1,33 @@
-# The kit's bearing.toml, for Day 10's run of bearing direction on the kit at c12cfe5.
-# The area names are the four the kit's merged branches use. The kit gives them no paths:
-# these are Day 10's spec's, starting from the kit README's layout sentence. Fixed before
-# any flag was judged.
+# The kit's bearing.toml, for round 2 of Day 10's run of bearing direction on the kit at c12cfe5.
+# Round 1's paths, fixed for three of the causes round 1's marks found (plan.md, Course
+# correction at the Day 10 stop): kit/ holds tools, the dashboard misses its own files, and
+# root tool configuration had no area. The shared list holds the other: text every area edits.
+# Fixed before any round 2 flag was judged.
 [areas]
-dashboard = ["scripts/spec-drift.py", "scripts/test_spec_drift.py", "docs/dashboard/"]
-tooling = ["scripts/", ".github/", ".claude/"]
+dashboard = [
+    "scripts/spec-drift.py", "scripts/test_spec_drift.py", "docs/dashboard/",
+    ".github/workflows/spec-drift-tests.yml", "spec-drift.config.json",
+    "scripts/demo-data.py", "scripts/test_demo_data.py",
+    "kit/compare-page.py", "kit/page/", "kit/starter-check.py",
+]
+tooling = [
+    "scripts/", ".github/", ".claude/",
+    "kit/replay/", "kit/compare-page.py", "kit/page/",
+    ".gitignore", ".gitattributes", ".flake8",
+]
 specs = ["specs/"]
-docs = ["docs/", "kit/", "README.md", "CLAUDE.md", "plan.md"]
+docs = [
+    "docs/", "kit/ASSESSMENT.md", "kit/comparison/", "kit/examples/", "kit/jobmatch/",
+    "kit/lessons/", "kit/six-kits-assessment.md", "kit/six-kits-plan.md", "kit/v2-manifest.md",
+    "README.md", "CLAUDE.md", "plan.md",
+]
 
 [coupling]
 min_prs = 3
 
 [rules.outside-area]
+shared = [
+    "kit/CHANGES.md", "kit/SOURCE.md", "CHANGES.md", "SOURCE.md",
+    "CLAUDE.md", "README.md", "AGENTS.md", "plan.md",
+    "specs/README.md", "specs/_template.md", "specs/_short-template.md", "templates/",
+]
