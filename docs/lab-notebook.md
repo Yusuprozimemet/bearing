@@ -269,7 +269,7 @@
   and raised Day 5's main row to 104 replies. The folder's total from 2026-10-28 to 2026-11-04
   is $234.96, counted during the close, so the close's own session is only partly in it.
 
-### Day 07: Cycles (Phase 2), closed in the closing PR
+### Day 07: Cycles (Phase 2), closed in #46
 
 - **Delivered:** `bearing timeline` adds `cycle+` and `cycle-` for each elementary import cycle
   a merge introduces or breaks, started at its least name and compared after the rename rule.
@@ -312,6 +312,65 @@
   close added a defect-rater row and raised Day 6's main row to 79 replies. The folder's total
   from 2026-10-28 to 2026-11-04 is $242.83, counted during the close, so the close's own
   session is only partly in it.
+
+### Day 08: Churn and coupling (Phase 3), closed in the closing PR
+
+- **Delivered:** `bearing direction <repo> [--data DIR] [--config FILE]` reads its path areas
+  and coupling threshold from a `bearing.toml` outside the target repository (default
+  `bearing.toml` in the working directory). It prints a `## Churn` table, lines added and
+  deleted per area per ISO week, and a `## Coupling` table, file pairs changed together in at
+  least `min_prs` PRs (3 by default), with each file's area. The package `bearing/direction/`
+  holds the config (#48), the numstat reader and churn (#48), coupling and the report (#50). On
+  the fixture it prints the spec's 23 lines. It reads git at run time, with no new migration.
+  `pytest -q`: 65 passed, 58 subtests passed.
+- **Criteria:** 8 of 8 ticked: 7 `new` and 1 `hold`.
+- **Breaks on purpose:** 9, all in `specs/breaks/day-08.json`: 2 in #47, 3 in #48 and 4 in
+  #50. The close replayed all 9 on `main`, and each one failed its check.
+- **PRs:** 4 at the day-spec rung: the spec with a plan change (#47), Track A (#48), Track B
+  (#50) and the close. There was no Track 0. A `tooling/` branch (#49) fixed `seen-red.py`
+  between the tracks, outside the day.
+- **Defects:** 11 in the Notes.
+
+  | Field | Count |
+  | --- | --- |
+  | found: auditor | 7 |
+  | found: spec-change PR | 2 |
+  | found: Track A | 1 |
+  | found: self | 1 |
+  | cause: spec | 9 |
+  | cause: environment | 1 |
+  | cause: process | 1 |
+
+  The spec-auditor and plan-auditor found seven before any code. Three were plan.md
+  questions the maintainer settled in #47's Course correction: what an "area" is (D08.1),
+  whether the fixture's #5 is a lie (D08.2), and the contract-impact form no kit PR writes
+  (D08.3). Two were stale plan.md lines (D08.8, D08.9), one a criterion Day 9 would have broken
+  (D08.6) and one a missing test count (D08.7). The spec-change PR caught two hand counts in
+  its own draft (D08.4, D08.5). In the tracks, `seen-red.py` and CI's "Track tests seen red"
+  gave a false pass for a new subpackage (D08.10), fixed in #49 before track B; and one break
+  was first tried with a multi-line `--find` on a CRLF file (D08.11). Every red text matched
+  its run, as on Day 7.
+  The blind relabel agreed on 8 of 11 stages and on every cause and `made:`. On D08.7 and
+  D08.9 the rater could not tell the stage from the text, which now says the spec-auditor
+  found them before any code. On D08.8 it read Day 7's escape as found before code. No tag
+  changed.
+- **Human interventions:** 4. In #47 the maintainer made three choices for plan.md: one table
+  of path areas, the fixture's #5 flagged and judged at the stop, and the Phase 3 split across
+  Days 8 to 10. In #48 they pointed at the failing "Track tests seen red" check, which led to
+  #49.
+- **Hand-offs:** H07.1 (where `bearing.toml` is read from) and H01.2 (the coupling threshold)
+  were decided in #47 and built in #48 and #50. H05.1's remainder, coupling in the Day 10
+  stop's cut list, was dropped by #47's plan change. H08.1, said vs done with its golden file
+  and `bearing.toml.example`, goes to Day 9; H08.2, the kit's `bearing.toml` and run, to Day
+  10.
+- **Tokens:** `docs/dashboard/token-usage.json` tags four rows with Day 8: on 2026-11-04 the
+  main session (25 replies, $1.76) and the spec-auditor (39 replies, $1.28); on 2026-11-05 the
+  main session (61 replies, $2.32) and the implementer on Haiku (18 replies, $0.03). The
+  untagged rows rose on 2026-11-04 (main from 686 to 725 replies, the plan-auditor from 118 to
+  143), and 2026-11-05 adds an untagged main session (47 replies, $2.77). Day 7's close added a
+  defect-rater row and raised Day 7's main row to 65 replies. The folder's total from
+  2026-10-28 to 2026-11-05 is $255.49, counted during the close, so the close's own session is
+  only partly in it.
 
 ## What is being measured
 
