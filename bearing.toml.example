@@ -1,0 +1,22 @@
+# An example bearing.toml. It lives outside the repository it describes:
+# pass it with --config FILE, e.g. --config ../bearing.toml.
+
+# The path areas: each name maps to the path prefixes that belong to it.
+# The first area in file order that matches a file names it.
+[areas]
+docs = ["docs/", "README.md"]
+app = ["app/"]
+
+# The coupling threshold: a pair of files must share at least this many pull requests.
+[coupling]
+min_prs = 3
+
+# outside-area: a pull request whose branch is named for an area (area/...) is flagged
+# when it changes a file outside that area's prefixes.
+[rules.outside-area]
+
+# contract-impact: a pull request that changes a file under these prefixes is flagged
+# when its body claims no contract impact ("## Contract impact" then "None", or
+# "Contract impact: none").
+[rules.contract-impact]
+paths = ["tests/contract/"]
