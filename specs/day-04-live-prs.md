@@ -177,7 +177,8 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       `broken: none → <why>`, and the spec PR's break, run by hand, is in its description.
       Evidence: at the close, on `e291344` with the kit's `gh` list of 93 records cut to 91: the
       ingest line `merges 91  matched 91  unmatched merges 0  unmatched PRs 0  direct 11`, then
-      `91`, then `0` (the closing PR quotes them); the same in #25's prototype.
+      `91`, then `0` (the closing PR, #29, quotes the commands above and their output); the same
+      in #25's prototype.
       broken: none → the check needs a clone of the kit, which CI has not; pass 1 matching nothing was run by hand in #25, and the subject grep printed 91
 - [x] C04.8 **hold** — with `--prs`, `gh` is never run: with the fake of C04.3 in place,
       `main(["ingest", "<dir>/repo", "--prs", "<dir>/prs.json", "--data", "<tmp>"])` returns 0,

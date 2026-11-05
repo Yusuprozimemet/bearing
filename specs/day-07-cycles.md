@@ -188,7 +188,8 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       ("What the kit and wordtally give"). The close also breaks the check once by hand, not
       replayed: C06.6's break ("cli.py: the cache is not committed") put in, the kit's second
       run must print "blobs parsed 204", and the Notes quote what it printed.
-      Evidence: run by hand at the close on `8e90f74`, each into a new data directory. The kit
+      Evidence: the commands above, run by hand at the close (#46) on `8e90f74`, each into a new
+      data directory. The kit
       at `c12cfe55018aebe82de83485460f1edd22e4c96b`: "blobs parsed 204  cache hits 0", then
       "blobs parsed 0  cache hits 204", both exit 0. wordtally at
       `e1d15e9bbe5067bf4b0cc67f0bb65f7cf52f5dab`: "blobs parsed 94  cache hits 0", then "blobs
