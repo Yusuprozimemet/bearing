@@ -141,7 +141,7 @@ exist. C09.8 is `hold` and owned by this spec's PR, which runs its check and bre
 ## Acceptance criteria
 Tick each box in the closing PR once its evidence is in it; under a box left unticked, write
 `Not proven: <why>` (`specs/README.md`, "Evidence at the close").
-- [ ] C09.1 **new** — `load_rules` on a file written in the test holding `[areas] app =
+- [x] C09.1 **new** — `load_rules` on a file written in the test holding `[areas] app =
       ["app/"]`, then `[rules.contract-impact] paths = ["tests/contract/", "api/"]`, then
       `[rules.outside-area]`, returns `[("contract-impact", ("tests/contract/", "api/")),
       ("outside-area", ())]` in that order; on a file with `[areas]` and no `[rules]` it
@@ -153,7 +153,11 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       'load_rules'").
       Test: `tests/test_config.py::ConfigTest::test_rules` and
       `tests/test_config.py::ConfigTest::test_rule_errors`
-- [ ] C09.2 **new** — `says_no_contract_impact` is true for each of: "## Contract
+      Evidence: `ConfigTest.test_rules` and `ConfigTest.test_rule_errors` (#53), each seen red
+      first on `939965e`'s code with "cannot import name 'load_rules'", raised in the test's own
+      body (D09.9); `python -m pytest -q` (#53).
+      broken: load_rules's unknown-rule message without the id → 1 failed, 1 passed, 6 subtests passed in 0.10s (#53)
+- [x] C09.2 **new** — `says_no_contract_impact` is true for each of: "## Contract
       impact\n\nNone\n"; "## Contract impact\r\n\r\nNone. The format is unchanged.\r\n";
       "### contract impact\n\n  none\n"; "Contract impact: None\n"; "contract impact: none,
       only tests\n"; "## What I built\n\nX.\n\n## Contract impact\n\nNone\n"; and false for
@@ -163,7 +167,10 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       import of `bearing.direction.said_vs_done` fails ("No module named
       'bearing.direction.said_vs_done'").
       Test: `tests/test_said_vs_done.py::SaidVsDoneTest::test_claim`
-- [ ] C09.3 **new** — `said_vs_done` with the areas `[("docs", ("docs/", "README.md")),
+      Evidence: `SaidVsDoneTest.test_claim` (#53), seen red first on `939965e`'s code with "No
+      module named 'bearing.direction.said_vs_done'"; `python -m pytest -q` (#53).
+      broken: the heading claim without the word boundary after "none" → 1 failed, 1 passed, 12 subtests passed in 0.10s (#53)
+- [x] C09.3 **new** — `said_vs_done` with the areas `[("docs", ("docs/", "README.md")),
       ("app", ("app/",)), ("api", ("app/api/",))]`, the rules `[("contract-impact",
       ("tests/contract/",)), ("outside-area", ())]` and the PRs
       `[(7, "docs/fix", "## Contract impact\n\nNone\n", ["tests/contract/t.py", "app/x.py",
@@ -181,26 +188,40 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       body that claims an impact, or none at all (#6), raises no contract flag. With the rules
       `[]` it returns `[]`. Red today: as C09.2.
       Test: `tests/test_said_vs_done.py::SaidVsDoneTest::test_flags`
-- [ ] C09.4 **new** — `bearing.toml.example` at the repository root loads: `load_config`
+      Evidence: `SaidVsDoneTest.test_flags` (#53), seen red first on `939965e`'s code with "No
+      module named 'bearing.direction.said_vs_done'"; `python -m pytest -q` (#53).
+      broken: outside-area reading only the first prefix of the branch's area → 1 failed in 0.08s (#53)
+- [x] C09.4 **new** — `bearing.toml.example` at the repository root loads: `load_config`
       returns at least one area and `min_prs` 3, and `load_rules` returns
       `[("outside-area", ()), ("contract-impact", ("tests/contract/",))]`. Red today: with
       `load_rules` imported at the top of `tests/test_config.py`, as C09.1's tests need, the
       module fails to collect on `main` ("cannot import name 'load_rules'"); that is the red the
       track PR records for C09.1 and C09.4 alike. The file is also missing today.
       Test: `tests/test_config.py::ConfigTest::test_example`
-- [ ] C09.5 **new** — the direction report's contract: on the fixture, after `python -m
+      Evidence: `ConfigTest.test_example` (#53), seen red first on `939965e`'s code with "cannot
+      import name 'load_rules'", from the test's own body: the module-level import this
+      criterion asks for was moved, as CI's "Track tests seen red" refuses a module that does
+      not collect (D09.9); `python -m pytest -q` (#53).
+      broken: bearing.toml.example with min_prs 2 → 1 failed in 0.09s (#53)
+- [x] C09.5 **new** — the direction report's contract: on the fixture, after `python -m
       bearing ingest <dir>/repo --prs <dir>/prs.json --data <tmp>`, `python -m bearing
       direction <dir>/repo --data <tmp> --config tests/fixtures/bearing.toml` exits 0 and its
       stdout's bytes equal those of `tests/fixtures/expected/direction.md`, which holds
       exactly the 28 lines of "What the fixture gives", `\r\n` read as `\n` on both sides. Red
       today: stdout is Day 8's 23 lines, without the 5 of Said vs done, so the bytes differ.
       Test: `tests/contract/test_direction.py::DirectionContractTest::test_golden`
-- [ ] C09.6 **new** — `DirectionCliTest.test_fixture_report` expects the 28 lines: exit 0,
+      Evidence: `DirectionContractTest.test_golden` (#54), seen red first on `028ab5c`'s code by
+      an assertion: Day 8's 23 lines; `python -m pytest -q` (#54).
+      broken: the flag line's format in report.py → 1 failed in 5.35s (#54)
+- [x] C09.6 **new** — `DirectionCliTest.test_fixture_report` expects the 28 lines: exit 0,
       stderr empty, stdout's bytes exactly the 28 lines of "What the fixture gives". Red
       today: stdout is Day 8's 23 lines.
       Test: `tests/test_direction_cli.py::DirectionCliTest::test_fixture_report`
       Replaces: C08.5 — was: stdout's bytes are exactly the 23 lines of Day 8's "What the fixture gives"
-- [ ] C09.7 **new** — on the fixture's store, a copy of the fixture's toml without its
+      Evidence: `DirectionCliTest.test_fixture_report` (#54), seen red first on `028ab5c`'s code
+      by an assertion: Day 8's 23 lines; `python -m pytest -q` (#54).
+      broken: the blank line after the Said vs done heading → 1 failed in 8.09s (#54)
+- [x] C09.7 **new** — on the fixture's store, a copy of the fixture's toml without its
       `[rules...]` tables, written in the test, prints the 23 lines of Day 8, then "",
       "## Said vs done", "", "No flags."; and a copy with `[rules.typo]` added exits 1, stdout
       empty, stderr exactly "bearing: config <path>: unknown rule typo: the rules are
@@ -209,7 +230,12 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       there: the rules are read before the store. Red today: the first prints Day 8's 23 lines
       and stops; the second exits 0, the unknown table unread; the third prints "no store at".
       Test: `tests/test_direction_cli.py::DirectionCliTest::test_rules_config`
-- [ ] C09.8 **hold** — the frozen files stay as Day 8 left them, added files allowed outside
+      Evidence: `DirectionCliTest.test_rules_config` (#54), seen red first on `028ab5c`'s code
+      by an assertion: Day 8's 23 lines and no section, the unknown table unread; `python -m
+      pytest -q` (#54).
+      broken: load_rules not called in _direction → 1 failed in 6.00s (#54)
+      broken: the No flags. line dropped → 1 failed in 5.80s (#54)
+- [x] C09.8 **hold** — the frozen files stay as Day 8 left them, added files allowed outside
       the migrations: `git -c core.safecrlf=false diff --diff-filter=DMRT --exit-code 88f7cf8
       -- tests/contract/ tests/fixtures/make_repo.py tests/fixtures/expected/` and
       `git -c core.safecrlf=false diff --exit-code 88f7cf8 -- bearing/migrations/` print
@@ -219,6 +245,10 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       at replay), not an untracked file, so its break edits an applied one. This spec's PR
       breaks each command once with `scripts/break.py`: a line of
       `bearing/migrations/001_history.sql` and a line of `tests/fixtures/make_repo.py`.
+      Evidence: both commands above, exit 0 and nothing printed in #52, #53 and #54 and on
+      `9bbf929` at the close.
+      broken: the applied migration 001_history.sql edited → ); (#52)
+      broken: make_repo.py: the root commit's subject changed → # The outer branch's own commit takes the side PR's day. (#52)
 
 ## Verify
 ```bash
@@ -241,8 +271,9 @@ git -c core.safecrlf=false diff --exit-code 88f7cf8 -- bearing/migrations/
 - Tests: `python -m pytest -q` prints "65 passed, 58 subtests passed" on `88f7cf8`. The
   criteria name 7 new tests (Track A 5, Track B 2) and change one, so the day ends at "72
   passed", subtests besides.
-- **Defect** D09.1 — found: self · cause: spec · made: none · plan.md's direction contract said
-  "one table each" and gave a flag as a list line; reworded in this PR.
+- **Defect** D09.1 — found: self · cause: spec · made: none · plan.md's direction contract,
+  written before Day 1, said "one table each" and gave a flag as a list line; reworded in #52,
+  this spec's PR, before any code.
 - **Defect** D09.2 — found: auditor · cause: spec · made: Day 09 · the first draft said the
   rules are read before the store, but no criterion checked it: a `load_rules` after the store
   check passed every test. The spec-auditor found this before any code; C09.7 now runs the
@@ -267,5 +298,41 @@ git -c core.safecrlf=false diff --exit-code 88f7cf8 -- bearing/migrations/
   for a branch without "/", so an area named "other" would have checked every such branch,
   against plan.md's "`other` PRs are not checked"; the spec-auditor found this before any code,
   and `outside-area` now skips a branch without "/".
+- **Defect** D09.9 — found: Track A · cause: spec · made: Day 09 · C09.4 named as its red a
+  `tests/test_config.py` that fails to collect, with `load_rules` imported at the top. CI's
+  "Track tests seen red" refused that red for all five of #53's tests ("an error, not an
+  assertion"), since `scripts/track-red.py` counts a module that does not load as no red. #53's
+  second commit moved each import into the test's body, as the file's earlier tests do, and
+  each test then failed on `main` by its own `ImportError`. The spec-auditor did not catch it.
+- **Defect** D09.10 — found: Track B · cause: spec · made: Day 09 · In scope joins `commits` to
+  `prs` with the branch's fallback (`COALESCE(prs.head_ref, commits.subject_branch)`) and "What
+  the fixture gives" says #11 is checked, but no criterion can see the fallback: #54 dropped it
+  as a break and all five direction tests passed. #11 (`tooling/ci`) is the only PR without a
+  record, and its one file is inside `tooling`, so neither rule flags it either way. Left
+  unpatched, as no criterion asks for it; a later day's fixture or test owns it (H09.1).
+- **Defect** D09.11 — found: self · cause: process · made: Day 09 · at the close, Verify's
+  `make_repo.py .bearing/day09-check` refused a directory left from an earlier run ("not an
+  empty directory"): I cleared it first with `shutil.rmtree(..., ignore_errors=True)`, which
+  could not remove its read-only git objects, and the flag I chose hid that. The line was
+  rerun in a fresh directory.
+- The blind relabel at the close agreed on 10 of 11 stages, 10 of 11 causes and 10 of 11
+  `made:`. On D09.1 the rater answered "unclear" for stage and `made:`, with low confidence:
+  the text did not say which PR reworded plan.md or when the wording was written. The tags
+  stay, and the text now says both. On D09.11 it gave `environment` where the tag says
+  `process`, also with low confidence. The tag stays: Windows' read-only objects are a known
+  condition (CLAUDE.md's rmtree advice), and `ignore_errors=True`, my choice, is what hid the
+  failure; the text now says so.
+- At the close, on `9bbf929`: `python -m pytest -q` gave "72 passed, 78 subtests passed", the
+  count above; the style check passed. Verify's `grep -c` printed 2, and both of C09.8's
+  diffs exited 0. All 10 `manifest:` lines parsed as JSON (2 in #52, 4 in
+  #53, 4 in #54), and each `find` occurs once in the merged code. I replayed each with
+  `scripts/break.py` on this code, and each failed its check. `python scripts/seen-red.py
+  --base 939965e` on track A's two test files reported "5 failed, 2 passed", and `--base
+  028ab5c` on track B's three tests "3 failed". Between track B and this close, two tooling
+  PRs changed only the dashboard: #55 and #56.
+- **Hand-off** H09.1 → Day 10, which runs the direction report on the kit, where merges
+  without a PR record are likelier: a test that sees the branch's fallback for such a merge
+  (D09.10), so that dropping `COALESCE(prs.head_ref, commits.subject_branch)` fails a check, or
+  the spec says why none is needed.
 </content>
 </invoke>
