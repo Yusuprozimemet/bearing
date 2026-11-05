@@ -1,10 +1,12 @@
 """The direction command on the fixture: its report, the threshold in its config, and its errors."""
 
 import os
+import sqlite3
 import subprocess
 import sys
 import tempfile
 import unittest
+from contextlib import closing
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
@@ -236,3 +238,32 @@ class DirectionCliTest(unittest.TestCase):
         self.assertEqual(result.stdout, b"")
         self.assertEqual(text(result.stderr), message)
         self.assertFalse((fresh / "bearing.db").exists())
+
+    def test_branch_from_subject(self):
+        self.assertEqual(self.result.returncode, 0, self.result.stderr)
+        data = self.data_dir("subject")
+        self.ingest(data)
+        raw = TOML.read_bytes().replace(b"\r\n", b"\n")
+        old = b'tooling = ["scripts/", "ci.txt"]'
+        self.assertIn(old, raw)
+        no_ci = Path(self.tmp.name) / "no-ci.toml"
+        no_ci.write_bytes(raw.replace(old, b'tooling = ["scripts/"]'))
+        result = self.direction(data, no_ci)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        lines = text(result.stdout).splitlines()
+        i = lines.index("## Said vs done")
+        self.assertEqual(
+            lines[i + 1 :],
+            [
+                "",
+                "- #5 outside-area: area docs | scripts/run.py",
+                "- #9 contract-impact: no contract impact | tests/contract/test_api.py",
+                "- #11 outside-area: area tooling | ci.txt",
+            ],
+        )
+        # The branch must come from the merge subject: no PR row 11 is stored.
+        with closing(sqlite3.connect(data / "bearing.db")) as conn:
+            count = conn.execute(
+                "SELECT COUNT(*) FROM prs WHERE number = 11"
+            ).fetchone()[0]
+        self.assertEqual(count, 0)

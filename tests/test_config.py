@@ -130,3 +130,27 @@ class ConfigTest(unittest.TestCase):
             load_rules(path),
             [("outside-area", ()), ("contract-impact", ("tests/contract/",))],
         )
+
+    def test_kit_config(self):
+        from bearing.direction.config import load_config, load_rules
+
+        path = Path(__file__).resolve().parents[1] / "docs" / "kit" / "bearing.toml"
+        areas, min_prs = load_config(path)
+        self.assertEqual(
+            areas,
+            [
+                (
+                    "dashboard",
+                    (
+                        "scripts/spec-drift.py",
+                        "scripts/test_spec_drift.py",
+                        "docs/dashboard/",
+                    ),
+                ),
+                ("tooling", ("scripts/", ".github/", ".claude/")),
+                ("specs", ("specs/",)),
+                ("docs", ("docs/", "kit/", "README.md", "CLAUDE.md", "plan.md")),
+            ],
+        )
+        self.assertEqual(min_prs, 3)
+        self.assertEqual(load_rules(path), [("outside-area", ())])
