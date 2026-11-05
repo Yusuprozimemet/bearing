@@ -1,0 +1,112 @@
+[
+  {
+    "what": "the golden file's #5 file made scripts/runX.py",
+    "file": "tests/fixtures/expected/direction.md",
+    "find": "| scripts/run.py",
+    "replace": "| scripts/runX.py",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/contract/test_direction.py"
+    ]
+  },
+  {
+    "what": "the golden file's #5 file made scripts/runX.py",
+    "file": "tests/fixtures/expected/direction.md",
+    "find": "| scripts/run.py",
+    "replace": "| scripts/runX.py",
+    "command": [
+      "git",
+      "-c",
+      "core.safecrlf=false",
+      "diff",
+      "--exit-code",
+      "64baca6",
+      "--",
+      "tests/contract",
+      "tests/fixtures/expected"
+    ]
+  },
+  {
+    "what": "report.py's branch COALESCE(prs.head_ref, commits.subject_branch) made COALESCE(prs.head_ref, '')",
+    "file": "bearing/direction/report.py",
+    "find": "COALESCE(prs.head_ref, commits.subject_branch)",
+    "replace": "COALESCE(prs.head_ref, '')",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_direction_cli.py::DirectionCliTest::test_branch_from_subject"
+    ]
+  },
+  {
+    "what": "config.py's found.append((rule_id, tuple(shared))) made found.append((rule_id, ()))",
+    "file": "bearing/direction/config.py",
+    "find": "found.append((rule_id, tuple(shared)))",
+    "replace": "found.append((rule_id, ()))",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_config.py::ConfigTest::test_outside_area_shared"
+    ]
+  },
+  {
+    "what": "said_vs_done.py's 'and not p.startswith(prefixes)' removed from the outside-area filter",
+    "file": "bearing/direction/said_vs_done.py",
+    "find": "and not p.startswith(prefixes)",
+    "replace": "",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_said_vs_done.py::SaidVsDoneTest::test_shared"
+    ]
+  },
+  {
+    "what": "docs/kit/bearing.toml \"kit/starter-check.py\" made \"kit/starter.py\"",
+    "file": "docs/kit/bearing.toml",
+    "find": "\"kit/starter-check.py\"",
+    "replace": "\"kit/starter.py\"",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_config.py::ConfigTest::test_kit_config"
+    ]
+  },
+  {
+    "what": "the last \"- #\" line (#94) emptied in docs/kit/direction.md, 25 flags left",
+    "file": "docs/kit/direction.md",
+    "find": "- #94 outside-area: area tooling | docs/architecture.md, spec-drift.config.json",
+    "replace": "",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_kit_report.py::KitReportTest::test_round_2"
+    ]
+  },
+  {
+    "what": "the last flag line (#94) emptied in docs/kit/flags.md, 25 flags left",
+    "file": "docs/kit/flags.md",
+    "find": "- #94 outside-area: area tooling | docs/architecture.md, spec-drift.config.json -- rule: list spec-drift.config.json under tooling as well as dashboard (tooling scripts read it); add docs/architecture.md to shared",
+    "replace": "",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_kit_flags.py"
+    ]
+  }
+]

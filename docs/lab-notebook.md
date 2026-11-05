@@ -372,7 +372,7 @@
   2026-10-28 to 2026-11-05 is $255.49, counted during the close, so the close's own session is
   only partly in it.
 
-### Day 09: Said vs done (Phase 3), closed in the closing PR
+### Day 09: Said vs done (Phase 3), closed in #57
 
 - **Delivered:** `bearing direction` ends with a `## Said vs done` section: one list line per
   flag, in first-parent order, or "No flags.". Two rules come from `[rules.<id>]` tables in
@@ -422,6 +422,56 @@
   replies, and the untagged main row for 2026-11-05 rose from 47 to 241 replies ($13.46),
   mostly the two `tooling/` branches. The folder's total from 2026-10-28 to 2026-11-05 is
   $273.69, counted during the close, so the close's own session is only partly in it.
+
+### Day 10: The kit's flags and the Phase 3 stop (Phase 3), closed in the closing PR
+
+- **Delivered:** `bearing direction` run on the kit at `c12cfe5`, its flags judged by the
+  maintainer, in two rounds. Round 1 (#59, #60): the kit's `docs/kit/bearing.toml`, a report of
+  72 flags, and marks of 17 `real`, short of the half Phase 3's "Done when" asks. The plan
+  change (#60) added a `shared` list to the `outside-area` rule; Track C (#62) built it, and
+  Track D (#63) re-ran the kit with round 2's config: 94 of 94 merges matched, 26 flags,
+  `docs/kit/direction.md` 181 lines. Track B (#64) holds the marks in `docs/kit/flags.md`:
+  "Marks: real 13, rule 13", exactly half. H09.1 got its test in #59. No migration, no
+  contract change. `pytest -q`: 78 passed, 107 subtests passed.
+- **Criteria:** 7 of 7 ticked: 5 `new` and 2 `hold`.
+- **Breaks on purpose:** 10 in the PRs: 3 in #58, 1 in #59, 2 in #62, 3 in #63 and 1 in #64.
+  8 are in `specs/breaks/day-10.json`, all replayed at the close, each failing its check. The
+  other 2 ran on a scratch clone of the kit, which CI's replay does not have. #64's entry was
+  adapted to run on CI and on a CRLF tree (D10.19).
+- **PRs:** 8: the spec (#58), Track A (#59), a plan change (#60), a second spec change for
+  round 2 (#61), Tracks C (#62), D (#63) and B (#64), and the close. No Track 0.
+- **Defects:** 19 in the Notes.
+
+  | Field | Count |
+  | --- | --- |
+  | found: auditor | 15 |
+  | found: spec-change PR | 2 |
+  | found: Track C | 1 |
+  | found: close | 1 |
+  | cause: spec | 18 |
+  | cause: process | 1 |
+
+  The spec-auditor found 15 before any code, the most of any day so far. They included a
+  C10.5 test that passed on any well-formed file (D10.2), holds that were really `new` (D10.3,
+  D10.13), and literal output in backticks (D10.10). Round 2 found one more in plan.md's own
+  sentence (D10.17): round 1's 17 `real` flags shrink to 13 under the `shared` list it chose.
+  Round 2's marks then gave exactly 13. Two got past the review: a break whose text `ruff
+  format` had moved (D10.18) and a `manifest:` line CI could not replay (D10.19).
+- **Human interventions:** 17 `human:` lines in #58 to #64, 12 of them in the marking. In
+  round 1 (#60) the maintainer asked to be asked rather than read the 72 lines, and asked for a
+  Fable analysis and Mermaid graphs of the choices. They chose Fable's marks (17 `real`) and
+  the `shared` list. In round 2 (#64) they took Claude's suggestion after a blind Fable
+  reading that differed on #16 and #31. Under Fable's marks alone, 11 would be `real` and
+  Phase 3's "Done when" unmet: the count rests on two low-confidence marks.
+- **Hand-offs:** H08.2 (the kit's run) and H09.1 (the branch's fallback) are done. H10.2 is
+  closed by #64. H10.1, the Phase 3 stop, goes to the maintainer after this close: the
+  plan-auditor on Phase 3, Phase 4 and the whole plan, and the decision on Phase 4.
+- **Tokens:** `docs/dashboard/token-usage.json` tags three rows with Day 10, all on
+  2026-11-05: the main session (125 replies, $6.61), the spec-auditor (50 replies, $1.83) and
+  the implementer on Haiku (30 replies, $0.03). The untagged rows for 2026-11-05 include the
+  round 1 marking and the Fable runs: the main row rose from 241 to 430 replies ($24.25), and
+  a `general-purpose` Fable row is new ($7.36). The folder's total from 2026-10-28 to
+  2026-11-05 is $303.23, counted during the close.
 
 ## What is being measured
 
