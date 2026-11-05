@@ -1,6 +1,6 @@
 # Day 12 — `bearing page`: the timeline page, its graph and its controls
 
-**Phase:** 4 · **Depends on:** Day 11 · **Expected PRs:** 5 (this spec, track A, track B, track C, the close)
+**Phase:** 4 · **Depends on:** Day 11 · **Expected PRs:** 6 (this spec, a spec change, track A, track B, track C, the close)
 
 ## Goal
 `bearing page` writes one HTML file that steps through the history one merge at a time: each
@@ -79,9 +79,11 @@ first if A waits.
 |---|---|---|
 | A | implementer | C12.1–C12.2: `bearing/page/svg.py`, `bearing/page/layout.py` (a public `components` for the cycle class, if `draw` reuses `_components`), `tests/test_page_svg.py` |
 | B | implementer | C12.3–C12.6: `bearing/page/html.py`, `tests/test_page_html.py` |
-| C | implementer | C12.7: `bearing/page/data.py`, `bearing/cli.py`, tests in `tests/test_page_html.py` |
+| C | implementer | C12.7–C12.8: `bearing/page/data.py`, `bearing/cli.py`, tests in `tests/test_page_html.py` |
+| close | main session | C12.10: the kit's run, its evidence the Verify commands' output |
 
-C12.9 is `hold`; its break runs in this spec's PR. C12.10 is the kit's run, in the closing PR.
+C12.9 is `hold`; its break runs in this spec's PR. The close row is the closing PR, not a track:
+no track branch carries it.
 
 ## Acceptance criteria
 Tick each box in the closing PR once its evidence is in it; under a box left unticked, write
@@ -224,3 +226,7 @@ grep -o '</script' <s>/kit.html | wc -l
 - **Defect** D12.7 — found: self · cause: process · made: Day 12 · the first break for C12.9 ran
   the diff, whose last line is a bare "}", so its `broken:` line said nothing; the break was
   run again on the contract tests, in this PR.
+- **Defect** D12.8 — found: CI · cause: spec · made: Day 12 · the Tracks table named neither
+  C12.8 (`new` since D12.4) nor C12.10, so CI's "Track tests seen red" failed on track A's PR
+  (#75): "C12.8 is new and no row of the Tracks table names it", and the same for C12.10.
+  Track C now names C12.8, and a close row names C12.10, in a spec-change PR.
