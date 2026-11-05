@@ -78,8 +78,9 @@ day spec that first writes the golden file, and then by the golden file.
   `<sha7> #<pr or -> <event>`, one event per line, events in a fixed order: `+module`,
   `-module`, `renamed a -> b`, `+import a -> b`, `-import a -> b`, `cycle+ a > b > a`,
   `cycle- ...`, `grew <module> <lines>`.
-- **direction** (Markdown): `## Churn`, `## Coupling`, `## Said vs done`, in that order; one
-  table each; a flag is `- #N <rule-id>: <claim> | <files>`, rules in `bearing.toml` order.
+- **direction** (Markdown): `## Churn`, `## Coupling`, `## Said vs done`, in that order;
+  Churn and Coupling a table each, Said vs done one line per flag, `- #N <rule-id>: <claim> |
+  <files>`, in first-parent order, a PR's flags in `bearing.toml`'s rule order.
 - **page data** (JSON, embedded in the HTML as `<script id="bearing-data"
   type="application/json">`): `{"version": "page-v1", "steps": [...]}`, one step per merge in
   first-parent order, each with the merge, the structure events, the PR's number, title and
