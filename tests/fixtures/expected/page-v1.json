@@ -1,0 +1,138 @@
+{
+  "steps": [
+    {
+      "date": "2026-01-07",
+      "events": [
+        "+module app.sub",
+        "+module app.sub.mod",
+        "+import app.sub.mod -> app.core",
+        "+import app.sub.mod -> app.pkg"
+      ],
+      "flags": [],
+      "number": 1,
+      "paragraph": "A small change to the fixture, so the tests have a real case to read.",
+      "sha": "62c4b2fcda436266c9cdd7ec8db866427452cfb9",
+      "title": "day-01/track-a-core"
+    },
+    {
+      "date": "2026-01-09",
+      "events": [
+        "+module scripts.run",
+        "+import scripts.helpers -> scripts.config",
+        "+import scripts.run -> scripts.helpers"
+      ],
+      "flags": [],
+      "number": 2,
+      "paragraph": "A script that prints a greeting, and the helper module it imports.",
+      "sha": "1756282d9237cd555a252469118e0e3a0fcd498f",
+      "title": "tooling/scripts"
+    },
+    {
+      "date": "2026-01-12",
+      "events": [],
+      "flags": [],
+      "number": 4,
+      "paragraph": "",
+      "sha": "4a6b1095bab1430a8f14560543983ccce1c7d123",
+      "title": "docs/guide"
+    },
+    {
+      "date": "2026-01-14",
+      "events": [
+        "+module app.a",
+        "+module app.b",
+        "+module app.crlf",
+        "+import app.a -> app.b",
+        "+import app.b -> app.a",
+        "cycle+ app.a > app.b > app.a"
+      ],
+      "flags": [],
+      "number": 3,
+      "paragraph": "A small change to the fixture, so the tests have a real case to read.",
+      "sha": "00394fb7961e04516e47c788abac91a0ebee75b1",
+      "title": "day-02/track-a-cycle"
+    },
+    {
+      "date": "2026-01-19",
+      "events": [],
+      "flags": [
+        {
+          "claim": "area docs",
+          "files": [
+            "scripts/run.py"
+          ],
+          "rule": "outside-area"
+        }
+      ],
+      "number": 5,
+      "paragraph": "A small change to the fixture, so the tests have a real case to read.",
+      "sha": "bd726c8f1290546f02e296806c3d7b881150aebe",
+      "title": "docs/typo-fix"
+    },
+    {
+      "date": "2026-01-21",
+      "events": [
+        "+module app.broken",
+        "grew app.core 253"
+      ],
+      "flags": [],
+      "number": 6,
+      "paragraph": "A small change to the fixture, so the tests have a real case to read.",
+      "sha": "448fc4dc915289f0b3f0254cf80360b56f48513a",
+      "title": "day-02/track-b-grow"
+    },
+    {
+      "date": "2026-01-23",
+      "events": [
+        "+module app.extra",
+        "-module app.legacy",
+        "renamed scripts.helpers -> scripts.tools"
+      ],
+      "flags": [],
+      "number": 8,
+      "paragraph": "A small change to the fixture, so the tests have a real case to read.",
+      "sha": "fde93a41afe8c3b0333fc24096a1145d456d5e0a",
+      "title": "day-03/track-a-rename"
+    },
+    {
+      "date": "2026-01-26",
+      "events": [
+        "+module tests.contract.test_api",
+        "-import app.b -> app.a",
+        "cycle- app.a > app.b > app.a"
+      ],
+      "flags": [
+        {
+          "claim": "no contract impact",
+          "files": [
+            "tests/contract/test_api.py"
+          ],
+          "rule": "contract-impact"
+        }
+      ],
+      "number": 9,
+      "paragraph": "app/b.py stops importing app.a, so the cycle is gone.",
+      "sha": "e5fa51f19930cb4626a918193f3ec2b32e2c1002",
+      "title": "day-03/track-b-break-cycle"
+    },
+    {
+      "date": "2026-01-28",
+      "events": [],
+      "flags": [],
+      "number": 10,
+      "paragraph": "A small change to the fixture, so the tests have a real case to read.",
+      "sha": "86761f2ae7ae7cca020a47a3cc8c8c28cd5d14cc",
+      "title": "release"
+    },
+    {
+      "date": "2026-01-30",
+      "events": [],
+      "flags": [],
+      "number": 11,
+      "paragraph": "",
+      "sha": "8c1b9f1b90d3e582590942e15b131cea986d94c3",
+      "title": "Merge pull request #11 from acme/tooling/ci"
+    }
+  ],
+  "version": "page-v1"
+}

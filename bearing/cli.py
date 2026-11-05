@@ -1,4 +1,4 @@
-"""The command line: --version, ingest (stores a repository's history and PRs), changelog (prints it), snapshot (prints a repository's modules and imports at one commit), timeline (prints what each merge changed in the structure) and direction (prints churn by area and week, the files that change together, and said vs done)."""
+"""The command line: --version, ingest (stores a repository's history and PRs), changelog (prints it), snapshot (prints a repository's modules and imports at one commit), timeline (prints what each merge changed in the structure), page (writes one HTML file holding each merge's page data) and direction (prints churn by area and week, the files that change together, and said vs done)."""
 
 import argparse
 import datetime
@@ -14,6 +14,8 @@ from bearing.ingest.changelog import format_changelog, read_entries
 from bearing.ingest.gh import GhError, fetch_prs
 from bearing.ingest.history import GitError, read_first_parent
 from bearing.ingest.mapping import format_report, load_prs, map_history
+from bearing.page.data import page_data
+from bearing.page.html import render
 from bearing.snapshot.cache import BlobCache
 from bearing.snapshot.timeline import timeline
 from bearing.snapshot.tree import SnapshotError, snapshot
@@ -106,6 +108,20 @@ def _direction(args) -> int:
     return 0
 
 
+def _page(args) -> int:
+    areas, _ = load_config(args.config)
+    rules = load_rules(args.config)
+    conn = open_store(args.data)
+    try:
+        cache = BlobCache(conn)
+        data = page_data(args.repo, conn, cache, areas, rules)
+        conn.commit()
+    finally:
+        conn.close()
+    Path(args.out).write_bytes(render(data).encode("utf-8"))
+    return 0
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="bearing")
     parser.add_argument("--version", action="version", version=f"bearing {__version__}")
@@ -140,6 +156,13 @@ def main(argv=None) -> int:
     direction.add_argument("repo")
     direction.add_argument("--data", default=".bearing")
     direction.add_argument("--config", default="bearing.toml")
+    page = subparsers.add_parser(
+        "page", help="write one HTML file holding each merge's page data"
+    )
+    page.add_argument("repo")
+    page.add_argument("--data", default=".bearing")
+    page.add_argument("--config", default="bearing.toml")
+    page.add_argument("--out", required=True)
     args = parser.parse_args(argv)
     # Output is UTF-8 whatever the console's code page; a stream without reconfigure (a test's
     # StringIO) is left as it is. Parsing comes first, so --version never touches the stream.
@@ -153,6 +176,8 @@ def main(argv=None) -> int:
         return _timeline(args)
     if args.command == "direction":
         return _direction(args)
+    if args.command == "page":
+        return _page(args)
     if args.command != "ingest":
         return 0
 
