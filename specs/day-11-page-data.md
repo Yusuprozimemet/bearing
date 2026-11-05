@@ -220,8 +220,8 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       `git -c core.safecrlf=false diff --exit-code --diff-filter=MD 3843f3b -- tests/contract tests/fixtures/expected`
       prints nothing and exits 0 on the closing commit (new files, `test_page.py` and
       `page-v1.json`, are not M or D).
-      Evidence: the command exited 0 with no output in #70, #71 and #72, and at the close on
-      `82d8bcb`; CI's "Frozen files stay unedited" passed on all three.
+      Evidence: the command above exited 0 with no output in #70, #71 and #72, and at the close
+      on `82d8bcb`; CI's "Frozen files stay unedited" passed on all three.
       broken: the timeline golden file's last cycle- line rotated → +e5fa51f #9 cycle- app.b > app.a > app.b (#69)
 - [x] C11.9 **hold** — The changelog, timeline and direction contract tests pass unedited:
       `python -m pytest -q tests/contract` passes on every track's head (Track A may move
