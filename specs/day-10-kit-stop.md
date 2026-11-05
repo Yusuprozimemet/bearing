@@ -1,0 +1,252 @@
+# Day 10 — `bearing direction` on the kit, its flags judged, and the Phase 3 stop
+
+**Phase:** 3 · **Depends on:** Day 9 · **Expected PRs:** 4 (this spec, track A, track B, the close)
+
+## Goal
+The kit's `bearing.toml` and its unmarked `bearing direction` report at `c12cfe5` are in this
+repository before any flag is judged; the report's 72 flags are each marked by the maintainer
+in `docs/kit/flags.md`, with the counts Phase 3's "Done when" asks for, and a test holds the
+marks to the report; and a test fails when a merge without a PR record loses the branch its
+merge subject gives (H09.1).
+
+## In scope
+- H08.2: the kit's `bearing.toml` at `docs/kit/bearing.toml` (Track A), and the run of `bearing
+  direction` on the kit at `c12cfe55018aebe82de83485460f1edd22e4c96b` (#95) for Phase 3's
+  "Done when". The file is exactly:
+
+  ```toml
+  # The kit's bearing.toml, for Day 10's run of bearing direction on the kit at c12cfe5.
+  # The area names are the four the kit's merged branches use. The kit gives them no paths:
+  # these are Day 10's spec's, starting from the kit README's layout sentence. Fixed before
+  # any flag was judged.
+  [areas]
+  dashboard = ["scripts/spec-drift.py", "scripts/test_spec_drift.py", "docs/dashboard/"]
+  tooling = ["scripts/", ".github/", ".claude/"]
+  specs = ["specs/"]
+  docs = ["docs/", "kit/", "README.md", "CLAUDE.md", "plan.md"]
+
+  [coupling]
+  min_prs = 3
+
+  [rules.outside-area]
+  ```
+
+  The area names are four of those the kit's `scripts/pr-names.py` accepts, the four its 94
+  merges use (`tooling` 51, `dashboard` 28, `docs` 13, `specs` 2). Where the paths come from:
+  the kit README at `c12cfe5` (lines 4–6) names `.claude/agents/`, `specs/README.md`,
+  `.github/`, `scripts/spec-drift.py`, `docs/dashboard/` and `scripts/`. This spec widened
+  those to whole directories (`.claude/`, `specs/`), added `scripts/test_spec_drift.py` to the
+  dashboard beside the script it tests, and gave `docs` the rest of the kit's prose (`docs/`,
+  `kit/`, the three root Markdown files the README links). That choice is this spec's, not the
+  kit's, and the count moves with it: the auditor's scratch configs gave 83 flags with the
+  README's paths alone, 79 with `kit/` dropped from `docs`, 52 with `kit/`, `CLAUDE.md` and the
+  root `CHANGES.md`/`SOURCE.md` also in `tooling`. The config was run once, in this spec's
+  prototype, before the spec was written; it is fixed from this spec's PR on, and the judged run
+  reads it unchanged.
+  No `[rules.contract-impact]`: the kit has no contract tests and no frozen paths
+  (`spec-drift.config.json` lists none under "frozen"), so the rule has no path to watch.
+- `docs/kit/direction.md` (Track A): the stdout of C10.3's `direction` run on the kit, the
+  227 lines unmarked, `\n` endings, committed so the marks can be checked against it without
+  the kit.
+- H09.1: a test that sees the branch's fallback (D09.10). On the fixture, with
+  `tests/fixtures/bearing.toml` read as bytes and its "tooling = ["scripts/", "ci.txt"]" line
+  replaced by "tooling = ["scripts/"]" in a file written in the test, #11 (`tooling/ci`, no PR
+  record, its branch only in the merge subject) changes `ci.txt`, now outside `tooling`, and is
+  flagged; taking the record's branch alone, without `commits.subject_branch`, leaves #11
+  unchecked. The kit cannot carry this test: every one of its 94 merges has a record ("What the
+  kit gives").
+- `docs/kit/flags.md` (Track B, after Track A has merged and the maintainer has marked every
+  flag): every line of `docs/kit/direction.md` that starts "- #", in its order, each followed by
+  " -- real" or " -- rule: <what to change>", the mark the maintainer gives it. ASCII only, so
+  no encoding turns a mark into `?`. Above them: the commands that made them, the code's
+  commit, and one line "Marks: real <n>, rule <m>". Nothing else in the file starts "- #" or
+  ends " -- real".
+- `tests/test_kit_flags.py` (Track B) reads both files as bytes, `\r\n` as `\n`, and checks:
+  `docs/kit/flags.md` is ASCII; its "- #" lines, each with its last " -- " and what follows
+  cut, equal `docs/kit/direction.md`'s "- #" lines in order (72 today); each mark is "real" or
+  "rule: " and at least one more character; the "Marks:" line's two numbers are the counts of
+  each mark; and the `real` marks are at least half the flags. It does not run `bearing` or
+  need the kit.
+- The judging: Claude gives the maintainer the 72 lines unmarked, in a scratch file; the
+  maintainer marks each; Claude copies the marks into `docs/kit/flags.md` as given, and changes
+  neither the flags, `docs/kit/direction.md` nor `docs/kit/bearing.toml` after the first mark.
+  A mark may name the rule or the kit's config as what to change. With fewer than 36 `real`,
+  Track B does not open: the rules change in a plan-change PR and the flags are judged again
+  first (plan.md, Phase 3; H10.2, written then).
+- The closing PR quotes the "Marks:" line and links `docs/kit/flags.md`, which holds the list
+  plan.md's Phase 3 asks the closing PR for: 72 lines in a file a test checks, not in a PR body
+  nothing reads.
+
+### What the kit gives
+
+A run on 2026-11-05, on this repository's `64baca6`, in a scratch directory `<s>`: `git clone
+-q --bare <kit> <s>/kit.git`, `git -C <s>/kit.git update-ref refs/heads/main
+c12cfe55018aebe82de83485460f1edd22e4c96b`; in the kit's checkout, in Git Bash, the `PR_LIST`
+command (Day 4) to `<s>/kit-all.json`, which gave 95 records, #1 to #96 without #71; the 94
+numbered 95 or less written to `<s>/kit-prs.json` as UTF-8 with Day 4's filter, "92" read as
+"95"; the file above saved as `<s>/kit.toml`.
+
+- `python -m bearing ingest <s>/kit.git --prs <s>/kit-prs.json --data <s>/data` prints "merges
+  94  matched 94  unmatched merges 0  unmatched PRs 0  direct 11".
+- `python -m bearing direction <s>/kit.git --data <s>/data --config <s>/kit.toml` exits 0 and
+  prints 227 lines: Churn with 10 rows, Coupling with 133 rows (90 of them a hidden
+  dependency), and Said vs done with 72 flags, all `outside-area`, at most one per PR: 41 on
+  `tooling` branches, 27 `dashboard`, 2 `docs`, 2 `specs`. The first is "- #2 outside-area:
+  area dashboard | CHANGES.md, SOURCE.md".
+- The files the flags name most, in flags: `kit/CHANGES.md` 32, `CLAUDE.md` 25,
+  `specs/README.md` 16, `README.md` 16, `CHANGES.md` 13, `SOURCE.md` 12,
+  `kit/page/jobmatch-boxes.sha256` 10. Whether a flag is real is the maintainer's call, not
+  this spec's.
+- With "tooling = ["scripts/"]" (H09.1, on the fixture): the Said vs done section is "- #5
+  outside-area: area docs | scripts/run.py", "- #9 contract-impact: no contract impact |
+  tests/contract/test_api.py", "- #11 outside-area: area tooling | ci.txt". The fixture's store
+  has `prs` rows 1 to 10; #11's merge row has no `pr_number`, `subject_number` 11 and
+  `subject_branch` "tooling/ci".
+
+## Out of scope
+- Changing a rule or its settings after the judging. With fewer than half the flags `real`,
+  plan.md's Phase 3 says the rules change in a plan-change PR and the flags are judged again
+  before Phase 4 starts; that PR is not this day's track (H10.2, written if it applies).
+- `contract-impact` on the kit: no contract path (In scope).
+- The Phase 3 stop itself, after this day's close (H10.1).
+- Following a rename, and PRs off the first-parent line: as Days 8 and 9. The rename limit
+  shows on the kit (Notes).
+- Flags in the page data (`page-v1`) — Phase 4.
+
+## Tracks
+
+| Track | Owner | Work |
+|---|---|---|
+| A | implementer; the main session runs the kit | C10.1–C10.3: `docs/kit/bearing.toml`, `docs/kit/direction.md`; `tests/test_config.py`, `tests/test_direction_cli.py` |
+| B | implementer; the marks the maintainer's | C10.5: `docs/kit/flags.md`, `tests/test_kit_flags.py` |
+
+B lands after A, whose files the marks are checked against, and after the maintainer has marked
+every flag. C10.2's test is new in Track A; no Track 0, as no track changes `bearing/`. C10.4
+is `hold` and owned by this spec's PR, which runs its check and break first, as it does
+C10.3's break, by hand on the kit.
+
+## Acceptance criteria
+Tick each box in the closing PR once its evidence is in it; under a box left unticked, write
+`Not proven: <why>` (`specs/README.md`, "Evidence at the close").
+- [ ] C10.1 **new** — `docs/kit/bearing.toml` holds the In scope text: `load_config` on it
+      returns the areas `[("dashboard", ("scripts/spec-drift.py", "scripts/test_spec_drift.py",
+      "docs/dashboard/")), ("tooling", ("scripts/", ".github/", ".claude/")), ("specs",
+      ("specs/",)), ("docs", ("docs/", "kit/", "README.md", "CLAUDE.md", "plan.md"))]` and
+      `min_prs` 3, and `load_rules` returns `[("outside-area", ())]`. Red today: the file is
+      missing ("no config at docs/kit/bearing.toml: pass --config FILE").
+      Test: `tests/test_config.py::ConfigTest::test_kit_config`
+- [ ] C10.2 **hold** — H09.1: on the fixture, `bearing direction` with the config of In scope
+      ("tooling = ["scripts/"]") exits 0, and the lines after "## Said vs done" are exactly
+      "", "- #5 outside-area: area docs | scripts/run.py", "- #9 contract-impact: no contract
+      impact | tests/contract/test_api.py", "- #11 outside-area: area tooling | ci.txt"; the
+      test also asserts that the store has no `prs` row numbered 11, so #11's branch can come
+      only from its merge subject. True today (this spec's prototype; the auditor's run).
+      Test: `tests/test_direction_cli.py::DirectionCliTest::test_branch_from_subject`
+      The track's break: in `bearing/direction/report.py`,
+      `COALESCE(prs.head_ref, commits.subject_branch)` made `COALESCE(prs.head_ref, '')`: the
+      run still exits 0 and prints #5 and #9, and the test fails on the missing #11 line.
+- [ ] C10.3 **hold** — Phase 3's run on the kit, from Track A's merge: with the scratch clone,
+      records and commands of "What the kit gives", `docs/kit/bearing.toml` in place of
+      `<s>/kit.toml`, `ingest` prints exactly "merges 94  matched 94  unmatched merges 0
+      unmatched PRs 0  direct 11", `direction` exits 0, its stdout piped to `grep -c '^- #'`
+      prints 72, and its stdout is `docs/kit/direction.md` (`diff` exits 0, `\r\n` read as
+      `\n`). The closing PR quotes the four, run on its own code. True today with
+      `<s>/kit.toml` (this spec's prototype; the auditor's run).
+      This PR's break, by hand on the kit: in `bearing/direction/said_vs_done.py`, the
+      `outside-area` branch's `if files:` made `if files and False:` → the `grep -c` prints
+      0, not 72 (`scripts/break.py --expect-stdout '^72$'`).
+      Not replayable on CI, which has no clone of the kit: the close's line under it is
+      `broken: none → <why>`, with this PR's break quoted.
+- [ ] C10.4 **hold** — the fixture's direction report still matches its golden file, and no
+      contract file changed: `python -m pytest -q tests/contract/test_direction.py` passes,
+      and `git -c core.safecrlf=false diff --exit-code 64baca6 -- tests/contract
+      tests/fixtures/expected` prints nothing. True today ("1 passed"; the diff exits 0).
+      This PR's break: in `tests/fixtures/expected/direction.md`, "| scripts/run.py" made
+      "| scripts/runX.py" → the test reports "1 failed" and the diff exits 1.
+- [ ] C10.5 **new** — `docs/kit/flags.md` lists every flag of `docs/kit/direction.md`, each
+      marked by the maintainer, as In scope says, and at least half are `real`: the test
+      passes, `grep -c '^- #' docs/kit/flags.md` prints 72, and `grep -c -- ' -- real$'
+      docs/kit/flags.md` prints 36 or more. The test stands in for the greps' near misses: it
+      reads every line, so a header line ending " -- real", or a flag line not in the report,
+      fails it. Red today: the file is missing, and the test fails on it. The marks are the
+      maintainer's reading; the checks see only that each is there, on the report's lines,
+      and the count of `real`.
+      Test: `tests/test_kit_flags.py::KitFlagsTest::test_marks`
+      The track's break: the last flag line deleted from `docs/kit/flags.md`: the test must
+      fail on the lines no longer matching the report's 72.
+
+## Verify
+```bash
+python -m pytest -q
+ruff check . && ruff format --check .
+python -m pytest -q tests/test_config.py tests/test_direction_cli.py tests/test_kit_flags.py tests/contract/test_direction.py
+git -c core.safecrlf=false diff --exit-code 64baca6 -- tests/contract tests/fixtures/expected
+grep -c '^- #' docs/kit/flags.md
+grep -c -- ' -- real$' docs/kit/flags.md
+```
+
+The full run gives "72 passed, 78 subtests passed" today; Track A adds two tests (74), Track B
+one (75), each with whatever subtests it holds, which its PR counts.
+
+## Notes
+- H09.1 named the kit as where merges without a PR record were likelier. The kit at
+  `c12cfe5` has none (94 matched of 94), so C10.2 runs on the fixture's #11, the one such merge
+  in any history Bearing is tested on.
+- Day 8 named this run as where coupling's rename limit would show, and it does: the kit's #15
+  moved `CHANGES.md` and `SOURCE.md` to `kit/`, so the root copies are files of their own,
+  in no area (`other`): 43 Coupling rows name them, and 13 and 12 flags. The judging reads
+  those flags knowing this.
+- The kit's `main` is at `9a50a3e` today, one merge past `c12cfe5` (#96,
+  `tooling/bearing-dashboard-flags`). The run stays at `c12cfe5`, the SHA H08.2 names and the
+  one copied in (#30); #96 is for the stop's kit-update PR to weigh (H10.1).
+- C10.3's break runs on the scratch clone, so its `manifest:` line names scratch paths and stays
+  out of `specs/breaks/day-10.json`: the replay has no kit to run it on (as C04.6).
+- **Defect** D10.1 — found: spec-change PR · cause: spec · made: Day 10 · the first draft made
+  C10.5 `new` with greps and no `Test:` field, which `scripts/track-red.py` fails; the
+  judged list became Track B with `tests/test_kit_flags.py`, before the audit.
+- **Defect** D10.2 — found: auditor · cause: spec · made: Day 10 · C10.5's test passed for any
+  72 well-formed lines with 36 `real`: nothing tied them to the run, the header's counts or
+  ASCII. Track A now commits `docs/kit/direction.md`, and the test checks all three against it.
+- **Defect** D10.3 — found: auditor · cause: spec · made: Day 10 · C10.3 and C10.4 were holds
+  this PR owns but named no break; both are named and run (this PR).
+- **Defect** D10.4 — found: auditor · cause: spec · made: Day 10 · the config's paths were
+  said to come "from the README sentence", which names fewer; the run came before the spec,
+  and a 10/62 split pre-sorted likely noise in front of the judge. In scope now says which
+  paths are this spec's, the count's range (52 to 83) and the order; the split is gone.
+- **Defect** D10.5 — found: auditor · cause: spec · made: Day 10 · "The files the flags name
+  most" counted `kit/replay/` in files (17, in 5 flags) beside counts in flags, and left out
+  `kit/page/jobmatch-boxes.sha256` (10 flags). Corrected.
+- **Defect** D10.6 — found: auditor · cause: spec · made: Day 10 · "No Track 0: the tests that
+  hold through the day exist" was false for C10.2, whose test Track A adds. Reworded.
+- **Defect** D10.7 — found: auditor · cause: spec · made: Day 10 · plan.md's Phase 3 asks the
+  closing PR for the list; the spec gave the close no part. The close quotes the "Marks:" line
+  and links the file (In scope).
+- **Defect** D10.8 — found: auditor · cause: spec · made: Day 10 · Day 8 said the rename limit
+  would show on this run, and the spec did not pick it up; the Notes record it.
+- **Defect** D10.9 — found: auditor · cause: spec · made: Day 10 · no expected test count, and
+  Verify had no full `pytest -q` or style check. Both added.
+- **Defect** D10.10 — found: auditor · cause: spec · made: Day 10 · literal output and numbers
+  ("92", "95", the ingest line) were in backticks. Quoted.
+- **Defect** D10.11 — found: auditor · cause: spec · made: Day 10 · the test's regex wrapped
+  across a line inside backticks. The test's checks are now in words.
+- **Defect** D10.12 — found: auditor · cause: spec · made: Day 10 · C10.5's greps were never
+  broken both ways; a header ending " -- real" would count. The file may hold none, and the
+  test, which reads every line, stands in for the near misses.
+- **Defect** D10.13 — found: auditor · cause: spec · made: Day 10 · C10.3, as worded with
+  `docs/kit/bearing.toml`, fails today; it is now a hold from Track A's merge.
+- **Defect** D10.14 — found: auditor · cause: spec · made: Day 10 · H10.1's `--split
+  2026-11-04` separates nothing, as at the Phase 1 stop. H10.1 says so.
+- **Defect** D10.15 — found: auditor · cause: spec · made: Day 10 · H10.1 left out what Phase
+  4 drops if the schedule slipped, and the plan-auditor on Phases 3 and 4. Added.
+- **Defect** D10.16 — found: auditor · cause: spec · made: Day 10 · "ASCII only" had no check;
+  the test now checks it (as D10.2).
+- **Hand-off** H10.1 → the maintainer: the Phase 3 stop, after this day's close (plan.md,
+  "Stopping points"; CLAUDE.md step 6). On fresh `main`, the plan-auditor on Phase 3, on
+  Phase 4 and on the whole plan; decide whether the page (Phase 4) is worth building, whether
+  Bearing is proposed to the kit (a kit decision, made in the kit's repository), and, if the
+  schedule has slipped, what Phase 4 leaves out; copy the kit in at one SHA in a kit-update PR
+  if it has moved; the token comparison and the per-rung counts in the stop's Course
+  correction. `--split 2026-11-04`, the date of the last kit-update PR (#30), separates
+  nothing: `scripts/token-usage.py` splits by day (`day >= d`), and every merge so far, #30
+  included, falls on or after it, as the Phase 1 stop found (plan.md, the Day 4 stop). The stop
+  names a split that separates something, or says why none can.
