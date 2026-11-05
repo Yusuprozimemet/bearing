@@ -184,6 +184,8 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
 - [x] C01.10 **hold** — `.github/workflows/tests.yml` runs the style check and the tests:
       `grep -c -E '^\s+run: (pytest -q|ruff check \. && ruff format --check \.)\s*$' .github/workflows/tests.yml`
       prints 2.
+      Evidence: the command above prints 2, held since #1, where its three breaks below were run;
+      the close (#8) cites them.
       broken: the test step replaced by an echo in tests.yml → 1 (#1)
       broken: near miss: the test step narrowed to tests/unit → 1 (#1)
       broken: near miss: the style step without the format check → 1 (#1)
