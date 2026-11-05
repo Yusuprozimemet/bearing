@@ -34,7 +34,12 @@ def said_vs_done(prs, areas, rules):
                 if name not in prefixes_of:
                     continue
                 # read against the branch's own area, not area_of: an earlier area may match too
-                files = sorted(p for p in paths if not p.startswith(prefixes_of[name]))
+                files = sorted(
+                    p
+                    for p in paths
+                    if not p.startswith(prefixes_of[name])
+                    and not p.startswith(prefixes)
+                )
                 if files:
                     flags.append((number, rule_id, f"area {name}", files))
             elif rule_id == "contract-impact":

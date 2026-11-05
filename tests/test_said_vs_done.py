@@ -73,3 +73,26 @@ class SaidVsDoneTest(unittest.TestCase):
             ],
         )
         self.assertEqual(said_vs_done(prs, areas, []), [])
+
+    def test_shared(self):
+        from bearing.direction.said_vs_done import said_vs_done
+
+        areas = [("docs", ("docs/",)), ("app", ("app/",))]
+        rules = [("outside-area", ("CHANGES.md", "docs/shared/"))]
+        prs = [
+            (
+                1,
+                "app/x",
+                None,
+                ["app/a.py", "CHANGES.md", "docs/shared/n.md", "docs/b.md"],
+            ),
+            (2, "app/y", None, ["app/a.py", "CHANGES.md"]),
+            (3, "docs/z", None, ["docs/shared/m.md", "app/c.py"]),
+        ]
+        self.assertEqual(
+            said_vs_done(prs, areas, rules),
+            [
+                (1, "outside-area", "area app", ["docs/b.md"]),
+                (3, "outside-area", "area docs", ["app/c.py"]),
+            ],
+        )
