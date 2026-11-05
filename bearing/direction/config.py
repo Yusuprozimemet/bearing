@@ -1,4 +1,4 @@
-"""Reads bearing.toml: the path areas, in file order, and the coupling threshold."""
+"""Reads bearing.toml: the path areas, in file order, the coupling threshold, and the rules."""
 
 import tomllib
 from pathlib import Path
@@ -16,14 +16,19 @@ def _is_prefix_list(value):
     )
 
 
-def load_config(path):
+def _read(path):
+    # load_config and load_rules read the file the same way, so they give the same messages.
     if not Path(path).is_file():
         raise ConfigError(f"no config at {path}: pass --config FILE")
     try:
         with open(path, "rb") as f:
-            data = tomllib.load(f)
+            return tomllib.load(f)
     except tomllib.TOMLDecodeError as exc:
         raise ConfigError(f"cannot read config {path}: {exc}") from None
+
+
+def load_config(path):
+    data = _read(path)
 
     areas = data.get("areas")
     if (
@@ -44,6 +49,34 @@ def load_config(path):
             f"config {path}: [coupling] min_prs must be a positive integer"
         )
     return areas, min_prs
+
+
+def load_rules(path):
+    # Only the [rules] table is read here; [areas] and [coupling] are load_config's.
+    data = _read(path)
+
+    rules = data.get("rules", {})
+    if not isinstance(rules, dict) or not all(
+        isinstance(table, dict) for table in rules.values()
+    ):
+        raise ConfigError(f"config {path}: [rules] must be a table of rule tables")
+    found = []
+    for rule_id, table in rules.items():
+        if rule_id == "outside-area":
+            # it takes no paths of its own; a paths key here is ignored
+            found.append((rule_id, ()))
+        elif rule_id == "contract-impact":
+            paths = table.get("paths")
+            if not _is_prefix_list(paths):
+                raise ConfigError(
+                    f"config {path}: [rules.contract-impact] paths must be a list of path prefixes"
+                )
+            found.append((rule_id, tuple(paths)))
+        else:
+            raise ConfigError(
+                f"config {path}: unknown rule {rule_id}: the rules are outside-area, contract-impact"
+            )
+    return found
 
 
 def area_of(path, areas):

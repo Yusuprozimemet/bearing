@@ -76,3 +76,57 @@ class ConfigTest(unittest.TestCase):
                     self.assertGreater(len(str(cm.exception)), len(prefix))
                 else:
                     self.assertEqual(str(cm.exception), message)
+
+    def test_rules(self):
+        from bearing.direction.config import load_rules
+
+        path = self.write(
+            "[areas]\n"
+            'app = ["app/"]\n'
+            "[rules.contract-impact]\n"
+            'paths = ["tests/contract/", "api/"]\n'
+            "[rules.outside-area]\n"
+        )
+        self.assertEqual(
+            load_rules(path),
+            [("contract-impact", ("tests/contract/", "api/")), ("outside-area", ())],
+        )
+
+        path = self.write('[areas]\napp = ["app/"]\n')
+        self.assertEqual(load_rules(path), [])
+
+    def test_rule_errors(self):
+        from bearing.direction.config import ConfigError, load_rules
+
+        areas = '[areas]\napp = ["app/"]\n'
+        missing = self.dir / "missing.toml"
+        table_message = f"config {self.dir / 'bearing.toml'}: [rules] must be a table of rule tables"
+        unknown_message = f"config {self.dir / 'bearing.toml'}: unknown rule typo: the rules are outside-area, contract-impact"
+        paths_message = f"config {self.dir / 'bearing.toml'}: [rules.contract-impact] paths must be a list of path prefixes"
+        cases = [
+            ("missing", f"no config at {missing}: pass --config FILE"),
+            ("rules = 3\n" + areas, table_message),
+            ("rules = { outside-area = 1 }\n" + areas, table_message),
+            (areas + "[rules.typo]\n", unknown_message),
+            (areas + "[rules.contract-impact]\n", paths_message),
+            (areas + "[rules.contract-impact]\npaths = []\n", paths_message),
+            (areas + '[rules.contract-impact]\npaths = "tests/"\n', paths_message),
+        ]
+        for text, message in cases:
+            with self.subTest(text=text):
+                path = missing if text == "missing" else self.write(text)
+                with self.assertRaises(ConfigError) as cm:
+                    load_rules(path)
+                self.assertEqual(str(cm.exception), message)
+
+    def test_example(self):
+        from bearing.direction.config import load_config, load_rules
+
+        path = Path(__file__).resolve().parents[1] / "bearing.toml.example"
+        areas, min_prs = load_config(path)
+        self.assertGreaterEqual(len(areas), 1)
+        self.assertEqual(min_prs, 3)
+        self.assertEqual(
+            load_rules(path),
+            [("outside-area", ()), ("contract-impact", ("tests/contract/",))],
+        )
