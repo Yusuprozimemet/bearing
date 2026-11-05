@@ -552,8 +552,10 @@
   and 2 in #80. The close replayed all 10 on `main`, and each failed its check.
 - **PRs:** 6 at the day-spec rung: the spec (#74), a second spec change (#76), Tracks A (#75),
   B (#77) and C (#80), and the close (#81); after the close, a third spec change moved the kit's
-  commands out of Verify. No Track 0.
-- **Defects:** 10 in the Notes (D12.10 added after the close, in that spec change).
+  commands out of Verify, and a fourth reworded three criteria's evidence so the dashboard
+  counts it. No Track 0.
+- **Defects:** 13 in the Notes (D12.10 added after the close, in the third spec change; D12.11
+  to D12.13 in the fourth).
 
   | Field | Count |
   | --- | --- |
@@ -561,8 +563,9 @@
   | found: self | 2 |
   | found: Track A | 1 |
   | found: close | 1 |
+  | found: dashboard | 3 |
   | cause: spec | 8 |
-  | cause: process | 1 |
+  | cause: process | 4 |
   | cause: environment | 1 |
 
   The spec-auditor found six before any code (D12.1 to D12.6). Two were wrong numbers in the
@@ -577,6 +580,10 @@
   `Day 12`. The evidence replay after #81 found D12.10: Verify held the kit's commands, which
   only the close's machine can run, and four of them failed in CI. They now sit in the Notes.
   The two screenshots were not in #81 when it merged; the maintainer pasted them in afterwards.
+  The dashboard then found D12.11 to D12.13: the evidence of C11.8, C12.9 and C12.10 named no
+  command it reads, C12.10's cited no PR of this repository, and C12.10's red line began "Red:"
+  where it reads "Seen red". D12.11 is an escape from Day 11 (C11.8), recorded here, where it
+  was found.
 - **Human interventions:** 5 `human:` lines in #74 to #80. In #74 the maintainer started the
   day and set its order: the plan-auditor, then the spec-auditor, then the spec. In #76 they
   chose the spec-change PR over leaving #75's check red. Each track and the close began from

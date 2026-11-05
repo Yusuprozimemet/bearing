@@ -192,9 +192,10 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       included: `git -c core.safecrlf=false diff --exit-code --diff-filter=MDR 4c2143a -- tests/contract tests/fixtures/expected`
       prints nothing and exits 0 on the closing commit, and `python -m pytest -q tests/contract`
       passes on every track's head.
-      Evidence: the diff exited 0 with no output at the close on `dc1c024`; CI's "Frozen files
-      stay unedited" and "Tests" passed on the heads of #75, #77 and #80. The break's report
-      reads "6 passed": `tests/contract` holds seven tests, as it did after Day 11.
+      Evidence: the commands above: the diff exited 0 with no output at the close on `dc1c024`
+      (#81); CI's "Frozen files stay unedited" and "Tests" passed on the heads of #75, #77 and
+      #80. The break's report reads "6 passed": `tests/contract` holds seven tests, as it did
+      after Day 11.
       broken: page_data writes each step's title in capitals → 1 failed, 6 passed in 52.99s (#74)
 - [x] C12.10 **new** — plan.md's Phase 4 "Done when" on the kit: on `c12cfe5` with
       `docs/kit/bearing.toml`, after `bearing ingest` (its `merges`, 94), `bearing page` writes
@@ -205,13 +206,14 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       command and what it printed.
       Red today: `grep -c '<section class="step"'` prints 0.
       Test: the kit's commands in Notes, run by hand in the closing PR.
-      Evidence: at the close, with Bearing at `dc1c024` and the kit's bare clone and 94-record
-      `--prs` file from Day 10's run: `bearing ingest` printed "merges 94  matched 94  unmatched
+      Evidence: the commands above, at the close (#81), with Bearing at `dc1c024` and the kit's
+      bare clone and 94-record `--prs` file from Day 10's run: `bearing ingest` printed "merges
+      94  matched 94  unmatched
       merges 0  unmatched PRs 0  direct 11"; `bearing page` exited 0 and wrote 5317 lines; the
       four greps printed 94, 0, 2 and 2; the file holds 94 `<svg>`. Its first heading reads
       "Step 1 of 94 · 2026-10-28 · #1 · Add a README for the kit" and its last "Step 94 of 94 ·
       2026-11-04 · #95 · Lift a stop only on an entry for it, not on any mention of the phase".
-      Red: on `ba6615e`, before the day's code, the same command wrote a file in which the
+      Seen red: on `ba6615e`, before the day's code, the same command wrote a file in which the
       section grep printed 0 and `<script` counted 1. The maintainer stepped through #1 and #95
       in a browser; the two screenshots are in the closing PR.
 
@@ -303,3 +305,15 @@ git -c core.safecrlf=false diff --exit-code --diff-filter=MDR 4c2143a -- tests/c
   the three commands CI can run.
 - C12.10's two screenshots, of #1 and #95, were not in #81 when it merged: its body held the
   placeholder. The maintainer pasted them into #81 after the merge.
+- **Defect** D12.11 — found: dashboard · cause: process · made: Day 11 · C11.8's Evidence
+  read "the command exited 0" and named no command, so the dashboard, which counts evidence
+  only when it cites a PR beside a test name or a command (or "the command above"), flagged it
+  "No evidence and PR cited together". It now reads "the command above", in a spec-change PR.
+- **Defect** D12.12 — found: dashboard · cause: process · made: Day 12 · same-as: D12.11 ·
+  C12.9's Evidence cited PRs but no command, and C12.10's cited no PR of this repository (its
+  "#1" and "#95" are the kit's) and no command the dashboard reads (`bearing` is not one of
+  them); both were flagged "No evidence and PR cited together". Each now opens with "the
+  commands above" and cites the close, #81, in a spec-change PR.
+- **Defect** D12.13 — found: dashboard · cause: process · made: Day 12 · C12.10's red line
+  began "Red:", which the dashboard does not read as a seen-red line, so it flagged "No
+  seen-red or broken line". It now begins "Seen red:", in a spec-change PR.
