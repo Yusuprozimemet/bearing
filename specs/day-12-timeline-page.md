@@ -80,7 +80,7 @@ first if A waits.
 | A | implementer | C12.1–C12.2: `bearing/page/svg.py`, `bearing/page/layout.py` (a public `components` for the cycle class, if `draw` reuses `_components`), `tests/test_page_svg.py` |
 | B | implementer | C12.3–C12.6: `bearing/page/html.py`, `tests/test_page_html.py` |
 | C | implementer | C12.7–C12.8: `bearing/page/data.py`, `bearing/cli.py`, tests in `tests/test_page_html.py` |
-| close | main session | C12.10: the kit's run, its evidence the Verify commands' output |
+| close | main session | C12.10: the kit's run, its evidence the output of the kit's commands in Notes |
 
 C12.9 is `hold`; its break runs in this spec's PR. The close row is the closing PR, not a track:
 no track branch carries it.
@@ -204,7 +204,7 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       2026-10-28, and #95, 2026-11-04), with a screenshot of each pasted into the closing PR. CI cannot reach the kit: the close quotes each
       command and what it printed.
       Red today: `grep -c '<section class="step"'` prints 0.
-      Test: the commands in Verify, run in the closing PR.
+      Test: the kit's commands in Notes, run by hand in the closing PR.
       Evidence: at the close, with Bearing at `dc1c024` and the kit's bare clone and 94-record
       `--prs` file from Day 10's run: `bearing ingest` printed "merges 94  matched 94  unmatched
       merges 0  unmatched PRs 0  direct 11"; `bearing page` exited 0 and wrote 5317 lines; the
@@ -220,16 +220,21 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
 python -m pytest -q tests/test_page_svg.py tests/test_page_html.py tests/contract/test_page.py
 python -m pytest -q
 git -c core.safecrlf=false diff --exit-code --diff-filter=MDR 4c2143a -- tests/contract tests/fixtures/expected
-# The kit (C12.10), <s> a scratch directory with the kit's history and PRs as Day 10 made them:
-python -m bearing ingest <s>/kit.git --prs <s>/kit-prs.json --data <s>/data
-python -m bearing page <s>/kit.git --data <s>/data --config docs/kit/bearing.toml --out <s>/kit.html
-grep -c '<section class="step"' <s>/kit.html
-grep -c -E 'src=|href="http' <s>/kit.html
-grep -o '<script' <s>/kit.html | wc -l
-grep -o '</script' <s>/kit.html | wc -l
 ```
 
 ## Notes
+- The kit's commands (C12.10), run by hand, not in Verify: CI's evidence replay runs every
+  Verify line and cannot reach the kit (D12.10). `<s>` is a scratch directory with the kit's
+  history and PRs as Day 10 made them:
+
+  ```bash
+  python -m bearing ingest <s>/kit.git --prs <s>/kit-prs.json --data <s>/data
+  python -m bearing page <s>/kit.git --data <s>/data --config docs/kit/bearing.toml --out <s>/kit.html
+  grep -c '<section class="step"' <s>/kit.html
+  grep -c -E 'src=|href="http' <s>/kit.html
+  grep -o '<script' <s>/kit.html | wc -l
+  grep -o '</script' <s>/kit.html | wc -l
+  ```
 - The plan-auditor ran on Phase 4 on `4c2143a` before this spec was written. Its run of
   today's shell on the kit: "merges 94  matched 94  unmatched merges 0  unmatched PRs 0
   direct 11", 94 steps, 26 flags, `src=` 0, `<script` 1, 1185 lines. Its five "fix before
@@ -248,7 +253,7 @@ grep -o '</script' <s>/kit.html | wc -l
   still prints 1. The kit's paragraphs are to be checked before the close; a hit is a
   departure to record, not a reason to escape `=`.
 - C12.10 has no test name after "Test:", a departure from `specs/README.md`'s rule: CI cannot
-  reach the kit, so its evidence is the Verify commands and their output, quoted in the close.
+  reach the kit, so its evidence is the kit's commands above and their output, quoted in the close.
 - C12.9 uses `--diff-filter=MDR`, where C11.8 used `MD`: with rename detection, a renamed
   golden file shows as R and would pass `MD` (spec-auditor; the contract test would still fail).
 - **Defect** D12.1 — found: auditor · cause: spec · made: Day 12 · C12.2 gave "m00" as 56 wide;
@@ -291,3 +296,10 @@ grep -o '</script' <s>/kit.html | wc -l
   The rater read D12.9 as an escape made outside any day (low confidence). It is kept
   `found: self`, `made: Day 12`: the main session caught its own slip in the close's work
   before the close merged, and the close is the day's work.
+- **Defect** D12.10 — found: close · cause: spec · made: Day 12 · Verify held the kit's six
+  commands, which name a scratch directory only the close's machine has; the evidence replay
+  after #81 (run 42109852843) failed four of them, the two `bearing` commands and the first two
+  greps, each "exit 1". They now sit in Notes, run by hand, in a spec-change PR; Verify keeps
+  the three commands CI can run.
+- C12.10's two screenshots, of #1 and #95, were not in #81 when it merged: its body held the
+  placeholder. The maintainer pasted them into #81 after the merge.

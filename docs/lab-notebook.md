@@ -551,15 +551,17 @@
 - **Breaks on purpose:** 10, all in `specs/breaks/day-12.json`: 1 in #74, 3 in #75, 4 in #77
   and 2 in #80. The close replayed all 10 on `main`, and each failed its check.
 - **PRs:** 6 at the day-spec rung: the spec (#74), a second spec change (#76), Tracks A (#75),
-  B (#77) and C (#80), and the close. No Track 0.
-- **Defects:** 9 in the Notes.
+  B (#77) and C (#80), and the close (#81); after the close, a third spec change moved the kit's
+  commands out of Verify. No Track 0.
+- **Defects:** 10 in the Notes (D12.10 added after the close, in that spec change).
 
   | Field | Count |
   | --- | --- |
   | found: auditor | 6 |
   | found: self | 2 |
   | found: Track A | 1 |
-  | cause: spec | 7 |
+  | found: close | 1 |
+  | cause: spec | 8 |
   | cause: process | 1 |
   | cause: environment | 1 |
 
@@ -572,7 +574,9 @@
   stopped by Windows' cp1252 (D12.9). The blind relabel agreed on all 9 causes, 7 of 8
   stages and 8 of 9 `made:` tags. D12.8's "found: CI" was not a README value and is now
   `found: Track A`. The rater read D12.9 as an escape outside any day; it stays `self` and
-  `Day 12`.
+  `Day 12`. The evidence replay after #81 found D12.10: Verify held the kit's commands, which
+  only the close's machine can run, and four of them failed in CI. They now sit in the Notes.
+  The two screenshots were not in #81 when it merged; the maintainer pasted them in afterwards.
 - **Human interventions:** 5 `human:` lines in #74 to #80. In #74 the maintainer started the
   day and set its order: the plan-auditor, then the spec-auditor, then the spec. In #76 they
   chose the spec-change PR over leaving #75's check red. Each track and the close began from
