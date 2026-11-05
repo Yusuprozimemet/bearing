@@ -279,7 +279,9 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       -c '^- #'` printed 26, and `diff --strip-trailing-cr` against `docs/kit/direction.md`
       exited 0.
       broken: the last "- #" line (#94) emptied in docs/kit/direction.md, 25 flags left → 1 failed in 0.09s (#63)
-      broken: said_vs_done.py "and not p.startswith(prefixes)" removed from the outside-area filter, on the kit → 73 (#63)
+      The kit's break, not replayed (CI has no clone of the kit, D10.20): said_vs_done.py
+      "and not p.startswith(prefixes)" removed from the outside-area filter, on the kit,
+      reported 73 (#63).
 - [x] C10.4 **hold** — the fixture's direction report still matches its golden file, and no
       contract file changed: `python -m pytest -q tests/contract/test_direction.py` passes,
       and `git -c core.safecrlf=false diff --exit-code 64baca6 -- tests/contract
@@ -288,8 +290,8 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       "| scripts/runX.py" → the test reports "1 failed" and the diff exits 1.
       Evidence: `DirectionContractTest.test_golden` and the diff above, "1 passed" and exit 0
       in #58, #62 and at the close on `87b6f33`.
-      broken: the golden file's #5 file made scripts/runX.py → 1 failed in 5.23s (#58)
-      broken: the golden file's #5 file made scripts/runX.py → - #9 contract-impact: no contract impact | tests/contract/test_api.py (#58)
+      broken: the golden file's #5 file made scripts/runX.py, the contract test → 1 failed in 5.23s (#58)
+      broken: the golden file's #5 file made scripts/runX.py, the diff → - #9 contract-impact: no contract impact | tests/contract/test_api.py (#58)
 - [x] C10.5 **new** — `docs/kit/flags.md` lists every flag of `docs/kit/direction.md`, each
       marked by the maintainer, as In scope says, and at least half are `real`: the test
       passes, `grep -c '^- #' docs/kit/flags.md` prints 26, and `grep -c -- ' -- real$'
@@ -306,8 +308,9 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       where the file was missing ("1 failed"), and again at the close; the greps printed 26
       and 13 in #64 and at the close: the maintainer's marks are real 13, rule 13 (the
       "Marks:" line of `docs/kit/flags.md`), exactly half, which closes H10.2.
-      broken: the last flag line (#94) deleted from docs/kit/flags.md → 1 failed in 0.07s (#64)
-      broken: the last flag line (#94) emptied in docs/kit/flags.md, 25 flags left → 1 failed in 0.08s (close, D10.19)
+      #64's own break, replaced in the manifest (D10.19): the last flag line (#94) deleted
+      from docs/kit/flags.md, reported "1 failed in 0.07s" (#64).
+      broken: the last flag line (#94) emptied in docs/kit/flags.md, 25 flags left → 1 failed in 0.08s (#65)
 - [x] C10.6 **new** — `load_rules` reads `shared`: on a file written in the test holding
       `[areas] app = ["app/"]` and `[rules.outside-area] shared = ["CHANGES.md",
       "docs/shared/"]`, it returns `[("outside-area", ("CHANGES.md", "docs/shared/"))]`; with
@@ -455,6 +458,15 @@ before then, a track runs it without them.
   tree, where `break.py` refused it ("--find occurs 0 times"). `specs/breaks/day-10.json`
   runs it with `python` and empties the line's text instead of deleting it, as #63's break
   does; replayed at the close, the test failed on it ("1 failed").
+- **Defect** D10.20 — found: close · cause: process · made: Day 10 · The closing PR (#65) kept
+  four `broken:` lines that `scripts/evidence.py` cannot replay, and CI's replay of its merge
+  `6036555` failed on them ("4 failed"): #63's kit break and #64's replaced break had no
+  manifest entry; #58's two breaks shared one `what`, so the manifest's second entry overwrote
+  the first; and the close's own line ended "(close, D10.19)", where the replay strips only a
+  PR number. The close replayed each manifest entry through `break.py` but never ran
+  `evidence.py` on the spec before opening. Fixed after the merge: the two unreplayable
+  breaks are prose, #58's get distinct names in the spec and the manifest, and the close's
+  line ends "(#65)".
 - The close, on `87b6f33`: `python -m pytest -q` gave "78 passed, 107 subtests passed", the 78
   Verify predicts; the focused line "18 passed, 56 subtests passed"; the style check passed;
   C10.4's diff exited 0; the greps printed 26 and 13. `specs/breaks/day-10.json` holds 8

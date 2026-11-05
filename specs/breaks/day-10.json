@@ -1,6 +1,6 @@
 [
   {
-    "what": "the golden file's #5 file made scripts/runX.py",
+    "what": "the golden file's #5 file made scripts/runX.py, the contract test",
     "file": "tests/fixtures/expected/direction.md",
     "find": "| scripts/run.py",
     "replace": "| scripts/runX.py",
@@ -13,7 +13,7 @@
     ]
   },
   {
-    "what": "the golden file's #5 file made scripts/runX.py",
+    "what": "the golden file's #5 file made scripts/runX.py, the diff",
     "file": "tests/fixtures/expected/direction.md",
     "find": "| scripts/run.py",
     "replace": "| scripts/runX.py",
