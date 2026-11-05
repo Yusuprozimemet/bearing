@@ -114,7 +114,7 @@ C11.8 and C11.9 are `hold`; their breaks run in this spec's PR.
 Tick each box in the closing PR once its evidence is in it; under a box left unticked, write
 `Not proven: <why>` (`specs/README.md`, "Evidence at the close").
 
-- [ ] C11.1 **new** — On the fixture, after `bearing ingest` with the fixture's `prs.json`,
+- [x] C11.1 **new** — On the fixture, after `bearing ingest` with the fixture's `prs.json`,
       `bearing page <repo> --data <dir> --config tests/fixtures/bearing.toml --out <file>`
       exits 0, prints nothing on stdout, and the element `bearing-data`'s text equals
       `tests/fixtures/expected/page-v1.json` byte for byte (after `\r\n` is read as `\n`):
@@ -125,7 +125,11 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       (`contract-impact`, "no contract impact", `tests/contract/test_api.py`).
       Red today: there is no `page` command ("invalid choice: 'page'").
       Test: `tests/contract/test_page.py::PageContractTest::test_golden`.
-- [ ] C11.2 **new** — A merge without a PR record takes the changelog's number, title and
+      Evidence: `PageContractTest.test_golden` (#70), seen red first in #70 on `main`'s code
+      ("3 failed", with C11.2's and C11.3's tests: no `page` command), and again at the close
+      on `d6725f3`; `python -m pytest -q` (#70, #71, #72, and at the close on `82d8bcb`).
+      broken: page_data writes each merge's events in reverse order → 1 failed in 8.53s (#70)
+- [x] C11.2 **new** — A merge without a PR record takes the changelog's number, title and
       paragraph: on the fixture, step 10 (8c1b9f1) is `11`, "Merge pull request #11 from
       acme/tooling/ci", and the empty string (pinned by C11.1's golden file); and, with C10.2's
       config (`tooling = ["scripts/"]`) and the store's `subject_number` of 8c1b9f1 set to NULL
@@ -136,7 +140,10 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       where text mode would add one; CI runs on Linux).
       Red today: no `page` command.
       Test: `tests/test_page_cli.py::PageCliTest::test_merge_without_number`.
-- [ ] C11.3 **new** — A step's flags are the ones `bearing direction` prints for its merge,
+      Evidence: `PageCliTest.test_merge_without_number` (#70), seen red with C11.1's test;
+      `python -m pytest -q` (#70, and at the close).
+      broken: page_data runs said_vs_done on a merge without a number → 1 failed in 12.21s (#70)
+- [x] C11.3 **new** — A step's flags are the ones `bearing direction` prints for its merge,
       keyed by the merge: on the fixture with C10.2's config (`tooling = ["scripts/"]`,
       without `ci.txt`), the steps' flags, written `- #<number> <rule>: <claim> | <files>`
       in step order, equal direction's Said vs done lines for the same config, and #11's
@@ -144,7 +151,10 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       "area tooling", files "ci.txt".
       Red today: no `page` command.
       Test: `tests/test_page_cli.py::PageCliTest::test_flags_match_direction`.
-- [ ] C11.4 **new** — `render` cannot be ended or commented out by PR text: for data whose
+      Evidence: `PageCliTest.test_flags_match_direction` (#70), seen red with C11.1's test;
+      `python -m pytest -q` (#70, and at the close).
+      broken: page_data passes no PR body to said_vs_done → 1 failed in 10.18s (#70)
+- [x] C11.4 **new** — `render` cannot be ended or commented out by PR text: for data whose
       step title is `</script><script>alert(1)</script>` and whose paragraph holds
       `<!-- PROJECT: x -->` (the kit's #14 holds such a line), the output contains `</script`
       (any case) exactly as many times as it contains `<script` (any case), the element's
@@ -152,7 +162,11 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       Red today: no `bearing.page` package; after Track A, `</script` is counted 3 times
       against 2 opening tags.
       Test: `tests/test_page_html.py::RenderTest::test_script_end_is_escaped`.
-- [ ] C11.5 **new** — The command's errors leave `--out` alone: (a) with `--config` naming a
+      Evidence: `RenderTest.test_script_end_is_escaped` (#71), seen red first in #71 on
+      `main`'s code after Track A ("3 != 2", as Red today says), and again at the close on
+      `cdc3919` ("5 failed", with C11.5's four); `python -m pytest -q` (#71, #72, the close).
+      broken: render's < escape removed → 1 failed in 0.08s (#71)
+- [x] C11.5 **new** — The command's errors leave `--out` alone: (a) with `--config` naming a
       missing file and no store, exit 1, stderr "bearing: no config at <path>: pass --config
       FILE", and `--out` not created; (b) with the fixture's config and no store, exit 1,
       stderr "bearing: no store at <data>/bearing.db: run bearing ingest first", `--out` not
@@ -168,7 +182,15 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       `tests/test_page_cli.py::PageErrorTest::test_missing_store`,
       `tests/test_page_cli.py::PageErrorTest::test_error_keeps_out` and
       `tests/test_page_cli.py::PageErrorTest::test_out_is_a_directory`.
-- [ ] C11.6 **new** — `layers` gives plan.md's layout: for modules `a b c d` and imports
+      Evidence: the four `PageErrorTest` tests (#71), each seen red in #71 the way Red today
+      says (a traceback for (a) and (c), exit 0 for (b), no "cannot write" for (d)), and
+      again at the close on `cdc3919`; `python -m pytest -q` (#71, #72, the close). (a) has no
+      break of its own: its message is `load_config`'s, which `tests/test_config.py` and
+      C08.7's `direction` test already pin.
+      broken: page's store check before open_store skipped → 1 failed in 6.32s (#71)
+      broken: page empties --out before computing the data → 1 failed in 5.94s (#71)
+      broken: page re-raises the OSError writing --out → 1 failed in 8.36s (#71)
+- [x] C11.6 **new** — `layers` gives plan.md's layout: for modules `a b c d` and imports
       `a→b, b→a, c→a, a→x, d→d`, it returns `[["c", "d"], ["a", "b"]]`, and the same for the
       imports in reverse order; on the fixture's snapshots it returns, at 00394fb (#3, the
       cycle), `[["app", "app.a", "app.b", "app.crlf", "app.legacy", "app.sub", "app.sub.mod",
@@ -181,18 +203,34 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       "No module named 'bearing.page.layout'" after it).
       Test: `tests/test_layout.py::LayoutTest::test_cycle_is_one_node` and
       `tests/test_layout.py::LayoutTest::test_fixture_layers`.
-- [ ] C11.7 **new** — The layout does not change between runs: a child Python process that
+      Evidence: both tests (#72), seen red first in #72 on `main`'s code ("No module named
+      'bearing.page.layout'", raised inside each test), and again at the close on `dcb6eba`
+      ("4 failed, 1 passed", subtests counted); `python -m pytest -q` (#72, the close).
+      broken: every module of a cycle its own node in _components → 1 failed in 5.36s (#72)
+      broken: a node's layer is at most 1, not its longest path → 2 failed, 1 passed in 6.76s (#72)
+- [x] C11.7 **new** — The layout does not change between runs: a child Python process that
       prints `layers` for each of the fixture's 10 merges' snapshots, one JSON line each,
       prints the same bytes under `PYTHONHASHSEED=0` and `PYTHONHASHSEED=1`, and 10 lines.
       Red today: no `bearing.page.layout`.
       Test: `tests/test_layout.py::LayoutTest::test_same_under_two_hash_seeds`.
-- [ ] C11.8 **hold** — No existing contract test or golden file changes:
+      Evidence: `LayoutTest.test_same_under_two_hash_seeds` (#72), seen red with C11.6's;
+      `python -m pytest -q` (#72, the close).
+      broken: layers walks the module set unsorted → 1 failed in 14.31s (#72)
+- [x] C11.8 **hold** — No existing contract test or golden file changes:
       `git -c core.safecrlf=false diff --exit-code --diff-filter=MD 3843f3b -- tests/contract tests/fixtures/expected`
       prints nothing and exits 0 on the closing commit (new files, `test_page.py` and
       `page-v1.json`, are not M or D).
-- [ ] C11.9 **hold** — The changelog, timeline and direction contract tests pass unedited:
+      Evidence: the command exited 0 with no output in #70, #71 and #72, and at the close on
+      `82d8bcb`; CI's "Frozen files stay unedited" passed on all three.
+      broken: the timeline golden file's last cycle- line rotated → +e5fa51f #9 cycle- app.b > app.a > app.b (#69)
+- [x] C11.9 **hold** — The changelog, timeline and direction contract tests pass unedited:
       `python -m pytest -q tests/contract` passes on every track's head (Track A may move
       direction's merge query into a shared function; the output may not change).
+      Evidence: CI's "Tests" passed on the heads of #70, #71 and #72; `python -m pytest -q`
+      passed locally on each, and at the close on `82d8bcb`. Track A left direction's query
+      where it was (#70). The break's report reads "6 passed" where #69's read "5 passed":
+      Track A added `test_page.py` to `tests/contract`.
+      broken: direction's merges read in reverse (ORDER BY commits.position DESC) → 1 failed, 6 passed in 46.73s (#69)
 
 ## Verify
 ```bash
@@ -258,3 +296,45 @@ re-counts it.
   `docs/kit/bearing.toml` (94 steps, `grep -c -E 'src=|href="http'` printing 0, `</script`
   counted as `<script`), with a checked-in artefact or the command quoted in the close, since
   CI cannot reach the kit, and the maintainer's two screenshots.
+- The tracks ran A (#70), B (#71), C (#72), as the table says. Track A's diff was 398 changed
+  lines, under 400, so no track A2 split off. Track A left direction's merge query where it
+  was; C11.9 allowed moving it but it was not needed. `bearing page` does not call `layers`
+  yet: Day 12 draws from it (H11.1).
+- **Defect** D11.8 — found: self · cause: process · made: Day 11 · same-as: D11.1 · the Write
+  tool turned the JSON escape for `<` in Track B's commit message into the character itself;
+  restored with a script and the commit amended before the push (#71). CLAUDE.md already names
+  this trap, so the slip was the workflow's, not the tool's alone.
+- **Defect** D11.9 — found: break on purpose · cause: process · made: Day 11 · same-as: D10.19 ·
+  Track B's first break runs used multi-line finds, which do not match the CRLF working tree,
+  and this machine's interpreter by its full path; re-run with one-line finds and `python`,
+  before the PR opened (#71).
+- **Defect** D11.10 — found: break on purpose · cause: process · made: Day 11 · same-as: D01.21 ·
+  Track B's break on `render`'s escape passed its find with one backslash where the source has
+  two, so it matched nothing; fixed and re-run before the PR opened (#71).
+- **Defect** D11.11 — found: Track C · cause: process · made: Day 11 · Track C's brief told the
+  implementer to walk `git rev-list --merges --first-parent` and expect 10 merges; on the
+  fixture that walk gives 9 (#72).
+- **Defect** D11.12 — found: review · cause: implementation · made: Day 11 · the implementer's
+  fix for D11.11 walked `git rev-list --merges`, which also gives 10 but a different 10: side
+  branch #7 (e21c62d) in, squash merge #6 (448fc4d) out. Caught in review before the commit;
+  the test now reads the 10 SHAs from `page-v1.json`'s steps (#72).
+- **Defect** D11.13 — found: Track C · cause: process · made: Day 11 · Track C's first push
+  imported `layers` at the top of `tests/test_layout.py`, so on `main` the module did not load,
+  and CI's "Track tests seen red" failed all three tests as an error, not an assertion. The
+  local `seen-red.py` had printed `ERROR tests/test_layout.py` and it was taken as red. Fixed in
+  fd7d447: a helper imports `layers` when a test calls it (#72). The code under test was right;
+  the fault was red evidence accepted without reading what it reported.
+- **Defect** D11.14 — found: close · cause: spec · made: Day 11 · Verify predicts "89 passed"
+  and "the 107 subtests"; the full run gives "89 passed, 109 subtests passed", since
+  `test_fixture_layers` runs two subtests. #72's self-check printed 109 without remark.
+- The close, on `82d8bcb`: `python -m pytest -q` gave "89 passed, 109 subtests passed"; the
+  focused line "17 passed, 2 subtests passed"; the style check passed; C11.8's diff exited 0.
+  `seen-red.py` gave each track's tests on its base: "3 failed" on `d6725f3` (A), "5 failed" on
+  `cdc3919` (B), "4 failed, 1 passed" on `dcb6eba` (C). `specs/breaks/day-11.json` holds 12
+  entries, copied from the `manifest:` lines of #69 (2), #70 (3), #71 (4) and #72 (3); all 12
+  were replayed on this branch, and each one failed its check.
+- Blind relabel (`relabel.py compare`): stage 14 of 14, cause 11 of 14, `made:` 14 of 14. The
+  rater read D11.1 and D11.8 as `environment` and D11.13 as `implementation`. All three stay
+  `process`: CLAUDE.md names the Write tool's escape trap, D11.8 repeats D11.1, and in D11.13
+  the code under test was right but its red was not read. D11.8's and D11.13's texts now say
+  so; D11.1's merged text is left as it is.
