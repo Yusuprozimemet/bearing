@@ -6,3 +6,8 @@ docs = ["docs/", "README.md"]
 
 [coupling]
 min_prs = 3
+
+[rules.outside-area]
+
+[rules.contract-impact]
+paths = ["tests/contract/"]

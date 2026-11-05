@@ -1,4 +1,4 @@
-"""The command line: --version, ingest (stores a repository's history and PRs), changelog (prints it), snapshot (prints a repository's modules and imports at one commit), timeline (prints what each merge changed in the structure) and direction (prints churn by area and week and the files that change together)."""
+"""The command line: --version, ingest (stores a repository's history and PRs), changelog (prints it), snapshot (prints a repository's modules and imports at one commit), timeline (prints what each merge changed in the structure) and direction (prints churn by area and week, the files that change together, and said vs done)."""
 
 import argparse
 import datetime
@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 from bearing import __version__
-from bearing.direction.config import ConfigError, load_config
+from bearing.direction.config import ConfigError, load_config, load_rules
 from bearing.direction.report import direction_report
 from bearing.ingest.changelog import format_changelog, read_entries
 from bearing.ingest.gh import GhError, fetch_prs
@@ -79,8 +79,10 @@ def _timeline(args) -> int:
 
 def _direction(args) -> int:
     # The config is read first, so a missing or broken one is an error whatever the store holds.
+    # Its rules are read too, so a misspelt rule fails here and not after the report starts.
     try:
         areas, min_prs = load_config(args.config)
+        rules = load_rules(args.config)
     except ConfigError as exc:
         return _fail(str(exc))
     # Never creates the store, as timeline: a missing file is an error.
@@ -91,7 +93,7 @@ def _direction(args) -> int:
     try:
         conn = sqlite3.connect(db)
         # All lines are computed before any is printed, so an error prints nothing on stdout.
-        lines = direction_report(args.repo, conn, areas, min_prs)
+        lines = direction_report(args.repo, conn, areas, min_prs, rules)
     except SnapshotError as exc:
         return _fail(str(exc))
     except sqlite3.Error as exc:
