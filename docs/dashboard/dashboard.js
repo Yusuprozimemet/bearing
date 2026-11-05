@@ -376,7 +376,7 @@ R.reduce((acc, r) => {
   WORK.set(r, next); return next;
 }, {});
 const RATIO_FROM = 1000;
-// Fixture lines (golden files, the history builder) stay in the Tests box but are not tests the ratio counts.
+// Fixture lines (golden files, sample data) stay in the Tests box but are not tests the ratio counts.
 const testRatio = r => { const w = WORK.get(r); return w.prod >= RATIO_FROM ? +(((w.test || 0) - w.fixtures) / w.prod).toFixed(2) : null; };
 const ratioMax = Math.max(2, Math.ceil(Math.max(0, ...R.map(testRatio).filter(v => v != null))));
 // One bar, split into boxes in order; a box's share is printed inside it when there is room.

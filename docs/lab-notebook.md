@@ -466,8 +466,9 @@
   reading that differed on #16 and #31. Under Fable's marks alone, 11 would be `real` and
   Phase 3's "Done when" unmet: the count rests on two low-confidence marks.
 - **Hand-offs:** H08.2 (the kit's run) and H09.1 (the branch's fallback) are done. H10.2 is
-  closed by #64. H10.1, the Phase 3 stop, goes to the maintainer after this close: the
-  plan-auditor on Phase 3, Phase 4 and the whole plan, and the decision on Phase 4.
+  closed by #64. H10.1, the Phase 3 stop, held in #67: the plan-auditor on Phase 3, Phase 4
+  and the whole plan, Phase 4 going ahead with its flags marked unverified, and the kit copied
+  in at `9a50a3e` in #68 (plan.md, "Course correction after Phase 3").
 - **Tokens:** `docs/dashboard/token-usage.json` tags three rows with Day 10, all on
   2026-11-05: the main session (125 replies, $6.61), the spec-auditor (50 replies, $1.83) and
   the implementer on Haiku (30 replies, $0.03). The untagged rows for 2026-11-05 include the

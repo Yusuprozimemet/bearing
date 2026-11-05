@@ -633,7 +633,7 @@ def trajectory(snaps, blobs, order=()):
                 w = work_kind(renamed_to(f))
                 if a != "-" and w:
                     work[w] += int(a) + int(d)
-                    # Golden files and the history builder: in the Tests box, but not tests the ratio counts.
+                    # Golden files and sample data under tests/fixtures/: in the Tests box, but not tests the ratio counts.
                     fixtures += int(a) + int(d) if w == "test" and FIXTURE_PATH.search(renamed_to(f)) else 0
             for line in at_commits("diff", "--numstat", snaps[i - 1]["sha"], s["sha"], "--", "plan.md", "specs").splitlines():
                 a, d, f = line.split("\t")

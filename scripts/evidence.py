@@ -248,7 +248,7 @@ def run_verify(line, worktree, base, env):
     m = COMMENT.match(line)
     command, comment = (m.group(1), m.group(2)) if m else (line, None)
     command = at_base(command, base)
-    run =subprocess.run([bash(), "-c", command], cwd=worktree, capture_output=True, text=True,
+    run = subprocess.run([bash(), "-c", command], cwd=worktree, capture_output=True, text=True,
                          encoding="utf-8", errors="replace", env=env)
     if comment is None:
         return None if run.returncode == 0 else f"exit {run.returncode}"
