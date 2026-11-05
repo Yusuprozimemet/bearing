@@ -109,16 +109,34 @@ def _direction(args) -> int:
 
 
 def _page(args) -> int:
-    areas, _ = load_config(args.config)
-    rules = load_rules(args.config)
-    conn = open_store(args.data)
+    # The config is read first, as direction does, so a missing or broken one is an error.
     try:
+        areas, _ = load_config(args.config)
+        rules = load_rules(args.config)
+    except ConfigError as exc:
+        return _fail(str(exc))
+    # Never creates the store, as timeline: a missing file is an error.
+    db = Path(args.data) / "bearing.db"
+    if not db.is_file():  # before open_store, which would create one
+        return _fail(f"no store at {db}: run bearing ingest first")
+    conn = None
+    try:
+        conn = open_store(args.data)
         cache = BlobCache(conn)
+        # Everything is computed before the file is opened, so an error leaves --out alone.
         data = page_data(args.repo, conn, cache, areas, rules)
         conn.commit()
+    except SnapshotError as exc:
+        return _fail(str(exc))
+    except sqlite3.Error as exc:
+        return _fail(f"cannot read store at {db}: {exc}")
     finally:
-        conn.close()
-    Path(args.out).write_bytes(render(data).encode("utf-8"))
+        if conn is not None:
+            conn.close()
+    try:
+        Path(args.out).write_bytes(render(data).encode("utf-8"))
+    except OSError as exc:
+        return _fail(f"cannot write {args.out}: {exc}")
     return 0
 
 

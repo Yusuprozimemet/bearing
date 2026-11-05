@@ -110,3 +110,93 @@ class PageCliTest(unittest.TestCase):
         self.assertEqual(lines[i + 1 :], [""] + built)
         flags = [{"rule": "outside-area", "claim": "area tooling", "files": ["ci.txt"]}]
         self.assertEqual(page["steps"][9]["flags"], flags)
+
+
+class PageErrorTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
+        cls.out = Path(cls.tmp.name) / "out"
+        cls.repo = cls.out / "repo"
+        cls.result = run(BUILDER, cls.out)
+        cls.store = Path(cls.tmp.name) / "store"
+        cls.ingested = bearing(
+            "ingest", cls.repo, "--prs", cls.out / "prs.json", "--data", cls.store
+        )
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def test_missing_config(self):
+        self.assertEqual(self.result.returncode, 0, self.result.stderr)
+        config = Path(self.tmp.name) / "missing.toml"
+        out = Path(self.tmp.name) / "a.html"
+        result = bearing(
+            "page",
+            self.repo,
+            "--data",
+            Path(self.tmp.name) / "fresh",
+            "--config",
+            config,
+            "--out",
+            out,
+        )
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(
+            result.stderr.replace(b"\r\n", b"\n").decode(),
+            f"bearing: no config at {config}: pass --config FILE\n",
+        )
+        self.assertFalse(out.exists())
+
+    def test_missing_store(self):
+        self.assertEqual(self.result.returncode, 0, self.result.stderr)
+        empty = Path(self.tmp.name) / "empty"
+        out = Path(self.tmp.name) / "b.html"
+        result = bearing(
+            "page", self.repo, "--data", empty, "--config", TOML, "--out", out
+        )
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(
+            result.stderr.replace(b"\r\n", b"\n").decode(),
+            f"bearing: no store at {empty / 'bearing.db'}: run bearing ingest first\n",
+        )
+        self.assertFalse(out.exists())
+        self.assertFalse((empty / "bearing.db").exists())
+
+    def test_error_keeps_out(self):
+        self.assertEqual(self.ingested.returncode, 0, self.ingested.stderr)
+        other = Path(self.tmp.name) / "other"
+        other.mkdir()
+        self.assertEqual(
+            subprocess.run(
+                ["git", "init", "-q"], cwd=other, check=False, env=ENV
+            ).returncode,
+            0,
+        )
+        out = Path(self.tmp.name) / "keep.html"
+        out.write_bytes(b"keep")
+        result = bearing(
+            "page", other, "--data", self.store, "--config", TOML, "--out", out
+        )
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(result.stdout, b"")
+        self.assertEqual(
+            result.stderr.replace(b"\r\n", b"\n").decode(),
+            "bearing: not a commit: 62c4b2fcda436266c9cdd7ec8db866427452cfb9\n",
+        )
+        self.assertEqual(out.read_bytes(), b"keep")
+
+    def test_out_is_a_directory(self):
+        self.assertEqual(self.ingested.returncode, 0, self.ingested.stderr)
+        out = Path(self.tmp.name) / "dir.html"
+        out.mkdir()
+        result = bearing(
+            "page", self.repo, "--data", self.store, "--config", TOML, "--out", out
+        )
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertTrue(
+            result.stderr.replace(b"\r\n", b"\n")
+            .decode()
+            .startswith("bearing: cannot write ")
+        )
