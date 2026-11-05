@@ -119,6 +119,30 @@ class ConfigTest(unittest.TestCase):
                     load_rules(path)
                 self.assertEqual(str(cm.exception), message)
 
+    def test_outside_area_shared(self):
+        from bearing.direction.config import ConfigError, load_rules
+
+        path = self.write(
+            '[areas]\napp = ["app/"]\n[rules.outside-area]\nshared = ["CHANGES.md", "docs/shared/"]\n'
+        )
+        self.assertEqual(
+            load_rules(path), [("outside-area", ("CHANGES.md", "docs/shared/"))]
+        )
+
+        path = self.write(
+            '[areas]\napp = ["app/"]\n[rules.outside-area]\npaths = ["x/"]\n'
+        )
+        self.assertEqual(load_rules(path), [("outside-area", ())])
+
+        message = f"config {self.dir / 'bearing.toml'}: [rules.outside-area] shared must be a list of path prefixes"
+        for shared in ["shared = []", 'shared = "CHANGES.md"', "shared = [1]"]:
+            text = f'[areas]\napp = ["app/"]\n[rules.outside-area]\n{shared}\n'
+            with self.subTest(text=text):
+                path = self.write(text)
+                with self.assertRaises(ConfigError) as cm:
+                    load_rules(path)
+                self.assertEqual(str(cm.exception), message)
+
     def test_example(self):
         from bearing.direction.config import load_config, load_rules
 

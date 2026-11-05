@@ -14,6 +14,7 @@ min_prs = 3
 # outside-area: a pull request whose branch is named for an area (area/...) is flagged
 # when it changes a file outside that area's prefixes.
 [rules.outside-area]
+# shared = ["CHANGES.md", "docs/shared/"]  # files any area may change; never outside its area
 
 # contract-impact: a pull request that changes a file under these prefixes is flagged
 # when its body claims no contract impact ("## Contract impact" then "None", or

@@ -64,7 +64,16 @@ def load_rules(path):
     for rule_id, table in rules.items():
         if rule_id == "outside-area":
             # it takes no paths of its own; a paths key here is ignored
-            found.append((rule_id, ()))
+            # shared lists files any area may change, so they are not outside it
+            if "shared" not in table:
+                found.append((rule_id, ()))
+                continue
+            shared = table.get("shared")
+            if not _is_prefix_list(shared):
+                raise ConfigError(
+                    f"config {path}: [rules.outside-area] shared must be a list of path prefixes"
+                )
+            found.append((rule_id, tuple(shared)))
         elif rule_id == "contract-impact":
             paths = table.get("paths")
             if not _is_prefix_list(paths):
