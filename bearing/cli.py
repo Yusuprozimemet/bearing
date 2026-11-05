@@ -1,4 +1,4 @@
-"""The command line: --version, ingest (stores a repository's history and PRs), changelog (prints it), snapshot (prints a repository's modules and imports at one commit), timeline (prints what each merge changed in the structure), page (writes one HTML file holding each merge's page data) and direction (prints churn by area and week, the files that change together, and said vs done)."""
+"""The command line: --version, ingest (stores a repository's history and PRs), changelog (prints it), snapshot (prints a repository's modules and imports at one commit), timeline (prints what each merge changed in the structure), page (writes one HTML file holding each merge's page data and its import graph) and direction (prints churn by area and week, the files that change together, and said vs done)."""
 
 import argparse
 import datetime
@@ -14,7 +14,7 @@ from bearing.ingest.changelog import format_changelog, read_entries
 from bearing.ingest.gh import GhError, fetch_prs
 from bearing.ingest.history import GitError, read_first_parent
 from bearing.ingest.mapping import format_report, load_prs, map_history
-from bearing.page.data import page_data
+from bearing.page.data import page as page_steps
 from bearing.page.html import render
 from bearing.snapshot.cache import BlobCache
 from bearing.snapshot.timeline import timeline
@@ -124,7 +124,7 @@ def _page(args) -> int:
         conn = open_store(args.data)
         cache = BlobCache(conn)
         # Everything is computed before the file is opened, so an error leaves --out alone.
-        data = page_data(args.repo, conn, cache, areas, rules)
+        data, graphs = page_steps(args.repo, conn, cache, areas, rules)
         conn.commit()
     except SnapshotError as exc:
         return _fail(str(exc))
@@ -134,7 +134,7 @@ def _page(args) -> int:
         if conn is not None:
             conn.close()
     try:
-        Path(args.out).write_bytes(render(data).encode("utf-8"))
+        Path(args.out).write_bytes(render(data, graphs).encode("utf-8"))
     except OSError as exc:
         return _fail(f"cannot write {args.out}: {exc}")
     return 0

@@ -1,13 +1,18 @@
-"""The page's data: one step per merge, with its changelog entry, its structure events and its flags."""
+"""The page's data: one step per merge, with its changelog entry, its structure events and its flags, and each merge's import graph as SVG."""
 
 from bearing.direction.changes import changed_files
 from bearing.direction.said_vs_done import said_vs_done
 from bearing.ingest.changelog import read_entries
+from bearing.page.svg import draw
 from bearing.snapshot.diff import structure_events
 from bearing.snapshot.tree import renamed_paths, snapshot
 
 
 def page_data(repo, conn, cache, areas, rules):
+    return page(repo, conn, cache, areas, rules)[0]
+
+
+def page(repo, conn, cache, areas, rules):
     entries = read_entries(conn)
     # The same merges, in the same order, as read_entries; direction's join, without its filter.
     rows = conn.execute(
@@ -19,11 +24,15 @@ def page_data(repo, conn, cache, areas, rules):
         " ORDER BY commits.position"
     ).fetchall()
     steps = []
+    graphs = []
     for entry, (sha, number, branch, body) in zip(entries, rows, strict=True):
         # The merge's snapshots first, as timeline reads them, so a foreign store fails on the SHA.
         new = snapshot(repo, sha, cache)
         old = snapshot(repo, sha + "^1", cache)
-        events = structure_events(old, new, renamed_paths(repo, old["ref"], new["ref"]))
+        events = list(
+            structure_events(old, new, renamed_paths(repo, old["ref"], new["ref"]))
+        )
+        graphs.append(draw(old, new, events))
         paths = [path for path, _, _ in changed_files(repo, sha)]
         # A merge with no number has no flags, whatever its branch says.
         flags = []
@@ -41,8 +50,8 @@ def page_data(repo, conn, cache, areas, rules):
                 "number": entry.number,
                 "title": entry.title,
                 "paragraph": entry.paragraph,
-                "events": list(events),
+                "events": events,
                 "flags": flags,
             }
         )
-    return {"version": "page-v1", "steps": steps}
+    return {"version": "page-v1", "steps": steps}, graphs

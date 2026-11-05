@@ -27,18 +27,18 @@ NOTE = (
 )
 
 
-def run(*args):
+def run(*args, env=ENV):
     return subprocess.run(
         [sys.executable, *map(str, args)],
         check=False,
         cwd=REPO,
         capture_output=True,
-        env=ENV,
+        env=env,
     )
 
 
-def bearing(*args):
-    return run("-m", "bearing", *args)
+def bearing(*args, env=ENV):
+    return run("-m", "bearing", *args, env=env)
 
 
 class Page(HTMLParser):
@@ -55,6 +55,7 @@ class Page(HTMLParser):
         self.tag = None
         self.sink = None
         self.buf = []
+        self.svgs = 0
 
     def capture(self, tag, sink):
         self.tag = tag
@@ -64,6 +65,16 @@ class Page(HTMLParser):
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
         classes = (a.get("class") or "").split()
+        if tag == "svg":
+            self.svgs += 1
+            if self.section is not None:
+                self.section["svgs"] += 1
+        elif tag == "g" and self.section is not None:
+            # A graph's boxes and arrows: the class starts with what the element is.
+            if classes[:1] == ["module"]:
+                self.section["modules"][a["data-name"]] = a["class"]
+            elif classes[:1] == ["import"]:
+                self.section["imports"][(a["data-from"], a["data-to"])] = a["class"]
         if tag == "section" and "step" in classes:
             self.section = {
                 "sha": a["data-sha"],
@@ -72,6 +83,9 @@ class Page(HTMLParser):
                 "paragraphs": [],
                 "events": [],
                 "flags": [],
+                "svgs": 0,
+                "modules": {},
+                "imports": {},
             }
             self.sections.append(self.section)
         elif tag == "ul":
@@ -248,3 +262,77 @@ class PageHtmlTest(unittest.TestCase):
         for word in ("ArrowLeft", "ArrowRight", "hidden"):
             self.assertIn(word, script["text"])
         self.assertEqual(len(re.findall(r'src=|href="http', self.text)), 0)
+
+
+class PageGraphTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
+        cls.out = Path(cls.tmp.name) / "out"
+        cls.repo = cls.out / "repo"
+        cls.built = run(BUILDER, cls.out)
+        cls.data = Path(cls.tmp.name) / "data"
+        cls.ingested = bearing(
+            "ingest", cls.repo, "--prs", cls.out / "prs.json", "--data", cls.data
+        )
+        cls.raw0, cls.result0 = cls.page("0")
+        cls.raw1, cls.result1 = cls.page("1")
+        cls.text = cls.raw0.replace(b"\r\n", b"\n").decode("utf-8")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    @classmethod
+    def page(cls, seed):
+        # Two hash seeds: the same history must give the same bytes whatever the set order.
+        out = Path(cls.tmp.name) / f"page-{seed}.html"
+        env = {**ENV, "PYTHONHASHSEED": seed}
+        result = bearing(
+            "page",
+            cls.repo,
+            "--data",
+            cls.data,
+            "--config",
+            TOML,
+            "--out",
+            out,
+            env=env,
+        )
+        raw = out.read_bytes() if out.exists() else b""
+        return raw, result
+
+    def test_fixture_graphs(self):
+        self.assertEqual(self.built.returncode, 0, self.built.stderr)
+        self.assertEqual(self.ingested.returncode, 0, self.ingested.stderr)
+        self.assertEqual(self.result0.returncode, 0, self.result0.stderr)
+        page = parse(self.text)
+        self.assertEqual(page.svgs, 10)
+        self.assertEqual([s["svgs"] for s in page.sections], [1] * 10)
+        four = page.sections[3]
+        self.assertTrue(four["sha"].startswith("00394fb"))
+        self.assertEqual(four["modules"]["app.a"], "module added cycle")
+        self.assertEqual(four["modules"]["app.b"], "module added cycle")
+        self.assertEqual(four["modules"]["app.crlf"], "module added")
+        self.assertEqual(four["imports"][("app.a", "app.b")], "import added cycle")
+        self.assertEqual(four["imports"][("app.b", "app.a")], "import added cycle")
+        seven = page.sections[6]
+        self.assertTrue(seven["sha"].startswith("fde93a4"))
+        self.assertEqual(seven["modules"]["app.extra"], "module added")
+        self.assertEqual(seven["modules"]["app.legacy"], "module removed")
+        self.assertEqual(seven["modules"]["scripts.tools"], "module")
+        self.assertNotIn("scripts.helpers", seven["modules"])
+        eight = page.sections[7]
+        self.assertTrue(eight["sha"].startswith("e5fa51f"))
+        self.assertEqual(eight["imports"][("app.b", "app.a")], "import removed")
+        self.assertEqual(eight["modules"]["tests.contract.test_api"], "module added")
+        for value in [*eight["modules"].values(), *eight["imports"].values()]:
+            self.assertNotIn("cycle", value.split())
+
+    def test_same_under_two_seeds(self):
+        self.assertEqual(self.result0.returncode, 0, self.result0.stderr)
+        self.assertEqual(self.result1.returncode, 0, self.result1.stderr)
+        text1 = self.raw1.replace(b"\r\n", b"\n").decode("utf-8")
+        self.assertEqual(self.text.count("<svg"), 10)
+        self.assertEqual(text1.count("<svg"), 10)
+        self.assertEqual(self.raw0, self.raw1)
