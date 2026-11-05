@@ -1,0 +1,149 @@
+[
+  {
+    "what": "the applied migration 001_history.sql edited",
+    "file": "bearing/migrations/001_history.sql",
+    "find": "subject_number INTEGER NULL,",
+    "replace": "subject_number INTEGER NULL, ",
+    "command": [
+      "git",
+      "-c",
+      "core.safecrlf=false",
+      "diff",
+      "--exit-code",
+      "88f7cf8",
+      "--",
+      "bearing/migrations/"
+    ]
+  },
+  {
+    "what": "make_repo.py: the root commit's subject changed",
+    "file": "tests/fixtures/make_repo.py",
+    "find": "SUBJECTS = {\"root\": \"Initial commit\"",
+    "replace": "SUBJECTS = {\"root\": \"Initial commit!\"",
+    "command": [
+      "git",
+      "-c",
+      "core.safecrlf=false",
+      "diff",
+      "--diff-filter=DMRT",
+      "--exit-code",
+      "88f7cf8",
+      "--",
+      "tests/contract/",
+      "tests/fixtures/make_repo.py",
+      "tests/fixtures/expected/"
+    ]
+  },
+  {
+    "what": "load_rules's unknown-rule message without the id",
+    "file": "bearing/direction/config.py",
+    "find": "unknown rule {rule_id}:",
+    "replace": "unknown rule:",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_config.py::ConfigTest::test_rule_errors"
+    ]
+  },
+  {
+    "what": "the heading claim without the word boundary after \"none\"",
+    "file": "bearing/direction/said_vs_done.py",
+    "find": "re.match(r\"none\\b\", following[0]",
+    "replace": "re.match(r\"none\", following[0]",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_said_vs_done.py::SaidVsDoneTest::test_claim"
+    ]
+  },
+  {
+    "what": "outside-area reading only the first prefix of the branch's area",
+    "file": "bearing/direction/said_vs_done.py",
+    "find": "not p.startswith(prefixes_of[name])",
+    "replace": "not p.startswith(prefixes_of[name][0])",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_said_vs_done.py::SaidVsDoneTest::test_flags"
+    ]
+  },
+  {
+    "what": "bearing.toml.example with min_prs 2",
+    "file": "bearing.toml.example",
+    "find": "min_prs = 3",
+    "replace": "min_prs = 2",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_config.py::ConfigTest::test_example"
+    ]
+  },
+  {
+    "what": "the flag line's format in report.py",
+    "file": "bearing/direction/report.py",
+    "find": "f\"- #{number} {rule_id}: {claim}",
+    "replace": "f\"- #{number} {rule_id} : {claim}",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/contract/test_direction.py::DirectionContractTest::test_golden"
+    ]
+  },
+  {
+    "what": "load_rules not called in _direction",
+    "file": "bearing/cli.py",
+    "find": "rules = load_rules(args.config)",
+    "replace": "rules = []",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_direction_cli.py::DirectionCliTest::test_rules_config"
+    ]
+  },
+  {
+    "what": "the No flags. line dropped",
+    "file": "bearing/direction/report.py",
+    "find": "lines.append(\"No flags.\")",
+    "replace": "pass",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_direction_cli.py::DirectionCliTest::test_rules_config"
+    ]
+  },
+  {
+    "what": "the blank line after the Said vs done heading",
+    "file": "bearing/direction/report.py",
+    "find": "\"## Said vs done\", \"\"]",
+    "replace": "\"## Said vs done\"]",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_direction_cli.py::DirectionCliTest::test_fixture_report"
+    ]
+  }
+]

@@ -313,7 +313,7 @@
   from 2026-10-28 to 2026-11-04 is $242.83, counted during the close, so the close's own
   session is only partly in it.
 
-### Day 08: Churn and coupling (Phase 3), closed in the closing PR
+### Day 08: Churn and coupling (Phase 3), closed in #51
 
 - **Delivered:** `bearing direction <repo> [--data DIR] [--config FILE]` reads its path areas
   and coupling threshold from a `bearing.toml` outside the target repository (default
@@ -371,6 +371,57 @@
   defect-rater row and raised Day 7's main row to 65 replies. The folder's total from
   2026-10-28 to 2026-11-05 is $255.49, counted during the close, so the close's own session is
   only partly in it.
+
+### Day 09: Said vs done (Phase 3), closed in the closing PR
+
+- **Delivered:** `bearing direction` ends with a `## Said vs done` section: one list line per
+  flag, in first-parent order, or "No flags.". Two rules come from `[rules.<id>]` tables in
+  `bearing.toml`: `contract-impact` flags a PR whose body says "Contract impact: none" but
+  changes one of the rule's `paths`, and `outside-area` flags a PR that changes files outside
+  the path area its branch names. `load_rules` and `said_vs_done` came in #53, with
+  `bearing.toml.example` at the root; the section, the fixture's rules and the direction report's
+  golden file (`tests/fixtures/expected/direction.md`, 28 lines) in #54. No migration.
+  `pytest -q`: 72 passed, 78 subtests passed.
+- **Criteria:** 8 of 8 ticked: 7 `new` and 1 `hold`.
+- **Breaks on purpose:** 10, all in `specs/breaks/day-09.json`: 2 in #52, 4 in #53 and 4 in
+  #54. The close replayed all 10 on `main`, and each one failed its check. One more break, in
+  #54, was not caught: dropping the branch's fallback for a merge without a PR record (D09.10).
+- **PRs:** 4 at the day-spec rung: the spec (#52), Track A (#53), Track B (#54) and the close.
+  There was no Track 0. Two `tooling/` branches changed the dashboard between track B and the
+  close (#55, #56), outside the day.
+- **Defects:** 11 in the Notes.
+
+  | Field | Count |
+  | --- | --- |
+  | found: auditor | 7 |
+  | found: self | 2 |
+  | found: Track A | 1 |
+  | found: Track B | 1 |
+  | cause: spec | 10 |
+  | cause: process | 1 |
+
+  The spec-auditor found seven before any code (D09.2 to D09.8): a promise no criterion
+  checked (rules read before the store), two open questions (`[areas]` in `load_rules`, an
+  unused `paths` key), a hold with no named break, an unnamed join, a red that would not
+  collect, and an area named "other". The spec-change PR reworded plan.md's direction contract
+  itself (D09.1). Two spec gaps got past the audit: C09.4's red was one CI's "Track tests seen
+  red" refuses (D09.9), and no criterion sees the branch's fallback (D09.10, handed to Day 10
+  as H09.1). The close's Verify first ran in a directory left from an earlier run (D09.11).
+  The blind relabel agreed on 10 of 11 stages, causes and `made:`. On D09.1 the rater could
+  not tell the stage or the day that made it, and on D09.11 it read the cause as
+  `environment`. No tag changed; both texts now say what the rater could not see.
+- **Human interventions:** none recorded in #52 to #54. In the sessions between track A and
+  the close, the maintainer first deferred the dashboard's "Needs attention" fixes until all
+  days were done, then moved them to right after track B: that became #55 and #56.
+- **Hand-offs:** H08.1 (said vs done, its golden file and `bearing.toml.example`) was built in
+  #53 and #54. H08.2, the kit's `bearing.toml` and run, stays with Day 10, and H09.1, a test
+  for the branch's fallback, joins it.
+- **Tokens:** `docs/dashboard/token-usage.json` tags three rows with Day 9, all on
+  2026-11-05: the main session (98 replies, $4.67), the spec-auditor (48 replies, $1.65) and
+  the implementer on Haiku (32 replies, $0.04). Day 8's close raised its main row from 61 to 82
+  replies, and the untagged main row for 2026-11-05 rose from 47 to 241 replies ($13.46),
+  mostly the two `tooling/` branches. The folder's total from 2026-10-28 to 2026-11-05 is
+  $273.69, counted during the close, so the close's own session is only partly in it.
 
 ## What is being measured
 
