@@ -194,6 +194,24 @@ Each phase is a series of <400-line PRs, so CI stays green.
   `grep -c -E 'src=|href="http' <file>` prints 0; and the maintainer has stepped through the
   first and last merge in a browser (a screenshot of each in Day 12's closing PR).
 
+### Phase 5 — Loose ends
+**Goal:** the two hand-offs no day owned, H03.1 and H04.2, closed in code in one day, Day 13
+(Course correction after Phase 4). Day 13 is also the day the agentic-workflow-driver's level 1
+trial runs on; the driver is a separate program, and nothing here depends on it.
+- stderr is UTF-8 whatever the console's code page, as stdout already is (H03.1): every
+  "bearing: ..." line and the line `--stats` prints. What `argparse` writes before the
+  arguments are parsed is left as it is.
+- `bearing ingest` warns when it has exactly 1000 PR records, from `gh` or from `--prs`
+  (H04.2): one line on stderr, "bearing: warning: 1000 PR records is gh's limit; a history with
+  more is cut". Stdout and the exit code are what they are without it. No pagination and no
+  option for the limit.
+- **Done when:** every check is a test under `tests/` that CI runs, with no hand run, no kit
+  history and no screenshot. In a subprocess started with `PYTHONIOENCODING=cp1252`, an error
+  that names a non-ASCII path reaches stderr as that path's UTF-8 bytes. `bearing ingest` on the
+  fixture with a file of 1000 records prints the warning line once on stderr, none of it on
+  stdout, and exits 0; with 999 records stderr is empty. `pytest -q` passes in CI, and
+  `git diff --exit-code 001ed11 -- tests/contract/` prints nothing: no contract changes.
+
 ## Stopping points
 
 - **Day 4 (Phase 1) is a stopping point.** Is the changelog of the kit's 91 PRs useful enough to
@@ -254,6 +272,33 @@ kit's repository). For it to count:
 ## Course corrections
 
 <!-- Added by plan-change PRs, newest first. Empty at the start. -->
+
+### 2026-11-10: Course correction after Phase 4: Phase 5, one day of loose ends
+
+Phase 4 closed at Day 12 (#81) and the plan named nothing after it. The maintainer adds one
+phase of one small day, Day 13, chosen from three candidates drawn from what the plan and the
+Notes of Days 10 to 12 left unowned.
+
+1. **Chosen: the two unowned hand-offs.** H03.1 (stderr is not UTF-8) and H04.2 (`gh`'s
+   1000-PR cap), both listed as left open after Phase 3 (item 8 below). Two tracks, one each.
+2. **The maintainer's decisions, made here so the day needs none:** H04.2 warns and does not
+   paginate, with the line Phase 5 quotes; H03.1 makes stderr UTF-8 as stdout is; and Phase 5's
+   "Done when" is checkable by CI alone.
+3. **The warning also covers `--prs`.** A recorded file is the same `gh` command's output
+   ("Decisions"), so it is cut at the same place, and a file is what a test can give without
+   `gh`. Exactly 1000 records may be a whole history; the line says what the limit does, not
+   that anything is missing.
+4. **Not chosen.** A computed `bearing summary` (the optional summarising layer of
+   "Decisions"): a new output contract whose shape is a product decision. Coupling that follows
+   renames (Day 8's known limit; 43 Coupling rows on the kit at Day 10): its effect shows only
+   on the kit's history, which CI cannot reach.
+5. **Still left open; no day owns them:** `README.md`, still the kit's own on `main` (#86, open
+   on this date, rewrites it outside any day); the Phase 1 stop's
+   "one or two sentences" rule for a description; the two not chosen in item 4; and, in the
+   kit, H02.4 and the test data the dashboard reads as a hand-off "to Day 12".
+6. **`.gitignore`** gains `evidence.json`, the report `scripts/evidence.py` writes after a
+   close, and `evidence-rehearsal.json`, which no script here names and the maintainer asked
+   for: left untracked they make the tree unclean, and the driver stops on an unclean tree.
 
 ### 2026-11-05: Course correction after Phase 3: the Day 10 stop
 
@@ -522,3 +567,4 @@ The phases are broken into day specs in [`specs/`](specs/). Read
 3. Phase 2: Days 5-7.
 4. Phase 3: Days 8-10. **Stop and evaluate.**
 5. Phase 4: Days 11-12.
+6. Phase 5: Day 13.

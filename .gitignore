@@ -19,5 +19,10 @@ docs/dashboard/evidence-checks.json
 *.egg-info/
 .bearing/
 
+# --- the report scripts/evidence.py writes after a close (--json evidence.json), and the
+# rehearsal of it a run before the close leaves; neither is committed ---
+evidence.json
+evidence-rehearsal.json
+
 # --- the step guard's marker: set on "merged", cleared by a new session (scripts/step-guard.py) ---
 .claude/state/
