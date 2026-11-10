@@ -12,8 +12,9 @@ records, the number `gh` stops at (H04.2); every check is a test CI runs (plan.m
   UTF-8 where it sets stdout's, after the arguments are parsed, and leaves a stream without
   `reconfigure` (a test's `StringIO`) as it is. It keeps stderr's error handler,
   "backslashreplace" (`reconfigure` with an encoding alone sets it to "strict"), so a
-  character UTF-8 cannot encode, a lone surrogate, is still written as its escape. Every "bearing: ..." line and the line
-  `--stats` prints go through that stream, so no message's text changes.
+  character UTF-8 cannot encode, a lone surrogate, is still written as its escape.
+  Every "bearing: ..." line and the line `--stats` prints go through that stream, so no
+  message's text changes.
 - **The 1000-record warning** (Track B, H04.2), in `bearing/cli.py`: when `bearing ingest` has
   exactly 1000 PR records, read from `gh` or from the `--prs` file, it writes one line to
   stderr, "bearing: warning: 1000 PR records is gh's limit; a history with more is cut".
