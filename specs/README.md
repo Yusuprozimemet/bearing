@@ -270,6 +270,7 @@ specs/
 | 5-7 | 2 Structure snapshots | the module and import graph at every merge, and a timeline | not started |
 | 8-10 | 3 Direction | churn, co-change coupling, said vs done; stop and evaluate | not started |
 | 11-12 | 4 Timeline page | one static HTML file to step through the history | not started |
+| 13 | 5 Loose ends | stderr as UTF-8, and a warning at `gh`'s 1000-PR limit | not started |
 
 ## Provisional specs
 
@@ -282,4 +283,5 @@ None. Each day's spec is written on its day, from `plan.md` and the code on `mai
 - Day 4 ends Phase 1 and is a stopping point: `bearing ingest` and `bearing changelog`.
 - Day 7 ends Phase 2: `bearing snapshot` and `bearing timeline`.
 - Day 10 ends Phase 3 and is a stopping point: `bearing direction`.
-- Day 12 ends Phase 4, and the project: `bearing page`.
+- Day 12 ends Phase 4: `bearing page`.
+- Day 13 is Phase 5, and ends the project: the two hand-offs no day owned, H03.1 and H04.2.
