@@ -224,6 +224,14 @@ def main(argv=None) -> int:
         except (OSError, ValueError) as exc:
             return _fail(str(exc))
 
+    # gh stops at 1000 records (bearing/ingest/gh.py's --limit). 1001 cannot be one gh call's
+    # output, so only exactly 1000 is said; it may still be a whole history.
+    if len(records) == 1000:
+        print(
+            "bearing: warning: 1000 PR records is gh's limit; a history with more is cut",
+            file=sys.stderr,
+        )
+
     result = map_history(commits, records)
     try:
         conn = open_store(args.data)
