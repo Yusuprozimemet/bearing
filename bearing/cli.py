@@ -182,10 +182,14 @@ def main(argv=None) -> int:
     page.add_argument("--config", default="bearing.toml")
     page.add_argument("--out", required=True)
     args = parser.parse_args(argv)
-    # Output is UTF-8 whatever the console's code page; a stream without reconfigure (a test's
-    # StringIO) is left as it is. Parsing comes first, so --version never touches the stream.
+    # Output and errors are UTF-8 whatever the console's code page; a stream without reconfigure
+    # (a test's StringIO) is left as it is. Parsing comes first, so --version never touches a stream.
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
+    # An encoding alone would set the handler to "strict", and a lone surrogate in a path
+    # would end in a traceback.
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="backslashreplace")
     if args.command == "changelog":
         return _changelog(args)
     if args.command == "snapshot":
