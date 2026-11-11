@@ -57,7 +57,7 @@ reconfigured without the `hasattr` guard) needs Track A's code: Track A's PR run
 Tick each box in the closing PR once its evidence is in it; under a box left unticked, write
 `Not proven: <why>` (`specs/README.md`, "Evidence at the close").
 
-- [ ] C13.1 **new** — A "bearing: ..." line reaches stderr as UTF-8. In a subprocess started
+- [x] C13.1 **new** — A "bearing: ..." line reaches stderr as UTF-8. In a subprocess started
       with `PYTHONIOENCODING=cp1252`, with NAME the directory name "łódź-café" under a
       temporary directory (never created), each of these exits 1 with nothing on stdout and a
       stderr that decodes as UTF-8 to one line starting "bearing: " and holding NAME:
@@ -70,7 +70,8 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       hex digits: six ASCII bytes each) and the single bytes F3 and E9, so it does not decode
       as UTF-8 ("UnicodeDecodeError" at F3); five subtests fail.
       Test: `tests/test_stderr.py::StderrTest::test_error_lines_are_utf8`.
-- [ ] C13.2 **new** — The line `--stats` prints goes through the same stream. Called in the
+      Evidence: `StderrTest.test_error_lines_are_utf8` (#90), seen red in #90 on `main` and again at the close on `0472de4` ("6 failed, 1 passed", with C13.2's test); `python -m pytest -q` at the close on `56892cd`.
+- [x] C13.2 **new** — The line `--stats` prints goes through the same stream. Called in the
       test's process on the ingested fixture, with `sys.stderr` a `TextIOWrapper` over a
       `BytesIO` in cp1252 and `sys.stdout` a `StringIO`, `bearing.cli.main` given "timeline",
       the repository, "--data", a data directory no timeline has run on, and "--stats"
@@ -79,24 +80,33 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       before the line feed ignored).
       Red today: the wrapper's `encoding` is still "cp1252".
       Test: `tests/test_stderr.py::StderrTest::test_stats_stream_is_utf8`.
-- [ ] C13.3 **hold** — What `argparse` writes is left as it is. In a subprocess started with
+      Evidence: `StderrTest.test_stats_stream_is_utf8` (#90), seen red in #90 on `main` and again at the close on `0472de4` ("6 failed, 1 passed", with C13.1's test); `python -m pytest -q` at the close on `56892cd`.
+- [x] C13.3 **hold** — What `argparse` writes is left as it is. In a subprocess started with
       `PYTHONIOENCODING=cp1252`, `bearing ingest . café` exits 2 with nothing on stdout, and
       stderr's last line is the bytes of "bearing: error: unrecognized arguments: caf"
       followed by the single byte E9.
       Test: `tests/test_stderr.py::StderrTest::test_argparse_left_alone`.
-- [ ] C13.4 **new** — `bearing ingest` on the fixture with a `--prs` file of 1000 records (In
+      Evidence: `StderrTest.test_argparse_left_alone` (#90); `python -m pytest -q` at the close on `56892cd`.
+      broken: stderr reconfigured before parse_args → 1 failed in 4.69s (#90)
+- [x] C13.4 **new** — `bearing ingest` on the fixture with a `--prs` file of 1000 records (In
       scope) exits 0; stderr is the one line "bearing: warning: 1000 PR records is gh's
       limit; a history with more is cut"; stdout has 993 lines, the first
       "merges 10  matched 9  unmatched merges 1  unmatched PRs 991  direct 2", and none
       holds "warning".
       Red today: stderr is empty.
       Test: `tests/test_ingest_limit.py::IngestLimitTest::test_warns_at_1000`.
-- [ ] C13.5 **hold** — One record either side prints no warning. With 999 records and with
+      Evidence: `IngestLimitTest.test_warns_at_1000` (#91), seen red in #91 on `main` and again at the close on `ec3eb23` ("2 failed, 1 passed, 2 subtests passed", with C13.6's test); `python -m pytest -q` at the close on `56892cd`.
+      broken: the warning only for records from gh, not for a --prs file → 1 failed in 4.85s (#91)
+      broken: the warning written to stdout → 1 failed in 4.81s (#91)
+- [x] C13.5 **hold** — One record either side prints no warning. With 999 records and with
       1001, `bearing ingest` on the fixture exits 0 with an empty stderr; stdout's first line
       is "merges 10  matched 9  unmatched merges 1  unmatched PRs 990  direct 2" with 999
       and "merges 10  matched 9  unmatched merges 1  unmatched PRs 992  direct 2" with 1001.
       Test: `tests/test_ingest_limit.py::IngestLimitTest::test_silent_at_999_and_1001`.
-- [ ] C13.6 **new** — The warning covers records read from `gh`. Called in the test's process
+      Evidence: `IngestLimitTest.test_silent_at_999_and_1001` (#91); `python -m pytest -q` at the close on `56892cd`.
+      broken: the warning at 1000 or more records, so 1001 warns → 1 failed, 1 passed, 1 subtests passed in 5.08s (#91)
+      broken: the warning at 999 or more records, so 999 warns → 2 failed, 1 passed in 5.14s (#91)
+- [x] C13.6 **new** — The warning covers records read from `gh`. Called in the test's process
       without `--prs`, with `gh`'s call answered by the same 1000 records
       (`tests/test_gh.py`'s way: `subprocess.run` patched for `gh` only), `bearing.cli.main`
       given "ingest", the repository, "--data" and a temporary directory returns 0, what it
@@ -104,18 +114,26 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       of C13.4.
       Red today: stderr is empty.
       Test: `tests/test_ingest_limit.py::IngestLimitTest::test_warns_from_gh`.
-- [ ] C13.7 **hold** — No contract changes: `git diff --exit-code 001ed11 -- tests/contract/`
+      Evidence: `IngestLimitTest.test_warns_from_gh` (#91), seen red in #91 on `main` and again at the close on `ec3eb23` ("2 failed, 1 passed, 2 subtests passed", with C13.4's test); `python -m pytest -q` at the close on `56892cd`.
+      broken: the warning only for a --prs file, not for records from gh → 1 failed in 4.96s (#91)
+- [x] C13.7 **hold** — No contract changes: `git diff --exit-code 001ed11 -- tests/contract/`
       prints nothing and exits 0 (`001ed11` is `main` at Day 12's close, #81).
-- [ ] C13.8 **hold** — A stderr without `reconfigure` is left as it is: `tests/test_gh.py`,
+      Evidence: `git -c core.safecrlf=false diff --exit-code 001ed11 -- tests/contract/ tests/test_gh.py` printed nothing and exited 0 at the close on `56892cd`; CI's "Frozen files stay unedited" passed on the heads of #90 and #91. The break's report is the diff's last line, ")"; the check failed by its exit code, 1.
+      broken: a contract test edited (the golden file's bytes stripped before the comparison) → ) (#88)
+- [x] C13.8 **hold** — A stderr without `reconfigure` is left as it is: `tests/test_gh.py`,
       whose `IngestLiveTest` calls `main` with a `StringIO` as stderr, passes unedited:
       `python -m pytest -q tests/test_gh.py` prints "5 passed, 6 subtests passed", and
       `git diff --exit-code 001ed11 -- tests/test_gh.py` prints nothing and exits 0.
-- [ ] C13.9 **hold** — A character UTF-8 cannot encode is still an escape, not a traceback.
+      Evidence: `python -m pytest -q tests/test_gh.py` printed "5 passed, 6 subtests passed" and the diff against `001ed11` printed nothing and exited 0, at the close on `56892cd` (#90).
+      broken: stderr reconfigured without the hasattr guard → 4 failed, 3 passed, 4 subtests passed in 5.50s (#90)
+- [x] C13.9 **hold** — A character UTF-8 cannot encode is still an escape, not a traceback.
       In a subprocess started with `PYTHONIOENCODING=cp1252`, `bearing changelog --data` with
       a name holding the lone surrogate U+DC80 exits 1 with nothing on stdout; stderr is one
       line starting "bearing: no store at" that holds the escape for U+DC80 (a backslash and
       "udc80") and does not hold "Traceback".
       Test: `tests/test_stderr.py::StderrTest::test_surrogate_is_escaped`.
+      Evidence: `StderrTest.test_surrogate_is_escaped` (#90); `python -m pytest -q` at the close on `56892cd`.
+      broken: the error handler left out of the reconfigure → 1 failed in 4.71s (#90)
 
 ## Verify
 ```bash
@@ -151,6 +169,19 @@ ruff check . && ruff format --check .
 - C13.7's break ran in this spec's PR; `scripts/break.py` reports the last line the check
   printed, which for a `git diff` is the last line of the diff, ")". The check failed by its
   exit code, 1.
+- The close ran on `56892cd`. `python -m pytest -q` printed "104 passed, 116 subtests passed",
+  against "97 passed, 109 subtests passed" before the day. Each of the Verify commands ran as
+  written: the two test files "7 passed, 7 subtests passed", the diff nothing with exit 0, and
+  ruff clean.
+- All 9 breaks in `specs/breaks/day-13.json` were replayed at the close with `scripts/break.py`
+  and each failed its check. The `broken:` lines above are the close's, not the PRs'.
+- Phase 5's "Done when" (plan.md): the non-ASCII path's UTF-8 bytes are C13.1; the warning line
+  once on stderr, none on stdout and exit 0 is C13.4; an empty stderr at 999 records is C13.5;
+  the contract diff is C13.7. `pytest -q` in CI is the "Tests" check on #96. Every one is a
+  test or command CI runs, with no hand run, no kit history and no screenshot.
+- H03.1 is closed by C13.1 and C13.2, H04.2 by C13.4 to C13.6. This day leaves no new hand-off.
+- Neither the tracks nor the close recorded a defect; the seven below were all found before any
+  code. The blind rater agreed with all seven on stage, cause and `made:`.
 - **Defect** D13.1 — found: auditor · cause: spec · made: Day 13 · the draft let Track A
   reconfigure stderr with no criterion on the `hasattr` guard, which `tests/test_gh.py`'s
   `StringIO` needs (plan-auditor, finding 4); C13.8 added in this spec's PR.
