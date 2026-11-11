@@ -597,6 +597,44 @@
   from 2026-10-28 to 2026-11-05 is $341.09, counted during the close, so the close's own
   session is only partly in it.
 
+### Day 13: Loose ends, stderr as UTF-8 and the 1000-PR warning (Phase 5), closed in #96
+
+- **Delivered:** two hand-offs no day owned are closed in `bearing/cli.py`. #90 made every
+  "bearing: ..." line and the `--stats` line UTF-8 whatever the console's code page, after the
+  arguments are parsed, keeping stderr's error handler so a lone surrogate is still an escape
+  (H03.1). #91 made `bearing ingest` write one warning line on stderr when it has exactly 1000 PR
+  records, from `gh` or from `--prs` (H04.2). No contract or golden file changed. No migration.
+  `pytest -q`: 104 passed, 116 subtests passed.
+- **Criteria:** 9 of 9 ticked: 4 `new` and 5 `hold`.
+- **Breaks on purpose:** 9, all in `specs/breaks/day-13.json`: 1 in #88, 3 in #90 and 5 in #91.
+  The close replayed all 9 on `main`, and each failed its check.
+- **PRs:** 4 at the day-spec rung: the spec (#88), Tracks A (#90) and B (#91), and the close
+  (#96). No Track 0. The plan change that created Phase 5 was #87, before the day.
+- **Defects:** 7 in the Notes.
+
+  | Field | Count |
+  | --- | --- |
+  | found: auditor | 7 |
+  | cause: spec | 7 |
+
+  The auditors found all seven in the draft, before any code: the plan-auditor one (D13.1, no
+  criterion on the `hasattr` guard) and the spec-auditor six. The one that mattered most is D13.2:
+  the draft said stderr's error handler would not change, and `reconfigure` with an encoding alone
+  sets it to "strict", so a lone surrogate in a path would have ended in a traceback with every
+  other criterion passing. C13.9 now holds it. The tracks and the close recorded no defect. The
+  blind relabel agreed on all 7 stages, 7 causes and 7 `made:` tags.
+- **Human interventions:** the track and closing PRs carry no `human:` line beyond "none yet": a
+  driver started those sessions, and no maintainer directed them in chat. #88 has one, that no
+  track starts from that session, and #87 before it has six on the phase's scope.
+- **Hand-offs:** none new. Phase 5 ends here. The plan-auditor runs on Phase 5 on fresh `main`
+  after this close merges; plan.md names no later phase.
+- **Tokens:** `docs/dashboard/token-usage.json` tags five rows with Day 13: on 2026-11-10 the
+  main session (19 replies), the plan-auditor (2) and the spec-auditor (18), all on
+  `claude-fable-5-2`, listed at $0.00 only because `scripts/token-usage.py` has no price for that
+  model; on 2026-11-11 the implementer on Haiku (18 replies, $0.02) and the main session on Opus
+  (18 replies, $1.07). The folder's total from 2026-10-28 to 2026-11-11 is $358.44, counted during
+  the close, so the close's own session is only partly in it.
+
 ## What is being measured
 
 | Question | Evidence it will be judged on |
