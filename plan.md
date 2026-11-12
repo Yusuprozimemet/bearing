@@ -212,6 +212,26 @@ trial runs on; the driver is a separate program, and nothing here depends on it.
   stdout, and exits 0; with 999 records stderr is empty. `pytest -q` passes in CI, and
   `git diff --exit-code 001ed11 -- tests/contract/` prints nothing: no contract changes.
 
+### Phase 6 — Description length
+**Goal:** the Phase 1 stop's rule that a changelog description is one or two sentences,
+unowned since then, closed in code in one small day, Day 14 (Course correction after Phase 5).
+Day 14 is also the day the agentic-workflow-driver runs its first step inside a Docker
+container; the driver is a separate program, and nothing here depends on it.
+- The description `bearing changelog` prints, and the page's `paragraph` with it (both read
+  `what_i_built`), is cut to its first two sentences. A sentence ends at ".", "!" or "?"
+  followed by whitespace or the end of the text. The shortened description is the first two
+  sentences exactly as written, trailing whitespace stripped. One or two sentences are left as
+  they are.
+- Known limit, not handled: "e.g. " ends a sentence, as does any other abbreviation followed by
+  whitespace.
+- The change stays in `bearing/` and `tests/`: no new dependency, and nothing under
+  `.github/`, `.claude/` or `scripts/`.
+- **Done when:** every check is a test under `tests/` that CI runs, with no hand run and no kit
+  history. A "What I built" paragraph of three sentences gives its first two; one of one or two
+  sentences is unchanged; a sentence ended by "!" or "?" counts as one ended by ".".
+  `pytest -q` passes in CI, and `git diff --exit-code c214b09 -- tests/contract/` prints
+  nothing: every description on the fixture is one sentence, so no golden file changes.
+
 ## Stopping points
 
 - **Day 4 (Phase 1) is a stopping point.** Is the changelog of the kit's 91 PRs useful enough to
@@ -272,6 +292,27 @@ kit's repository). For it to count:
 ## Course corrections
 
 <!-- Added by plan-change PRs, newest first. Empty at the start. -->
+
+### 2026-11-12: Course correction after Phase 5: Phase 6, one small day
+
+Phase 5 closed at Day 13 (#96), which left no new hand-off. The maintainer adds one phase of
+one small day, Day 14, so the agentic-workflow-driver can run its first step inside a Docker
+container on it; the day's size matters more than its content. It was chosen from three
+candidates drawn from what this plan still left unowned (Course correction after Phase 4,
+items 4 and 5).
+
+1. **Chosen: the "one or two sentences" rule** (Course correction after Phase 1). One function,
+   `what_i_built` in `bearing/ingest/text.py`, and no golden file: every fixture description is
+   one sentence.
+2. **The maintainer's decisions, made here so the day needs none:** what ends a sentence, that
+   the cut keeps the first two sentences exactly as written with trailing whitespace stripped,
+   and that "e.g. " is a known limit, not handled.
+3. **Not chosen.** An opener that says nothing (#5's "...one commit each:"): what replaces it is
+   a product decision. Coupling that follows renames: a test repository of its own, and its
+   effect shows only on the kit's history. Both stay unowned, with `bearing summary` and the
+   kit's H02.4.
+4. **The day's work stays in `bearing/` and `tests/`:** the driver's token cannot change
+   `.github/`, `.claude/`, `scripts/` or this file, and the day installs nothing new.
 
 ### 2026-11-10: Course correction after Phase 4: Phase 5, one day of loose ends
 
@@ -568,3 +609,4 @@ The phases are broken into day specs in [`specs/`](specs/). Read
 4. Phase 3: Days 8-10. **Stop and evaluate.**
 5. Phase 4: Days 11-12.
 6. Phase 5: Day 13.
+7. Phase 6: Day 14.
