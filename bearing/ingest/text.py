@@ -3,6 +3,8 @@
 import re
 
 HEADING = re.compile(r"^#{1,6} ")
+# An end mark counts only before a space, tab, line feed or the end: "app.a" and "1.2" are not ends.
+END = re.compile(r"[.!?](?=[ \t\n]|$)")
 
 
 def area(branch):
@@ -23,10 +25,18 @@ def what_i_built(body):
             )
             section = _paragraph(lines[start + 1 : end])
             if section:
-                return section
+                return _two_sentences(section)
             break
     # No section, or an empty one: fall back to the body's first paragraph, so a PR is never missing.
-    return _paragraph(lines)
+    return _two_sentences(_paragraph(lines))
+
+
+def _two_sentences(text):
+    # The changelog gets two sentences: the text up to the second end mark; with fewer, all of it.
+    ends = list(END.finditer(text))
+    if len(ends) < 2:
+        return text
+    return text[: ends[1].end()].rstrip()
 
 
 def _paragraph(lines):
