@@ -232,6 +232,74 @@ container; the driver is a separate program, and nothing here depends on it.
   `pytest -q` passes in CI, and `git diff --exit-code c214b09 -- tests/contract/` prints
   nothing: every description on the fixture is one sentence, so no golden file changes.
 
+Phases 7 to 10 are one small day each, Days 15 to 18 (Course correction after Phase 6). Each
+day's work stays in `bearing/` and `tests/`, with no new dependency and nothing under
+`.github/`, `.claude/` or `scripts/`; and each "Done when" also holds that `pytest -q` passes in
+CI and that `git diff --exit-code 714412f -- tests/contract/` prints nothing.
+
+### Phase 7 — Coupling follows renames
+**Goal:** Day 8's known limit closed: a file renamed on the first-parent line is one file in
+`bearing direction`'s Coupling, not two. Day 15; it changes Day 8's code
+(`bearing/direction/changes.py`, `coupling.py`, `report.py`).
+- Renames are git's own pairing, the `-M` numstat that churn already reads, taken from every
+  commit churn reads (merges and direct commits). Coupling names each path by the name it has
+  after the last rename that reaches it, through a chain of renames; a path used again after
+  its file was renamed away is a new file.
+- A new function gives a commit's renames from the same numstat bytes. `parse_numstat` and
+  `changed_files` keep their return values (C08.2), so churn, said vs done and the page
+  (`bearing/page/data.py` calls `changed_files`) read paths as each commit changed them.
+- **Done when:** every check is a test under `tests/`. Numstat bytes holding a rename give the
+  old and new path. Renames given in the test: a chain a→b→c is one file named c, and a path
+  used again after a rename is a second file. On the fixture with `[coupling] min_prs = 2` in
+  a config the test writes, the Coupling table is exactly four rows, the three of today
+  (C08.6, which the day replaces) and `scripts/run.py` with `scripts/tools.py`, PRs #2 and #8
+  (#8 renamed `scripts/helpers.py` to `scripts/tools.py`); at `min_prs = 3`, the golden file's,
+  the output is unchanged.
+
+### Phase 8 — The command line's silent successes
+**Goal:** two inputs that print nothing useful and exit 0 become errors. Day 16; it changes
+`main` in `bearing/cli.py` (Days 1 and 4).
+- `bearing` with no command prints argparse's usage and its "the following arguments are
+  required" line on stderr and exits 2, as for any missing argument. `bearing --version` is
+  unchanged. The day's spec pins that line as Python 3.12 prints it.
+- `bearing changelog --since A --until B` with A after B is an argument error: usage and one
+  line naming both dates on stderr, exit 2, nothing on stdout, and the store not read. Equal
+  dates stay one day.
+- **Done when:** every check is a test under `tests/`, both cases giving exit 2 and an empty
+  stdout; reversed dates with a `--data` that holds no store give exit 2, not "no store", so
+  the store is not read; and `changelog` with dates in order prints what it prints today. No
+  test pins either case today, so no criterion is replaced.
+
+### Phase 9 — A branch other than `main`
+**Goal:** `bearing ingest` reads a repository whose history is on a branch not named `main`.
+Day 17; it changes Day 2's `read_first_parent` and Day 4's `fetch_prs`.
+- `bearing ingest <repo> --branch NAME`, default `main`: the history is NAME's first-parent
+  line. A NAME that is not a local branch (`refs/heads/NAME`; a tag or a SHA is not one) is one
+  line on stderr naming it and `--branch`, exit 1, and no store written. Today a repository
+  without `main` gives "bearing: fatal: bad revision 'main'". A directory that is not a git
+  repository keeps the error it gives today.
+- `gh` is asked for the PRs merged into NAME only (`--base NAME`); a `--prs` file is read as it
+  is. The other commands read the store, so they need no option. Day 4 left "a ref other than
+  `main`" out of scope (`specs/day-04-live-prs.md`); this phase takes it in, and replaces C04.2,
+  which pins `gh`'s argument list.
+- **Done when:** every check is a test under `tests/`, with `gh` faked as in Day 4's tests.
+  `--branch main` prints `tests/fixtures/expected/ingest.txt`; `--branch release` on the fixture
+  with its `prs.json` prints "merges 9  matched 9  unmatched merges 0  unmatched PRs 1  direct 2"
+  and "unmatched PR #10 86761f2 release"; a missing branch gives the error line and no store;
+  and the faked `gh` call carries `--base` with the name.
+
+### Phase 10 — `direction`'s git errors in one line
+**Goal:** `bearing direction` reports a wrong repository as `timeline` and `page` do. Day 18;
+it changes Day 8's `bearing/direction/` and reuses Day 5's checks in `bearing/snapshot/tree.py`.
+- On a directory that is not a git repository, `direction` prints
+  "bearing: not a git repository: <repo>" (today "bearing: error: Could not access
+  '<sha>^1'"). On a repository that does not hold the store's commits, it prints
+  "bearing: not a commit: <sha>" for the first stored commit with a parent, the first it reads
+  (today git's three lines from `git diff`). Both are the lines `timeline` gives, exit 1,
+  stdout empty. No test pins `direction`'s git text today.
+- **Done when:** every check is a test under `tests/`; the second repository is an empty
+  `git init` made in the test, as `tests/test_timeline_cli.py` already does.
+
 ## Stopping points
 
 - **Day 4 (Phase 1) is a stopping point.** Is the changelog of the kit's 91 PRs useful enough to
@@ -292,6 +360,53 @@ kit's repository). For it to count:
 ## Course corrections
 
 <!-- Added by plan-change PRs, newest first. Empty at the start. -->
+
+### 2026-11-19: Course correction after Phase 6: Phases 7 to 10, one day each
+
+The plan ended at Day 14, and the agentic-workflow-driver needs about 15 more pull requests,
+each opened by the driver in a container, before its level 2 trial; with no day spec it stops
+at "write its day spec". The maintainer adds four phases of one small day each, Days 15 to 18,
+and their specs are written now, in one spec PR per day after this one. Each day was found by
+reading the plan's open items and Notes and by running today's `bearing` on the fixture, not
+made up for the count.
+
+1. **Chosen, one gap each:** Day 8's known limit, coupling that does not follow renames
+   (Phase 7); `bearing` with no command and `changelog` with `--since` after `--until`, both
+   exit 0 with nothing useful (Phase 8); `ingest` on a repository without `main` (Phase 9); and
+   `direction`'s errors on a wrong repository, raw git text where `timeline` and `page` give one
+   line (Phase 10).
+2. **Day 8's Out of scope is narrower than it reads.** "The fixture's one rename (#8) is in no
+   pair at 2 or 3" holds for paths as changed. Followed, #2's `scripts/helpers.py` and #8's
+   `scripts/tools.py` are one file, paired with `scripts/run.py` in 2 PRs: below the golden
+   file's threshold of 3, so a CI test reaches the rename at 2 and no golden file changes. The
+   Phase 5 entry said its effect shows only on the kit's history, and the Phase 6 entry that it
+   needs a test repository of its own; both were wrong.
+3. **Decisions made here so the days need none,** proposed in this PR and the maintainer's by
+   its merge: a renamed file is named by
+   its last name; a missing argument and dates out of order are argparse errors, exit 2, as
+   every other argument error is; `--branch` defaults to `main` and asks `gh` for that base
+   only; `direction`'s errors are `timeline`'s two lines, word for word.
+4. **Phase 9 widens "Decisions"** (the hard parts table and Phase 1's `ingest` line): the
+   history is the first-parent line of the branch `--branch` names, `main` when it names none.
+   Those lines stay as written; this entry is where the change is recorded. Day 4 left "a ref
+   other than `main`" out of scope; Phase 9 takes it in.
+5. **Two days replace a criterion.** Day 15 replaces C08.6 (exactly three Coupling rows at
+   `min_prs = 2`) and Day 17 replaces C04.2 (`gh`'s exact argument list), each with a
+   `Replaces:` line. No other existing test pins what these phases change.
+6. **Specs written ahead of their day.** `specs/README.md` writes each spec on its day, from
+   `main`. These four are written against `main` at `714412f`, before Day 14's code has
+   merged. Each day's spec-auditor run (CLAUDE.md, "A day, in order", step 1) reads its spec
+   against `main` as it is then, and a spec-change PR fixes what moved; the test counts each
+   spec gives assume the days before it landed as their specs say.
+7. **The days stay in `bearing/` and `tests/`,** as Day 14 does: the driver's token cannot
+   change `.github/`, `.claude/`, `scripts/` or this file. No new dependency and no contract
+   change; each spec holds both with a `git diff --exit-code` criterion.
+8. **Not chosen.** "e.g. " ending a sentence: Phase 6 made it a known limit days ago, and that
+   decision stands. An opener that says nothing (#5) and a computed `bearing summary`: product
+   decisions. `timeline`'s `#-` for a merge with no PR record, where `direction` gives the
+   subject's number: the timeline's format is under contract. All stay unowned. The kit's
+   H02.4 and the test data its dashboard reads as a hand-off "to Day 12" stay the kit's, fixed
+   in its repository.
 
 ### 2026-11-12: Course correction after Phase 5: Phase 6, one small day
 
@@ -610,3 +725,7 @@ The phases are broken into day specs in [`specs/`](specs/). Read
 5. Phase 4: Days 11-12.
 6. Phase 5: Day 13.
 7. Phase 6: Day 14.
+8. Phase 7: Day 15.
+9. Phase 8: Day 16.
+10. Phase 9: Day 17.
+11. Phase 10: Day 18.
