@@ -157,7 +157,7 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
 
 ## Verify
 ```bash
-python -m pytest -q                                              # 121 passed, 131 subtests passed
+python -m pytest -q                                              # 121 passed, (131 subtests passed)
 python -m pytest -q tests/test_ingest_branch.py tests/test_gh.py
 python -m pytest -q tests/test_history.py tests/test_entries.py tests/test_ingest_cli.py
 python -m pytest -q tests/contract/
@@ -220,3 +220,9 @@ ruff check . && ruff format --check .
 - **Defect** D17.3 — found: auditor · cause: spec · made: Day 17 · D17.2's first fix named
   `test_errors`, which passes on `main`, under the `new` C17.4, which CI's red check would
   fail; moved to the `hold` C17.11.
+- **Defect** D17.4 — found: maintainer · cause: spec · made: Day 17 · Verify's first comment,
+  "121 passed, 131 subtests passed", is two parts to `scripts/evidence.py`, and "121 passed"
+  never matches pytest's "121 passed, 131 subtests passed in …s", so the post-merge replay
+  would have failed it as it failed Day 14's (D14.7), a spec written before that fix. Now "121
+  passed, (131 subtests passed)", as Day 14's after #110 and Day 16's after #112: the subtest
+  count is a note the replay does not check.
