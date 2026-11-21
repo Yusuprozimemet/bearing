@@ -45,8 +45,8 @@ One track. C20.1–C20.4 are `new`: Track A's PR shows their tests failing on `m
 which reports "4 failed". C20.5 is `hold` with a test Track A adds, without a Track 0 (as Day
 17's C17.7): Track A's PR shows it passing on `main`'s code with
 `python scripts/seen-red.py -- python -m pytest -q tests/test_prs_read.py::PrsReadTest::test_missing`,
-which exits 1 ("passes there"), and then breaks it. C20.6 is `hold` on Day 19's tests, which
-are not on `main` while this spec is written: Track A's PR breaks it. C20.7–C20.9 are `hold`
+which exits 1 ("passes there"), and then breaks it. C20.6 is `hold` on Day 19's tests: Track A's
+PR breaks it. C20.7–C20.9 are `hold`
 and their checks exist: their breaks ran in the spec PR for Days 19 to 24.
 
 `tests/test_prs_read.py` holds 5 tests and no subtests. So `python -m pytest -q` goes from Day
@@ -95,9 +95,9 @@ not exist.
       Track A's PR breaks it: the `OSError` reason taken as `exc` where it is
       `exc.strerror or exc`.
 - [ ] C20.6 **hold** — Day 19's lines keep their wording: `python -m pytest -q tests/test_prs_records.py`
-      passes. The file is Day 19's and not on `main` while this spec is written, so this
-      criterion has no `git diff` half against a fixed base; the day's own spec-auditor run
-      pins one against Day 19's closing commit once it exists.
+      passes, and
+      `git -c core.safecrlf=false diff --exit-code f6b7afe -- tests/test_prs_records.py`
+      prints nothing and exits 0 (`f6b7afe` is `main` with Day 19's close merged, #136).
       Track A's PR breaks it: every `ValueError` printed as "cannot read FILE: not JSON".
 - [ ] C20.7 **hold** — `ingest` on a good file is unchanged:
       `python -m pytest -q tests/test_ingest_cli.py tests/test_mapping.py tests/test_stderr.py tests/test_ingest_limit.py`
@@ -124,6 +124,7 @@ python -m pytest -q tests/test_prs_read.py
 python -m pytest -q tests/test_prs_records.py
 python -m pytest -q tests/test_ingest_cli.py tests/test_mapping.py tests/test_stderr.py tests/test_ingest_limit.py
 python -m pytest -q tests/contract/
+git -c core.safecrlf=false diff --exit-code f6b7afe -- tests/test_prs_records.py
 git -c core.safecrlf=false diff --exit-code 714412f -- tests/test_ingest_cli.py tests/test_mapping.py tests/test_stderr.py tests/test_ingest_limit.py
 git -c core.safecrlf=false diff --exit-code 714412f -- tests/contract/ tests/fixtures/expected/ tests/fixtures/make_repo.py
 git -c core.safecrlf=false diff --exit-code --name-only 1472abc -- .github .claude scripts pyproject.toml plan.md
@@ -139,7 +140,7 @@ ruff check . && ruff format --check .
 - `json.JSONDecodeError`'s `msg`, `lineno` and `colno` for `{bad` are "Expecting property name
   enclosed in double quotes", 1 and 2; for a leading byte order mark, "Unexpected UTF-8 BOM
   (decode using utf-8-sig)", 1 and 1 (checked in the same session).
-- `tests/test_stderr.py` runs `ingest --prs` on a missing file named "łódź-café.json" with the
+- `tests/test_stderr.py` runs `ingest --prs` on a missing file named "łódź-café" with the
   console's code page set to cp1252 and checks for "cannot read" (C20.7): the reason stays
   `strerror`, so the path is printed once, in UTF-8.
 - Written ahead of its day, against `main` at `8a17f82`, before the code of Days 15 to 19 has
@@ -156,6 +157,22 @@ ruff check . && ruff format --check .
 - **Defect** D20.1 — found: auditor · cause: spec · made: Day 20 · In scope let the missing
   file's `except FileNotFoundError` stay, so C20.5's named break could not fail its test; In
   scope now removes it.
+- First-day audits, on `main` at `f6b7afe` (Linux, Python 3.13.5), in the spec-change PR:
+  the plan-auditor on Phase 12, consistent, one finding (C20.6's base, below); the spec-auditor
+  on the day, three findings. C20.1–C20.4 red as written (Linux's "[Errno 21] Is a directory"
+  for C20.3), C20.5 green, `python -m pytest -q` "133 passed, 131 subtests passed", nothing
+  under C20.9's paths changed since `1472abc`, so no re-pin. Its findings: C20.6 had no
+  pinned base (fixed: `f6b7afe`, the Note above asked for it; not a defect); this Note's
+  "łódź-café.json" (fixed, D20.2); and an untracked `--help/` directory left in the working
+  tree during the audits (D20.3, removed). It also tried C20.6's break: "7 failed, 1 passed".
+- **Defect** D20.2 — found: auditor · cause: spec · made: Day 20 · a Note named the file
+  `tests/test_stderr.py` passes to `--prs` "łódź-café.json"; the test names it "łódź-café".
+- **Defect** D20.3 — found: auditor · cause: process · made: Day 20 · a read-only auditor run
+  left an untracked `--help/` directory in the repository root, holding the fixture's
+  `prs.json` and `repo/`. That is what `tests/fixtures/make_repo.py --help` writes, since it
+  takes its one argument as the output directory. `scripts/auditor-guard.py` reads git and gh
+  commands only, so it let the run through. The directory made `ruff check .` report F401,
+  I001 and syntax errors; the main session removed it before the spec-change PR.
 - No criterion in force pins the lines this day changes: `tests/test_ingest_cli.py::IngestCliTest::test_errors`
   pins only "bearing: ", so no `Replaces:` line. No hand-off ID names this gap: plan.md's Course
   correction after Day 15's track A, item 1, found it by running `bearing`.
