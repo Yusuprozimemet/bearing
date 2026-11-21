@@ -21,6 +21,46 @@ def load_prs(path) -> list[dict]:
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
+def check_records(path, records) -> None:
+    # The store and map_history read these fields as they are; a record of the wrong shape
+    # ends in a traceback or a half-written store, so each one is named here, before either.
+    # ValueError, not TypeError: the caller's except clause reports a bad file as a ValueError.
+    if not isinstance(records, list):
+        raise ValueError(f"{path}: not a list of PR records")  # noqa: TRY004
+    for n, record in enumerate(records, 1):
+        if not isinstance(record, dict):
+            raise ValueError(f"{path}: record {n} is not an object")  # noqa: TRY004
+        for field in ("number", "title", "headRefName", "baseRefName"):
+            if field not in record:
+                raise ValueError(f"{path}: record {n} has no {field}")
+            value = record[field]
+            if field == "number":
+                # bool is an int subclass, so true would pass isinstance and be stored as 1.
+                if not isinstance(value, int) or isinstance(value, bool):
+                    raise ValueError(f"{path}: record {n}'s number is not an integer")
+            elif not isinstance(value, str):
+                raise ValueError(f"{path}: record {n}'s {field} is not a string")
+        for field in ("body", "mergedAt"):
+            value = record.get(field)
+            if value is not None and not isinstance(value, str):
+                raise ValueError(f"{path}: record {n}'s {field} is not a string")
+        merge_commit = record.get("mergeCommit")
+        if merge_commit is not None:
+            if not isinstance(merge_commit, dict):
+                raise ValueError(f"{path}: record {n}'s mergeCommit is not an object")
+            oid = merge_commit.get("oid")
+            if oid is not None and not isinstance(oid, str):
+                raise ValueError(
+                    f"{path}: record {n}'s mergeCommit oid is not a string"
+                )
+    # Only once every record has passed, so a repeat is never reported ahead of a bad field.
+    seen = set()
+    for n, record in enumerate(records, 1):
+        if record["number"] in seen:
+            raise ValueError(f"{path}: record {n} repeats number {record['number']}")
+        seen.add(record["number"])
+
+
 def _oid(record):
     merge_commit = record.get("mergeCommit")
     if isinstance(merge_commit, dict) and merge_commit.get("oid"):
