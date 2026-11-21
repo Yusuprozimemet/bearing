@@ -853,6 +853,48 @@
   close, it still holds 87 rows, from 2026-10-28 to 2026-11-21, $361.85; #133's session and
   this close's were not in the transcripts it reads.
 
+### Day 19: a `--prs` file that is not PR records (Phase 11), closed in #136
+
+- **Delivered:** `bearing ingest <repo> --prs FILE` stops with one line on stderr, exit 1, an
+  empty stdout and no `bearing.db` when FILE's JSON is not a list of PR records, where it ended
+  in a traceback, a UNIQUE constraint or a silent exit 0 (#135). The new `check_records` in
+  `bearing/ingest/mapping.py` names the first failure (not a list, a record not an object, a
+  field missing or of the wrong type, a repeated number), and `ingest` calls it right after
+  `load_prs`, before the 1000-record warning and the store. No contract, golden file or
+  migration changed. `pytest -q`: 133 passed, 131 subtests passed.
+- **Criteria:** 11 of 11 ticked: 8 `new` and 3 `hold`.
+- **Breaks on purpose:** 8, all in `specs/breaks/day-19.json`: 3 in #135 and 5 in #121. The
+  close replayed all 8 on `93fd6bf`, and each failed its check.
+- **PRs:** 3 at the day-spec rung: the spec (#121, shared with Days 20 to 24), Track A (#135)
+  and the close (#136). No spec-change PR and no Track 0.
+- **Defects:** 4 in the Notes.
+
+  | Field | Count |
+  | --- | --- |
+  | found: auditor | 1 |
+  | found: spec-change PR | 1 |
+  | found: self | 1 |
+  | found: Track A | 1 |
+  | cause: spec | 1 |
+  | cause: process | 1 |
+  | cause: implementation | 1 |
+  | cause: environment | 1 |
+
+  The spec-auditor found that the spec left a `mergeCommit` `oid` that is absent or `null`
+  undecided (D19.1); the spec PR's break records were lost when the auditor cleared the
+  scratchpad (D19.2). In #135's review the main session removed two `noqa` comments it took for
+  dead code and put them back when `ruff` failed (D19.3). D19.4 is the local `ruff` mode-bit
+  failure again (same as D16.4). The blind relabel agreed on 2 of 4 stages (the rater left 2
+  unclear), 3 of 4 causes and 4 of 4 `made:` tags; D19.3's cause was changed from `process` to
+  `implementation`.
+- **Human interventions:** #121 has four `human:` lines, shared with Days 20 to 24. #135 and
+  the close have none: a driver started those sessions.
+- **Hand-offs:** none new. Phase 11 ends with this close: next is the plan-auditor on Phases
+  11 and 12 (CLAUDE.md, step 6).
+- **Tokens:** `docs/dashboard/token-usage.json` tags no row with Day 19: refreshed at the
+  close, it still holds 87 rows, from 2026-10-28 to 2026-11-21, $361.85; #135's session and
+  this close's were not in the transcripts it reads.
+
 ## What is being measured
 
 | Question | Evidence it will be judged on |
