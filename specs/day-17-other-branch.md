@@ -143,8 +143,8 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       This spec's PR breaks each half: `ingest`'s summary line saying "merge" for "merges", and
       a line of `tests/contract/test_ingest.py` changed.
 - [ ] C17.10 **hold** — The day stays in `bearing/` and `tests/`, with no new dependency:
-      `git -c core.safecrlf=false diff --exit-code --name-only 85a21a1 -- .github .claude scripts pyproject.toml plan.md`
-      prints nothing and exits 0 (`85a21a1` is `main` with Phases 7 to 10 merged, #102).
+      `git -c core.safecrlf=false diff --exit-code --name-only 1472abc -- .github .claude scripts pyproject.toml plan.md`
+      prints nothing and exits 0 (`1472abc` is `main` with Phases 11 to 16 merged, #118).
       This spec's PR breaks it: a line of `pyproject.toml` changed.
 - [ ] C17.11 **hold** — `fetch_prs`'s errors stay C04.2's, word for word, each a `GhError`:
       the fake raising `FileNotFoundError` gives "gh not found: install GitHub's CLI or pass
@@ -163,7 +163,7 @@ python -m pytest -q tests/test_history.py tests/test_entries.py tests/test_inges
 python -m pytest -q tests/contract/
 git -c core.safecrlf=false diff --exit-code 714412f -- tests/test_history.py tests/test_entries.py tests/test_ingest_cli.py
 git -c core.safecrlf=false diff --exit-code 714412f -- tests/contract/ tests/fixtures/expected/ tests/fixtures/make_repo.py
-git -c core.safecrlf=false diff --exit-code --name-only 85a21a1 -- .github .claude scripts pyproject.toml plan.md
+git -c core.safecrlf=false diff --exit-code --name-only 1472abc -- .github .claude scripts pyproject.toml plan.md
 ruff check . && ruff format --check .
 ```
 
@@ -196,6 +196,11 @@ ruff check . && ruff format --check .
   date check); Day 17's lines are `ingest`'s, so the two meet in one function, not one line.
   The day's own spec-auditor run re-pins C17.10's base if anything under its paths has merged
   since `85a21a1`.
+- C17.10's base re-pinned after Day 15's track A (#116): the course correction after Day 15's
+  track A (#118) edits `plan.md`, so on `1472abc` the check with base `85a21a1` printed
+  "plan.md" and exited 1. Its base is now `1472abc`, #118's merge commit, as that change's item
+  6 says, with `plan.md` still in the list: there it prints nothing and exits 0. Only the base
+  moved.
 - C17.8–C17.10's `git diff` checks are commands, not tests: plan.md's "every check is a test" is
   read as every new behaviour, as Days 15 and 16 did.
 - C17.3's fake answers with all of `prs.json` whatever the base. A live

@@ -114,8 +114,8 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       This spec's PR breaks each half: the direction report's "## Coupling" heading misspelt,
       and a line of `tests/contract/test_direction.py` changed.
 - [ ] C18.7 **hold** — The day stays in `bearing/` and `tests/`, with no new dependency:
-      `git -c core.safecrlf=false diff --exit-code --name-only 85a21a1 -- .github .claude scripts pyproject.toml plan.md`
-      prints nothing and exits 0 (`85a21a1` is `main` with Phases 7 to 10 merged, #102).
+      `git -c core.safecrlf=false diff --exit-code --name-only 1472abc -- .github .claude scripts pyproject.toml plan.md`
+      prints nothing and exits 0 (`1472abc` is `main` with Phases 11 to 16 merged, #118).
       This spec's PR breaks it: a line of `pyproject.toml` changed.
 - [ ] C18.8 **hold** — The check costs nothing on success: one commit's files are one git call.
       `changed_files(<the fixture's repository>, "fde93a4")`, with `subprocess.run` patched by
@@ -135,7 +135,7 @@ python -m pytest -q tests/test_direction_cli.py
 python -m pytest -q tests/contract/
 git -c core.safecrlf=false diff --exit-code 714412f -- tests/test_timeline_cli.py tests/test_page_cli.py tests/test_snapshot_tree.py tests/test_snapshot_cli.py tests/test_changes.py
 git -c core.safecrlf=false diff --exit-code 714412f -- tests/contract/ tests/fixtures/expected/ tests/fixtures/make_repo.py
-git -c core.safecrlf=false diff --exit-code --name-only 85a21a1 -- .github .claude scripts pyproject.toml plan.md
+git -c core.safecrlf=false diff --exit-code --name-only 1472abc -- .github .claude scripts pyproject.toml plan.md
 ruff check . && ruff format --check .
 ```
 
@@ -166,6 +166,11 @@ ruff check . && ruff format --check .
   it (C15.1, C15.4); Day 18's failure path is the `git diff` both functions run, so the day's
   spec-auditor run checks that it is one call site, or names both. It also re-pins C18.7's base
   if anything under its paths has merged since `85a21a1`.
+- C18.7's base re-pinned after Day 15's track A (#116): the course correction after Day 15's
+  track A (#118) edits `plan.md`, so on `1472abc` the check with base `85a21a1` printed
+  "plan.md" and exited 1. Its base is now `1472abc`, #118's merge commit, as that change's item
+  6 says, with `plan.md` still in the list: there it prints nothing and exits 0. Only the base
+  moved.
 - C18.4–C18.7's `git diff` checks are commands, not tests: plan.md's "every check is a test" is
   read as every new behaviour, as Days 15 to 17 did.
 - Day 8's In scope says "a git error raises `SnapshotError` with git's stderr". That is In scope
