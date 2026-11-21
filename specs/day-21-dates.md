@@ -44,9 +44,9 @@ behaviour is a test CI runs (plan.md, Phase 13).
 
 One track. C21.1–C21.6 are `new`: Track A's PR shows their tests failing on `main`'s code with
 `python scripts/seen-red.py -- python -m pytest -q tests/test_changelog_dates.py`, which
-reports "6 failed". C21.7 holds Day 16's `tests/test_cli_errors.py`, which is not on `main`
-while this spec is written: Track A's PR breaks it. C21.8 and C21.9 are `hold` and their checks
-exist: their breaks ran in the spec PR for Days 19 to 24.
+reports "6 failed". C21.7 holds Day 16's `tests/test_cli_errors.py`: its `git diff` half's
+break ran in the day's spec-change PR, its test half is broken in Track A's PR. C21.8 and C21.9
+are `hold` and their checks exist: their breaks ran in the spec PR for Days 19 to 24.
 
 `tests/test_changelog_dates.py` holds 6 tests and no subtests. So `python -m pytest -q` goes
 from Day 20's end, "138 passed, 131 subtests passed", to "144 passed, 131 subtests passed".
@@ -95,10 +95,12 @@ its stderr's last line is exactly the line given.
       first".
       Test: `tests/test_changelog_dates.py::ChangelogDatesTest::test_no_store`.
 - [ ] C21.7 **hold** — Day 16's checks of dates out of order still read dates:
-      `python -m pytest -q tests/test_cli_errors.py` passes. The file is Day 16's and not on
-      `main` while this spec is written, so this criterion has no `git diff` half against a
-      fixed base; the day's own spec-auditor run pins one against Day 16's closing commit.
-      Track A's PR breaks it: `_date` returning the string it was given, not a `date`.
+      `python -m pytest -q tests/test_cli_errors.py` passes, and
+      `git -c core.safecrlf=false diff --exit-code 50a000a -- tests/test_cli_errors.py`
+      prints nothing and exits 0 (`50a000a` is `main` with Day 16's close merged, #128).
+      Track A's PR breaks the test half: `_date` returning the string it was given, not a
+      `date`. The day's spec-change PR breaks the `git diff` half: a line of
+      `tests/test_cli_errors.py` changed.
 - [ ] C21.8 **hold** — Dates in YYYY-MM-DD print what they print today, and nothing else moves:
       `python -m pytest -q tests/test_changelog_cli.py tests/test_cli.py tests/test_stderr.py tests/contract/`
       passes, and
@@ -117,6 +119,7 @@ its stderr's last line is exactly the line given.
 python -m pytest -q                                              # 144 passed, (131 subtests passed)
 python -m pytest -q tests/test_changelog_dates.py
 python -m pytest -q tests/test_cli_errors.py
+git -c core.safecrlf=false diff --exit-code 50a000a -- tests/test_cli_errors.py
 python -m pytest -q tests/test_changelog_cli.py tests/test_cli.py tests/test_stderr.py tests/contract/
 git -c core.safecrlf=false diff --exit-code 714412f -- tests/test_changelog_cli.py tests/test_cli.py tests/test_stderr.py tests/contract/ tests/fixtures/expected/ tests/fixtures/make_repo.py
 git -c core.safecrlf=false diff --exit-code --name-only 1472abc -- .github .claude scripts pyproject.toml plan.md
@@ -134,9 +137,17 @@ ruff check . && ruff format --check .
 - `tests/test_stderr.py` is in C21.8 as a test of argparse's bytes under cp1252, but its case is
   `ingest . café`, not a date, so Day 21's change cannot reach it; `tests/test_changelog_cli.py`
   is what C21.8's break bites.
-- C21.7's break bites through Day 16's `test_equal_dates` (`format_changelog` comparing a string
-  with a `date` raises `TypeError`); `test_reversed_dates` passes with strings too, since ISO
-  strings sort as dates.
+- C21.7's break bites three of Day 16's four tests, "3 failed, 1 passed" (spec-auditor, with
+  `type=str` in a scratch copy): `test_equal_dates` through `format_changelog` comparing a
+  string with a `date` (`TypeError`), and `test_reversed_dates` and
+  `test_reversed_dates_no_store` through the order check's `args.since.isoformat()`
+  (`AttributeError`); ISO strings do sort as dates, so the comparison itself passes.
+  `test_no_command` passes.
+- C21.8's code break from the spec PR for Days 19 to 24 finds `"--since",
+  type=datetime.date.fromisoformat`, which Track A replaces, so it matches nothing on the
+  closing commit. As Day 20 did (D20.5), the close gives that manifest entry an `at` of
+  `main` before Track A and replays it in a worktree there, and records beside it a break of
+  the same half on the new code (`--since`'s `type=_date` read as a string).
 - Spec-auditor, in the spec PR for Days 19 to 24 (one run over all six): one finding here, a
   note, fixed: these Notes said `tests/test_stderr.py` checks a date. It confirmed every red
   state, `it's`'s double quotes today, and that `fromisoformat` refuses non-ASCII digits.
@@ -152,3 +163,19 @@ ruff check . && ruff format --check .
   is read as every new behaviour, as Days 15 to 18 did.
 - No hand-off ID names this gap: plan.md's Course correction after Day 15's track A, item 1,
   found it by running `bearing`.
+- First-day audits, on `main` at `b4217ba` (Linux, Python 3.13.5), in the spec-change PR:
+  the plan-auditor on Phase 13, consistent, one finding (the C21.7 break Note, below); the
+  spec-auditor on the day, four findings. C21.1–C21.6 red as written (a scratch prototype of
+  `_date` and the six tests gave "6 failed" on `main`'s code), `python -m pytest -q`
+  "138 passed, 131 subtests passed", nothing under C21.8's or C21.9's paths changed since
+  `714412f` and `1472abc`, so no re-pin. Its findings: C21.7 had no pinned base, and said
+  `tests/test_cli_errors.py` was not on `main` (fixed: `50a000a`, the Note above asked for
+  it; not a defect); the C21.7 break Note (fixed, D21.2); C21.8's recorded break cannot run
+  after Track A (fixed in the Notes, D21.3); and this record of the audit (fixed, here).
+- **Defect** D21.2 — found: auditor · cause: spec · made: Day 21 · a Note said C21.7's break
+  bites only `test_equal_dates`; the order check's `.isoformat()` fails both reversed-dates
+  tests too, "3 failed, 1 passed"; corrected.
+- **Defect** D21.3 — found: auditor · cause: spec · made: Day 21 · same-as: D20.5 · C21.8's
+  break from the spec PR for Days 19 to 24 finds the `--since` line Track A rewrites, so it
+  cannot run on the closing commit; the Notes now give the close an `at` and a break on the
+  new code.
