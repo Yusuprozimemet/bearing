@@ -767,6 +767,47 @@
   this close's were not in the transcripts when counted, and the spec's session ran where
   these transcripts are not. The folder's total from 2026-10-28 to 2026-11-21 is $361.85.
 
+### Day 17: A branch other than `main` (Phase 9), closed in #NNN
+
+- **Delivered:** `bearing ingest <repo> --branch NAME`, default `main`, stores NAME's
+  first-parent line and asks `gh` for the PRs merged into NAME only (`--base NAME`) (#131). A
+  NAME that is not a local branch (a missing name, a tag, a SHA), and a repository without
+  `main`, give "bearing: --branch NAME: not a local branch in <repo>", exit 1 and no store,
+  where the latter gave git's "fatal: bad revision 'main'"; a directory outside any repository
+  keeps git's error. No contract, golden file or migration changed. `pytest -q`: 121 passed,
+  131 subtests passed.
+- **Criteria:** 11 of 11 ticked: 6 `new` and 5 `hold`.
+- **Breaks on purpose:** 7, all in `specs/breaks/day-17.json`: 1 in #131, 5 in #105 and 1 in
+  #119 (C17.10's, on its new base). The close replayed all 7, one at #105's merge commit
+  (`at`), since #131 replaced the text it edits, and each failed its check.
+- **PRs:** 3 at the day-spec rung: the spec (#105), Track A (#131) and the close (#NNN). Two
+  spec-change PRs touched it: #113 (Verify's pytest count) and #119 (C17.10's base re-pinned
+  after the plan change #118). No Track 0.
+- **Defects:** 6 in the Notes.
+
+  | Field | Count |
+  | --- | --- |
+  | found: auditor | 3 |
+  | found: maintainer | 1 |
+  | found: Track A | 2 |
+  | cause: spec | 4 |
+  | cause: process | 1 |
+  | cause: environment | 1 |
+
+  The spec-auditor found three spec defects before any code: the seen-red count under pytest
+  9's subtests (D17.1), a `Replaces:` that would have retired C04.2's error texts (D17.2), and
+  the first fix's `new` criterion on a passing test (D17.3). The maintainer found the Verify
+  count the replay could not match (D17.4). D17.5 is the local `ruff` mode-bit failure again
+  (same as D16.4); D17.6 is Track A's session skipping the first-day auditors, said in its
+  body. The blind relabel agreed on 2 of 5 stages compared (the rater left 3 unclear), 6 of 6
+  causes and 5 of 6 `made:` tags; every tag was kept.
+- **Human interventions:** #105 has two `human:` lines (the spec asked for, the scope held);
+  #113 one (the step directed); #119 two, shared with Days 15, 16 and 18. #131 and the close have none: a driver started those sessions.
+- **Hand-offs:** none new.
+- **Tokens:** `docs/dashboard/token-usage.json` tags no row with Day 17: refreshed at the
+  close, it still holds 87 rows, from 2026-10-28 to 2026-11-21, $361.85; #131's session and
+  this close's were not in the transcripts it reads.
+
 ## What is being measured
 
 | Question | Evidence it will be judged on |
