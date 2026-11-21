@@ -767,7 +767,7 @@
   this close's were not in the transcripts when counted, and the spec's session ran where
   these transcripts are not. The folder's total from 2026-10-28 to 2026-11-21 is $361.85.
 
-### Day 17: A branch other than `main` (Phase 9), closed in #NNN
+### Day 17: A branch other than `main` (Phase 9), closed in #132
 
 - **Delivered:** `bearing ingest <repo> --branch NAME`, default `main`, stores NAME's
   first-parent line and asks `gh` for the PRs merged into NAME only (`--base NAME`) (#131). A
@@ -780,7 +780,7 @@
 - **Breaks on purpose:** 7, all in `specs/breaks/day-17.json`: 1 in #131, 5 in #105 and 1 in
   #119 (C17.10's, on its new base). The close replayed all 7, one at #105's merge commit
   (`at`), since #131 replaced the text it edits, and each failed its check.
-- **PRs:** 3 at the day-spec rung: the spec (#105), Track A (#131) and the close (#NNN). Two
+- **PRs:** 3 at the day-spec rung: the spec (#105), Track A (#131) and the close (#132). Two
   spec-change PRs touched it: #113 (Verify's pytest count) and #119 (C17.10's base re-pinned
   after the plan change #118). No Track 0.
 - **Defects:** 6 in the Notes.
