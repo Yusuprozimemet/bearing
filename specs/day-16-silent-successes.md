@@ -65,47 +65,66 @@ Day 15's end, "111 passed, 128 subtests passed", to "115 passed, 128 subtests pa
 Tick each box in the closing PR once its evidence is in it; under a box left unticked, write
 `Not proven: <why>` (`specs/README.md`, "Evidence at the close").
 
-- [ ] C16.1 **new** — `bearing` with no command is a missing argument. `python -m bearing`
+- [x] C16.1 **new** — `bearing` with no command is a missing argument. `python -m bearing`
       exits 2, prints nothing on stdout, and its stderr starts with "usage: bearing " and ends
       with the line "bearing: error: the following arguments are required: command".
       Red today: it exits 0 with an empty stderr.
       Test: `tests/test_cli_errors.py::CliErrorsTest::test_no_command`.
-- [ ] C16.2 **new** — `--since` after `--until` is an argument error. On the ingested fixture,
+      Evidence: `CliErrorsTest.test_no_command` (#127), seen red in #127 on `main`'s code ("3 failed in 1.12s", the three `new` tests together) and again at the close on `fb0e849`'s code ("3 failed in 1.75s"); `python -m pytest -q` at the close on `ac0f8dc` ("115 passed, 128 subtests passed").
+- [x] C16.2 **new** — `--since` after `--until` is an argument error. On the ingested fixture,
       `python -m bearing changelog --data <its store> --since 2026-01-23 --until 2026-01-21`
       exits 2, prints nothing on stdout, and its stderr starts with "usage: bearing changelog "
       and ends with the line
       "bearing changelog: error: --since 2026-01-23 is after --until 2026-01-21".
       Red today: it exits 0 and prints "# Changelog".
       Test: `tests/test_cli_errors.py::CliErrorsTest::test_reversed_dates`.
-- [ ] C16.3 **new** — The dates are checked before the store is looked for. The same command
+      Evidence: `CliErrorsTest.test_reversed_dates` (#127), seen red in #127 on `main`'s code ("3 failed in 1.12s", the three `new` tests together) and again at the close on `fb0e849`'s code ("3 failed in 1.75s"); `python -m pytest -q` at the close on `ac0f8dc` ("115 passed, 128 subtests passed").
+- [x] C16.3 **new** — The dates are checked before the store is looked for. The same command
       with `--data` naming a directory that does not exist gives the same exit, stdout and
       stderr as C16.2, and the directory still does not exist.
       Red today: it exits 1 with "bearing: no store at ...: run bearing ingest first".
       Test: `tests/test_cli_errors.py::CliErrorsTest::test_reversed_dates_no_store`.
-- [ ] C16.4 **hold** — Equal dates stay one day. On the ingested fixture,
+      Evidence: `CliErrorsTest.test_reversed_dates_no_store` (#127), seen red in #127 on `main`'s code ("3 failed in 1.12s", the three `new` tests together) and again at the close on `fb0e849`'s code ("3 failed in 1.75s"); `python -m pytest -q` at the close on `ac0f8dc` ("115 passed, 128 subtests passed").
+- [x] C16.4 **hold** — Equal dates stay one day. On the ingested fixture,
       `bearing changelog --since 2026-01-21 --until 2026-01-21` exits 0, its stderr is empty,
       and its stdout is these 6 lines: "# Changelog", "", "## day-02", "",
       "- #6 day-02/track-b-grow (2026-01-21)" and
       "  A small change to the fixture, so the tests have a real case to read.".
       Test: `tests/test_cli_errors.py::CliErrorsTest::test_equal_dates`.
       Track A's PR breaks it: the new check's `>` made `>=`.
-- [ ] C16.5 **hold** — `bearing --version` and `changelog` with dates in order print what they
+      Evidence: `CliErrorsTest.test_equal_dates` (#127) passed on `main`'s code before the
+      change (`seen-red.py` exit 1, "1 passed in 0.93s" in #127; "1 passed in 0.94s" on
+      `fb0e849` at the close) and passed at the close on `ac0f8dc`.
+      broken: the reversed-dates check's > made >= → 1 failed in 1.79s (#127)
+- [x] C16.5 **hold** — `bearing --version` and `changelog` with dates in order print what they
       print today: `python -m pytest -q tests/test_cli.py tests/test_changelog_cli.py` passes,
       and
       `git -c core.safecrlf=false diff --exit-code 714412f -- tests/test_cli.py tests/test_changelog_cli.py`
       prints nothing and exits 0.
       This spec's PR breaks each half: `format_changelog` dropping the `--until` date itself,
       and a line of `tests/test_changelog_cli.py` changed.
-- [ ] C16.6 **hold** — No contract changes: `python -m pytest -q tests/contract/` passes, and
+      Evidence: at the close on `ac0f8dc`, `tests/test_cli_errors.py tests/test_cli.py
+      tests/test_changelog_cli.py` printed "10 passed", and the diff against `714412f` printed
+      nothing and exited 0.
+      broken: format_changelog dropping the --until date itself → 1 failed, 5 passed in 6.33s (#104)
+      broken: a line of tests/test_changelog_cli.py changed → check=False, (#104)
+- [x] C16.6 **hold** — No contract changes: `python -m pytest -q tests/contract/` passes, and
       `git -c core.safecrlf=false diff --exit-code 714412f -- tests/contract/ tests/fixtures/expected/`
       prints nothing and exits 0 (`714412f` is `main` with Day 14's spec merged, #99); and
       `python -m pytest -q` passes.
       This spec's PR breaks each half: the changelog's heading changed, and a line of
       `tests/contract/test_changelog.py` changed.
-- [ ] C16.7 **hold** — The day stays in `bearing/` and `tests/`, with no new dependency:
+      Evidence: at the close on `ac0f8dc`, `python -m pytest -q tests/contract/` printed "7
+      passed", the diff against `714412f` printed nothing and exited 0, and `python -m pytest
+      -q` printed "115 passed, 128 subtests passed".
+      broken: the changelog's heading changed → 1 failed, 6 passed in 10.75s (#104)
+      broken: a line of tests/contract/test_changelog.py changed → class ChangelogContractTest(unittest.TestCase): (#104)
+- [x] C16.7 **hold** — The day stays in `bearing/` and `tests/`, with no new dependency:
       `git -c core.safecrlf=false diff --exit-code --name-only 1472abc -- .github .claude scripts pyproject.toml plan.md`
       prints nothing and exits 0 (`1472abc` is `main` with Phases 11 to 16 merged, #118).
       This spec's PR breaks it: a line of `pyproject.toml` changed.
+      Evidence: at the close on `ac0f8dc` the check printed nothing and exited 0.
+      broken: a line of pyproject.toml changed → pyproject.toml (#119)
 
 ## Verify
 ```bash
@@ -161,3 +180,44 @@ ruff check . && ruff format --check .
   would have failed it as it failed Day 14's (D14.7), a spec written before that fix. Now "115
   passed, (128 subtests passed)", as Day 14's after #110 and Day 15's after #111: the subtest
   count is a note the replay does not check.
+- The close ran on `main` at `ac0f8dc`, after `python -m pip install -e ".[dev]"` as CI does,
+  with Python 3.13.5 (CI runs 3.12): `python -m pytest -q` printed "115 passed, 128 subtests
+  passed", from Day 15's "111 passed, 128 subtests passed", the 4 tests of
+  `tests/test_cli_errors.py`; the three `git diff` checks printed nothing and exited 0;
+  `ruff format --check .` printed "120 files already formatted"; `ruff check .` found 72
+  EXE002 errors from this checkout's file modes, and `ruff check . --extend-ignore EXE002`
+  passed (D16.4). CI's "Style check" and "Tests" passed on #127.
+- Seen red again at the close: `python scripts/seen-red.py --base fb0e849 -- python -m pytest
+  -q` with C16.1–C16.3's three tests reported "3 failed in 1.75s"; with C16.4's test it said
+  "The check passed on fb0e849" ("1 passed in 0.94s"), as a `hold` should. `fb0e849` is `main`
+  just before #127.
+- All 6 breaks in `specs/breaks/day-16.json` were replayed at the close with `scripts/break.py`
+  and each failed its check; the `manifest:` lines it printed parse to the file's 6 entries.
+  C16.4's is #127's; C16.5's and C16.6's four are #104's; C16.7's is #119's, on base `1472abc`:
+  #104's, on `85a21a1`, fails with no break in since #118 edited `plan.md`. The three `git diff`
+  breaks failed by exit code 1, the line being the check's last output.
+- Phase 8's "Done when" (plan.md): no command is C16.1; dates out of order are C16.2, and
+  before the store is looked for, C16.3; equal dates and every valid command unchanged are
+  C16.4–C16.6. Each new behaviour is a test under `tests/` that CI's "Tests" check ran on #127.
+- Track A (#127) was written by the implementer on Haiku from the main session's brief; the
+  review added the exit-code and empty-stdout asserts to `test_reversed_dates_no_store`, which
+  had only compared its run with C16.2's. #127's session did not re-run the spec-auditor before
+  the track; it re-ran C16.5–C16.7's checks on that day's `main` instead, and C16.7's base
+  needed no re-pin.
+- Out of scope's review point, read in #127's diff at the close: the date check sits right
+  after `parse_args`, before the reconfigure and before `_changelog`, so an existing store is
+  not opened for reversed dates.
+- This day leaves no new hand-off. Phase 8 ends here: the plan-auditor runs on Phase 8 and
+  Phase 9 on fresh `main` after this close merges.
+- **Defect** D16.4 — found: Track A · cause: environment · made: none · same-as: D14.6 ·
+  `ruff check .` failed locally with EXE002 errors (70 in #127, 72 at the close) on files the
+  day did not touch, from the checkout's mode bits; CI's check passed. #127's body reported it;
+  the close writes the line.
+- **Defect** D16.5 — found: self · cause: process · made: Day 16 · the close first wrote its
+  `broken:` lines with a note after the PR number, "(#104; replayed at the close)", which
+  `scripts/evidence.py` strips only as a bare "(#104)", so the replay would have failed them as
+  #125 fixed Day 15's; trimmed to the bare number before the commit.
+- Blind relabel at the close (`scripts/relabel.py`, 5 entries): stage 4 of 4, cause 5 of 5,
+  `made:` 5 of 5 agree. D16.3's stage was not compared: its `found: maintainer`, written in
+  #112, is not one of `specs/README.md`'s `found:` values; kept as written, since the
+  maintainer found it and directed that step (#112's `human:` line). Every tag kept.
