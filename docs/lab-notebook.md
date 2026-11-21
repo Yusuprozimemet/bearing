@@ -808,6 +808,51 @@
   close, it still holds 87 rows, from 2026-10-28 to 2026-11-21, $361.85; #131's session and
   this close's were not in the transcripts it reads.
 
+### Day 18: `direction`'s git errors in one line (Phase 10), closed in #134
+
+- **Delivered:** `bearing direction` on a directory that is not a git repository prints
+  "bearing: not a git repository: <repo>", and on a repository without the store's commits
+  "bearing: not a commit: <sha>", exit 1 and stdout empty, the lines `timeline` gives, where it
+  printed git's own text (#133). `snapshot`'s two checks became `check_commit` in
+  `bearing/snapshot/tree.py`, and `bearing/direction/changes.py` calls it only when a commit's
+  `git diff --numstat` fails, so success is still one git call per commit. No contract, golden
+  file or migration changed. `pytest -q`: 125 passed, 131 subtests passed.
+- **Criteria:** 8 of 8 ticked: 3 `new` and 5 `hold`.
+- **Breaks on purpose:** 8, all in `specs/breaks/day-18.json`: 2 in #133, 5 in #106 and 1 in
+  #119 (C18.7's, on its new base). The close replayed all 8 on `9efc581`, and each failed its
+  check.
+- **PRs:** 3 at the day-spec rung: the spec (#106), Track A (#133) and the close (#134). Two
+  spec-change PRs touched it: #114 (Verify's pytest count) and #119 (C18.7's base re-pinned
+  after the plan change #118). No Track 0.
+- **Defects:** 8 in the Notes.
+
+  | Field | Count |
+  | --- | --- |
+  | found: auditor | 4 |
+  | found: maintainer | 1 |
+  | found: Track A | 2 |
+  | found: close | 1 |
+  | cause: spec | 5 |
+  | cause: process | 2 |
+  | cause: environment | 1 |
+
+  The spec-auditor found four spec defects before any code: stderr read raw, red on Windows
+  after the fix (D18.1), a "no extra git call" with no criterion (D18.2), a missing
+  `snapshot` test (D18.3) and a wrong cite with unbreakable holds (D18.4). The maintainer found
+  the Verify count the replay could not match (D18.5). D18.6 is the local `ruff` mode-bit
+  failure again (same as D16.4); D18.7 is the main session's brief naming an `ingest` option
+  that does not exist; D18.8, found at the close, is Track A's session leaving no record of the
+  first-day auditors (same as D17.6). The blind relabel agreed on 2 of 7 stages compared (the
+  rater left 5 unclear), 8 of 8 causes and 8 of 8 `made:` tags; every tag was kept.
+- **Human interventions:** #106 has two `human:` lines (the spec asked for, the scope held);
+  #114 one (the step directed); #119 two, shared with Days 15, 16 and 17. #133 and the close
+  have none: a driver started those sessions.
+- **Hand-offs:** none new. Phase 10 ends with this close: next is the plan-auditor on Phases
+  10 and 11 (CLAUDE.md, step 6).
+- **Tokens:** `docs/dashboard/token-usage.json` tags no row with Day 18: refreshed at the
+  close, it still holds 87 rows, from 2026-10-28 to 2026-11-21, $361.85; #133's session and
+  this close's were not in the transcripts it reads.
+
 ## What is being measured
 
 | Question | Evidence it will be judged on |
