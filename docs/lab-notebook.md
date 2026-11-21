@@ -725,6 +725,48 @@
   spec's session ran where these transcripts are not. The folder's total from 2026-10-28 to
   2026-11-21 is $361.85.
 
+### Day 16: The command line's silent successes (Phase 8), closed in #128
+
+- **Delivered:** in `main` in `bearing/cli.py`, the subparsers are required and a `changelog`
+  whose `--since` is after its `--until` calls the subparser's `error` right after
+  `parse_args` (#127). `bearing` with no command and reversed dates now print the usage and
+  one error line on stderr and exit 2, where both exited 0; reversed dates never look for the
+  store. Equal dates still print one day, and `--version` is unchanged. No contract, golden
+  file or migration changed. `pytest -q`: 115 passed, 128 subtests passed.
+- **Criteria:** 7 of 7 ticked: 3 `new` and 4 `hold`.
+- **Breaks on purpose:** 6, all in `specs/breaks/day-16.json`: 1 in #127, 4 in #104 and 1 in
+  #119 (C16.7's, on its new base). The close replayed all 6 on `main`, and each failed its
+  check.
+- **PRs:** 3 at the day-spec rung: the spec (#104), Track A (#127) and the close (#128). Two
+  spec-change PRs touched it: #112 (Verify's pytest count) and #119 (C16.7's base re-pinned
+  after the plan change #118). No Track 0.
+- **Defects:** 5 in the Notes.
+
+  | Field | Count |
+  | --- | --- |
+  | found: auditor | 2 |
+  | found: maintainer | 1 |
+  | found: Track A | 1 |
+  | found: self | 1 |
+  | cause: spec | 3 |
+  | cause: process | 1 |
+  | cause: environment | 1 |
+
+  The spec-auditor found two spec defects before any code: a `hold` test with no run on
+  `main`'s code (D16.1), and two In scope promises with no check (D16.2). The maintainer found
+  the Verify count the replay could not match (D16.3). Track A had none of its own; the review
+  added two asserts. D16.4 is the local `ruff` mode-bit failure again (same as D14.6); D16.5 is
+  the close's own `broken:` suffix slip, caught before the commit. The blind relabel agreed on
+  4 of 4 stages compared, 5 of 5 causes and 5 of 5 `made:` tags; every tag was kept.
+- **Human interventions:** #104 has two `human:` lines (the spec asked for, the scope held);
+  #112 one (the step directed); #119 two, shared with Days 15, 17 and 18. #127 and the close
+  have none: a driver started those sessions.
+- **Hand-offs:** none new. Phase 8 ends here; the plan-auditor runs on Phases 8 and 9 on fresh
+  `main` after this close merges.
+- **Tokens:** `docs/dashboard/token-usage.json` tags no row with Day 16: #127's session and
+  this close's were not in the transcripts when counted, and the spec's session ran where
+  these transcripts are not. The folder's total from 2026-10-28 to 2026-11-21 is $361.85.
+
 ## What is being measured
 
 | Question | Evidence it will be judged on |
