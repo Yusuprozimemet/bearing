@@ -1,6 +1,6 @@
 """The files a commit changed and how many lines each gained and lost, from git's numstat."""
 
-from bearing.snapshot.tree import SnapshotError, _git
+from bearing.snapshot.tree import SnapshotError, _git, check_commit
 
 
 def _count(field):
@@ -30,11 +30,17 @@ def parse_numstat(raw):
     return sorted(rows)
 
 
-def changed_files(repo, sha):
+def _numstat(repo, sha):
     done = _git(repo, "diff", "--no-ext-diff", "--numstat", "-z", "-M", f"{sha}^1", sha)
     if done.returncode != 0:
+        # a bad repository or ref gets the same lines as snapshot; any other failure keeps git's own text
+        check_commit(repo, sha)
         raise SnapshotError(done.stderr.decode().strip())
-    return parse_numstat(done.stdout)
+    return done.stdout
+
+
+def changed_files(repo, sha):
+    return parse_numstat(_numstat(repo, sha))
 
 
 def parse_renames(raw):
@@ -58,7 +64,5 @@ def parse_renames(raw):
 
 
 def commit_changes(repo, sha):
-    done = _git(repo, "diff", "--no-ext-diff", "--numstat", "-z", "-M", f"{sha}^1", sha)
-    if done.returncode != 0:
-        raise SnapshotError(done.stderr.decode().strip())
-    return parse_numstat(done.stdout), parse_renames(done.stdout)
+    raw = _numstat(repo, sha)
+    return parse_numstat(raw), parse_renames(raw)
