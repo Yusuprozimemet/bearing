@@ -172,3 +172,9 @@ ruff check . && ruff format --check .
   one part "107 passed," starts pytest's line before a space, and the parenthetical is dropped,
   so the subtest count is a note the replay does not check. Days 1 to 13 put no count on
   `pytest -q`; the close checked the count by eye, not with the matcher.
+- Day 14's evidence gate is the Evidence replay run 44899744170 on `02362b0`, after #110
+  merged: started by hand (`workflow_dispatch`, day 14), it replayed the close in `af19882`
+  with #110's Verify and succeeded. The replay runs by itself only on a closing commit: the
+  push run on `02362b0` (44899726047) printed "not a closing commit" and passed with nothing
+  replayed, so after the failed run 44896657767 on `af19882` only a hand-started run could
+  clear the gate.

@@ -153,7 +153,7 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
 
 ## Verify
 ```bash
-python -m pytest -q                                              # 111 passed, 128 subtests passed
+python -m pytest -q                                              # 111 passed, (128 subtests passed)
 python -m pytest -q tests/test_renames.py tests/test_direction_cli.py tests/contract/test_direction.py
 python -m pytest -q tests/test_changes.py tests/test_coupling.py
 git -c core.safecrlf=false diff --exit-code 714412f -- tests/contract/ tests/fixtures/expected/
@@ -181,7 +181,9 @@ ruff check . && ruff format --check .
 - Written ahead of its day, against `main` at `85a21a1`, before Day 14's code has merged (#101
   open): the test count assumes Day 14 lands as its spec says (plan.md, Course correction after
   Phase 6, item 6). The day's own spec-auditor run re-pins C15.8's base to `main` before the
-  day if anything under its paths has merged since `85a21a1`.
+  day if anything under its paths has merged since `85a21a1`. Audited on `02362b0`: Day 14
+  merged as specified ("107 passed, 128 subtests passed"), and nothing under C15.8's paths has
+  merged since `85a21a1`, so its base stands.
 - C15.6–C15.8's `git diff` checks are commands, not tests: plan.md's "every check is a test"
   is read as every new behaviour, as Day 14's C14.4 and C14.5 did.
 - Spec-auditor, before this spec's PR: 6 findings, all fixed. One seen-red command for the
@@ -218,3 +220,9 @@ ruff check . && ruff format --check .
   failed at its inserts; the three given.
 - **Defect** D15.9 — found: auditor · cause: spec · made: Day 15 · `commit_changes` raising
   `SnapshotError` had no test once the report stops calling `changed_files`; added to C15.1.
+- **Defect** D15.10 — found: auditor · cause: spec · made: Day 15 · Verify's first comment,
+  "111 passed, 128 subtests passed", is two parts to `scripts/evidence.py`, and "111 passed"
+  never matches pytest's "111 passed, 128 subtests passed in …s", so the post-merge replay
+  would have failed it as it failed Day 14's (D14.7), a spec written before that fix. Now "111
+  passed, (128 subtests passed)", as Day 14's after #110: the subtest count is a note the
+  replay does not check.
