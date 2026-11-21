@@ -1,29 +1,40 @@
 """The direction report: churn by area and week, the files that change together, and what the pull requests said against what they changed."""
 
-from bearing.direction.changes import changed_files
+from bearing.direction.changes import commit_changes
 from bearing.direction.churn import churn
-from bearing.direction.coupling import coupling
+from bearing.direction.coupling import coupling, latest_names
 from bearing.direction.said_vs_done import said_vs_done
 
 
 def direction_report(repo, conn, areas, min_prs, rules):
-    # Each commit's files are read once: the churn rows and the merges' coupling both use them.
-    files_by_sha = {}
+    # Each commit is read once: the churn rows, the merges' paths and the renames all use it.
+    changes_by_sha = {}
 
-    def files_of(sha):
-        if sha not in files_by_sha:
-            files_by_sha[sha] = changed_files(repo, sha)
-        return files_by_sha[sha]
+    def changes_of(sha):
+        if sha not in changes_by_sha:
+            changes_by_sha[sha] = commit_changes(repo, sha)
+        return changes_by_sha[sha]
 
-    churn_commits = [
-        (committed_at, files_of(sha))
-        for sha, committed_at in conn.execute(
+    commits = list(
+        conn.execute(
             "SELECT sha, committed_at FROM commits WHERE parent_count > 0 ORDER BY position"
         )
+    )
+    churn_commits = [
+        (committed_at, changes_of(sha)[0]) for sha, committed_at in commits
     ]
+    # Coupling pairs files by their last names, so a renamed file is one file.
+    # Churn and said vs done keep the paths as changed.
+    names = latest_names(
+        [
+            ([path for path, _, _ in changes_of(sha)[0]], changes_of(sha)[1])
+            for sha, _ in commits
+        ]
+    )
+    last_names = {sha: names[i] for i, (sha, _) in enumerate(commits)}
     # The PR's text comes from the same row as its number: a merge whose PR was not fetched has no text.
     merges = [
-        (sha, number, branch, body, [path for path, _, _ in files_of(sha)])
+        (sha, number, branch, body, [path for path, _, _ in changes_of(sha)[0]])
         for sha, number, branch, body in conn.execute(
             "SELECT commits.sha, COALESCE(commits.pr_number, commits.subject_number),"
             " COALESCE(prs.head_ref, commits.subject_branch), prs.body"
@@ -34,7 +45,7 @@ def direction_report(repo, conn, areas, min_prs, rules):
             " ORDER BY commits.position"
         )
     ]
-    prs = [(number, paths) for _, number, _, _, paths in merges]
+    prs = [(number, last_names[sha]) for sha, number, _, _, _ in merges]
     said = said_vs_done(
         [(number, branch, body, paths) for _, number, branch, body, paths in merges],
         areas,

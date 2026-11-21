@@ -35,3 +35,30 @@ def changed_files(repo, sha):
     if done.returncode != 0:
         raise SnapshotError(done.stderr.decode().strip())
     return parse_numstat(done.stdout)
+
+
+def parse_renames(raw):
+    # the same fields as parse_numstat: a rename row has an empty path, then the old and new paths
+    fields = raw.split(b"\x00")
+    end = len(fields) - 1
+    renames = []
+    i = 0
+    while i < end:
+        path = fields[i].split(b"\t", 2)[2]
+        i += 1
+        if path == b"":
+            renames.append(
+                (
+                    fields[i].decode("utf-8", errors="surrogateescape"),
+                    fields[i + 1].decode("utf-8", errors="surrogateescape"),
+                )
+            )
+            i += 2
+    return renames
+
+
+def commit_changes(repo, sha):
+    done = _git(repo, "diff", "--no-ext-diff", "--numstat", "-z", "-M", f"{sha}^1", sha)
+    if done.returncode != 0:
+        raise SnapshotError(done.stderr.decode().strip())
+    return parse_numstat(done.stdout), parse_renames(done.stdout)
