@@ -71,12 +71,13 @@ passed, 128 subtests passed", to "121 passed, 131 subtests passed".
 Tick each box in the closing PR once its evidence is in it; under a box left unticked, write
 `Not proven: <why>` (`specs/README.md`, "Evidence at the close").
 
-- [ ] C17.1 **new** — `--branch main` is today's history. On the fixture,
+- [x] C17.1 **new** — `--branch main` is today's history. On the fixture,
       `ingest <repo> --prs <its prs.json> --branch main --data <dir>` returns 0, its stderr is
       empty, and its stdout is `tests/fixtures/expected/ingest.txt`'s text.
       Red today: argparse exits 2 with "unrecognized arguments: --branch main".
       Test: `tests/test_ingest_branch.py::IngestBranchTest::test_main_named`.
-- [ ] C17.2 **new** — `--branch release` stores `release`'s line. On the fixture,
+      Evidence: `IngestBranchTest.test_main_named` (#131), seen red in #131 on `main`'s code ("8 failed, 1 passed in 0.55s", the six `new` tests together) and again at the close on `50a000a`'s code ("8 failed, 1 passed in 0.90s"); `python -m pytest -q` at the close on `d9080a8` ("121 passed, 131 subtests passed").
+- [x] C17.2 **new** — `--branch release` stores `release`'s line. On the fixture,
       `ingest <repo> --prs <its prs.json> --branch release --data <dir>` returns 0, its stderr
       is empty, and its stdout is exactly the two lines
       "merges 9  matched 9  unmatched merges 0  unmatched PRs 1  direct 2" and
@@ -84,7 +85,8 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       holds a line "- #7 docs/notes (2026-01-27)" and no line starting "- #10 " or "- #11 ".
       Red today: argparse exits 2 with "unrecognized arguments: --branch release".
       Test: `tests/test_ingest_branch.py::IngestBranchTest::test_release`.
-- [ ] C17.3 **new** — `gh` is asked for the branch's PRs. On the fixture, with no `--prs` and
+      Evidence: `IngestBranchTest.test_release` (#131), seen red in #131 on `main`'s code ("8 failed, 1 passed in 0.55s", the six `new` tests together) and again at the close on `50a000a`'s code ("8 failed, 1 passed in 0.90s"); `python -m pytest -q` at the close on `d9080a8` ("121 passed, 131 subtests passed").
+- [x] C17.3 **new** — `gh` is asked for the branch's PRs. On the fixture, with no `--prs` and
       the fake answering `gh` with the fixture's `prs.json` text,
       `ingest <repo> --branch release --data <dir>` returns 0 with C17.2's two lines, and the
       fake saw exactly one `gh` call, whose only positional argument is the literal list
@@ -93,7 +95,8 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       written out in the test, and whose `cwd` is the repository as given.
       Red today: argparse exits 2 with "unrecognized arguments: --branch release".
       Test: `tests/test_ingest_branch.py::IngestBranchTest::test_gh_base`.
-- [ ] C17.4 **new** — `fetch_prs`'s call carries the base. In
+      Evidence: `IngestBranchTest.test_gh_base` (#131), seen red in #131 on `main`'s code ("8 failed, 1 passed in 0.55s", the six `new` tests together) and again at the close on `50a000a`'s code ("8 failed, 1 passed in 0.90s"); `python -m pytest -q` at the close on `d9080a8` ("121 passed, 131 subtests passed").
+- [x] C17.4 **new** — `fetch_prs`'s call carries the base. In
       `tests/test_gh.py::FetchPrsTest::test_command_and_output`, `fetch_prs("some/repo")` makes
       one call whose only positional argument is C04.2's literal list with `"--base", "main"`
       appended, and `fetch_prs("some/repo", "release")` one with `"--base", "release"`
@@ -105,7 +108,8 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       Replaces: C04.2 — was: `fetch_prs`'s one `gh` call is exactly `["gh", "pr", "list",
       "--state", "merged", "--limit", "1000", "--json",
       "number,title,body,headRefName,baseRefName,mergeCommit,mergedAt"]`, with no base.
-- [ ] C17.5 **new** — A name that is not a local branch is one line and no store. On the
+      Evidence: `FetchPrsTest.test_command_and_output`, edited in #131, seen red in #131 on `main`'s code ("8 failed, 1 passed in 0.55s", the six `new` tests together) and again at the close on `50a000a`'s code ("8 failed, 1 passed in 0.90s"); `python -m pytest -q` at the close on `d9080a8` ("121 passed, 131 subtests passed").
+- [x] C17.5 **new** — A name that is not a local branch is one line and no store. On the
       fixture, `ingest <repo> --prs <its prs.json> --branch NAME --data <dir>`, for NAME in
       three subtests: `no-such-branch`, the tag `v-tag`, and `main`'s tip as a full SHA. Each
       returns 1, its stdout is empty, its stderr is exactly
@@ -113,7 +117,8 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       given), and `<dir>/bearing.db` does not exist.
       Red today: argparse exits 2 with "unrecognized arguments".
       Test: `tests/test_ingest_branch.py::IngestBranchTest::test_not_a_branch`.
-- [ ] C17.6 **new** — A repository without `main` names the option. In a repository the test
+      Evidence: `IngestBranchTest.test_not_a_branch` (#131), its three subtests, seen red in #131 on `main`'s code ("8 failed, 1 passed in 0.55s", the six `new` tests together) and again at the close on `50a000a`'s code ("8 failed, 1 passed in 0.90s"); `python -m pytest -q` at the close on `d9080a8` ("121 passed, 131 subtests passed").
+- [x] C17.6 **new** — A repository without `main` names the option. In a repository the test
       makes with `git init -q` (no commit, so no `refs/heads/main` whatever git's default
       branch), `ingest <it> --prs <the fixture's prs.json> --data <dir>`, with no `--branch`,
       returns 1, its stdout is empty, its stderr is exactly
@@ -121,7 +126,8 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       `<dir>/bearing.db` does not exist.
       Red today: its stderr is "bearing: fatal: bad revision 'main'".
       Test: `tests/test_ingest_branch.py::IngestBranchTest::test_no_main`.
-- [ ] C17.7 **hold** — A directory that is not a git repository keeps its error. On a new
+      Evidence: `IngestBranchTest.test_no_main` (#131), seen red in #131 on `main`'s code ("8 failed, 1 passed in 0.55s", the six `new` tests together) and again at the close on `50a000a`'s code ("8 failed, 1 passed in 0.90s"); `python -m pytest -q` at the close on `d9080a8` ("121 passed, 131 subtests passed").
+- [x] C17.7 **hold** — A directory that is not a git repository keeps its error. On a new
       empty temporary directory outside any repository,
       `ingest <it> --prs <the fixture's prs.json> --data <dir>` returns 1, its stdout is empty,
       its stderr starts with "bearing: fatal: not a git repository", and `<dir>/bearing.db` does
@@ -129,24 +135,39 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       Test: `tests/test_ingest_branch.py::IngestBranchTest::test_not_a_repo`.
       Track A's PR breaks it: the branch check taking every failure, not only a missing ref, as
       a missing branch.
-- [ ] C17.8 **hold** — With no `--branch`, `ingest` reads `main` as today:
+      Evidence: `IngestBranchTest.test_not_a_repo` (#131) passed on `main`'s code before the
+      change (`seen-red.py` exit 1, "1 passed in 0.51s" in #131; "1 passed in 0.83s" on
+      `50a000a` at the close) and passed at the close on `d9080a8`.
+      broken: the branch check taking every failure, not only a missing ref, as a missing branch → 1 failed in 0.99s (#131)
+- [x] C17.8 **hold** — With no `--branch`, `ingest` reads `main` as today:
       `python -m pytest -q tests/test_history.py tests/test_entries.py tests/test_ingest_cli.py tests/test_gh.py::IngestLiveTest`
       passes, and
       `git -c core.safecrlf=false diff --exit-code 714412f -- tests/test_history.py tests/test_entries.py tests/test_ingest_cli.py`
       prints nothing and exits 0.
       This spec's PR breaks each half: `read_first_parent` reading `release` where it reads
       `main`, and a line of `tests/test_history.py` changed.
-- [ ] C17.9 **hold** — No contract changes: `python -m pytest -q tests/contract/` passes, and
+      Evidence: at the close on `d9080a8`, the four files printed "11 passed, 7 subtests
+      passed", and the diff against `714412f` printed nothing and exited 0.
+      broken: read_first_parent reading release where it reads main → 6 failed, 5 passed, 4 subtests passed in 31.59s (#105)
+      broken: a line of tests/test_history.py changed → import unittest (#105)
+- [x] C17.9 **hold** — No contract changes: `python -m pytest -q tests/contract/` passes, and
       `git -c core.safecrlf=false diff --exit-code 714412f -- tests/contract/ tests/fixtures/expected/ tests/fixtures/make_repo.py`
       prints nothing and exits 0 (`714412f` is `main` with Day 14's spec merged, #99); and
       `python -m pytest -q` passes.
       This spec's PR breaks each half: `ingest`'s summary line saying "merge" for "merges", and
       a line of `tests/contract/test_ingest.py` changed.
-- [ ] C17.10 **hold** — The day stays in `bearing/` and `tests/`, with no new dependency:
+      Evidence: at the close on `d9080a8`, `python -m pytest -q tests/contract/` printed "7
+      passed", the diff against `714412f` printed nothing and exited 0, and `python -m pytest
+      -q` printed "121 passed, 131 subtests passed".
+      broken: ingest's summary line saying merge for merges → 1 failed, 6 passed in 94.76s (0:01:34) (#105)
+      broken: a line of tests/contract/test_ingest.py changed → class IngestContractTest(unittest.TestCase): (#105)
+- [x] C17.10 **hold** — The day stays in `bearing/` and `tests/`, with no new dependency:
       `git -c core.safecrlf=false diff --exit-code --name-only 1472abc -- .github .claude scripts pyproject.toml plan.md`
       prints nothing and exits 0 (`1472abc` is `main` with Phases 11 to 16 merged, #118).
       This spec's PR breaks it: a line of `pyproject.toml` changed.
-- [ ] C17.11 **hold** — `fetch_prs`'s errors stay C04.2's, word for word, each a `GhError`:
+      Evidence: at the close on `d9080a8` the check printed nothing and exited 0.
+      broken: a line of pyproject.toml changed → pyproject.toml (#119)
+- [x] C17.11 **hold** — `fetch_prs`'s errors stay C04.2's, word for word, each a `GhError`:
       the fake raising `FileNotFoundError` gives "gh not found: install GitHub's CLI or pass
       --prs FILE"; exit 1 with stderr "HTTP 401: Bad credentials\n" gives "gh pr list failed:
       HTTP 401: Bad credentials"; exit 4 with stderr "" gives "gh pr list failed: exit 4"; exit 0
@@ -154,6 +175,9 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       not edited.
       Test: `tests/test_gh.py::FetchPrsTest::test_errors`.
       This spec's PR breaks it: the exit code in "gh pr list failed: exit N" off by one.
+      Evidence: at the close on `d9080a8`, `FetchPrsTest.test_errors` printed "1 passed, 4
+      subtests passed", and #131's diff does not touch it.
+      broken: the exit code in gh pr list failed: exit N off by one → 1 failed, 1 passed, 3 subtests passed in 0.35s (#105)
 
 ## Verify
 ```bash
@@ -231,3 +255,42 @@ ruff check . && ruff format --check .
   would have failed it as it failed Day 14's (D14.7), a spec written before that fix. Now "121
   passed, (131 subtests passed)", as Day 14's after #110 and Day 16's after #112: the subtest
   count is a note the replay does not check.
+- Closed on `main` at `d9080a8` (#131 merged), with Python 3.13.5 on Linux (WSL); CI runs 3.12.
+  `python -m pytest -q` printed "121 passed, 131 subtests passed", as Tracks said; `ruff check .`
+  found 73 EXE002 errors from this checkout's file modes and nothing else, `ruff check .
+  --extend-ignore EXE002` passed, and `ruff format --check .` printed "121 files already
+  formatted" (D17.5). CI's "Style check" and "Tests" passed on #131.
+- Seen red again at the close: `python scripts/seen-red.py --base 50a000a -- python -m pytest -q`
+  with C17.1–C17.6's six tests reported "8 failed, 1 passed in 0.90s", the spec's count; with
+  C17.7's test it said "The check passed on 50a000a" ("1 passed in 0.83s"), as a `hold` should.
+  `50a000a` is `main` just before #131.
+- All 7 breaks in `specs/breaks/day-17.json` were replayed at the close with `scripts/break.py`,
+  each failed its check, and each reported what its `broken:` line says, run times aside.
+  C17.7's is #131's; C17.8, C17.9 and C17.11's five are #105's; C17.10's is #119's, on base
+  `1472abc`, as Day 16's C16.7: #105's, on `85a21a1`, fails with no break in since #118.
+  C17.8's first break edits `"main",` in `bearing/ingest/history.py`, which #131 replaced with
+  `f"refs/heads/{branch}"`, so its entry carries `"at": "ad0b844"`, #105's merge commit, and
+  the close replayed it in a worktree there: "6 failed, 5 passed, 4 subtests passed".
+- Phase 9's "Done when" (plan.md): `--branch NAME` storing NAME's line is C17.1 and C17.2, `gh`
+  asked for NAME's PRs C17.3 and C17.4, a name that is not a local branch C17.5 and C17.6, and
+  `main` by default unchanged C17.7–C17.9. Each new behaviour is a test under `tests/` that CI's
+  "Tests" check ran on #131.
+- Track A (#131) was written by the implementer on Haiku from the main session's brief; the
+  review found nothing to change. #131's diff is 294 changed lines; the close re-counted 287
+  insertions and 7 deletions over its 5 files.
+- This day leaves no new hand-off: C17.3's Note on live `gh --base` returning only the base's
+  records follows from plan.md and is out of scope, not deferred.
+- **Defect** D17.5 — found: Track A · cause: environment · made: none · same-as: D16.4 ·
+  `ruff check .` failed locally with EXE002 errors (72 in #131, 73 at the close) on files the
+  day did not touch, from the checkout's mode bits; CI's check passed.
+- **Defect** D17.6 — found: Track A · cause: process · made: Day 17 · Day 17 is Phase 9's first
+  day, and #131's session ran neither the plan-auditor on Phase 9 nor the spec-auditor on the
+  day before the track, as step 1 of CLAUDE.md asks; it re-ran the `hold` checks on that day's
+  `main` instead, and its body said so. The spec's own audit ran before #105.
+- Blind relabel at the close (`scripts/relabel.py`, 6 entries): stage 2 of 5, cause 6 of 6,
+  `made:` 5 of 6 agree. The rater left D17.1–D17.3's stage unclear: their text does not say
+  when they were found, but the Note above them does (the spec-auditor, before #105), so
+  `found: auditor` is kept. It left D17.4's `made:` unclear; kept as Day 17, since the Verify
+  comment it fixes was written in this day's spec (#105). D17.4's stage was not compared:
+  `found: maintainer` is not one of `specs/README.md`'s values, kept as written, as D16.3.
+  Every tag kept.
