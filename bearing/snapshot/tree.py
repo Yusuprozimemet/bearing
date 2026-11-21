@@ -33,9 +33,13 @@ def _read_blob(repo, objsha):
     return blob.stdout
 
 
-def check_commit(repo, ref):
+def check_repo(repo):
     if _git(repo, "rev-parse", "--git-dir").returncode != 0:
         raise SnapshotError(f"not a git repository: {repo}")
+
+
+def check_commit(repo, ref):
+    check_repo(repo)
     done = _git(repo, "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}")
     if done.returncode != 0:
         raise SnapshotError(f"not a commit: {ref}")
