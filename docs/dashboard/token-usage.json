@@ -81,6 +81,9 @@
 {"date":"2026-11-12","day":null,"model":"claude-opus-5-5","agent":"main","input":8,"cache_write":20923,"cache_read":95150,"output":523,"replies":4,"bash":3,"cut":0,"reads":1,"whole":0,"cost":0.1969},
 {"date":"2026-11-12","day":14,"model":"claude-haiku-5-5","agent":"implementer","input":16,"cache_write":25280,"cache_read":134890,"output":4566,"replies":8,"bash":4,"cut":0,"reads":1,"whole":1,"cost":0.0068},
 {"date":"2026-11-12","day":14,"model":"claude-opus-5-5","agent":"main","input":26,"cache_write":12919,"cache_read":489195,"output":7542,"replies":13,"bash":11,"cut":0,"reads":0,"whole":0,"cost":0.3521},
-{"date":"2026-11-21","day":null,"model":"claude-opus-5-5","agent":"main","input":20,"cache_write":31399,"cache_read":308499,"output":2349,"replies":10,"bash":9,"cut":2,"reads":1,"whole":0,"cost":0.36},
-{"date":"2026-11-21","day":14,"model":"claude-opus-5-5","agent":"main","input":22,"cache_write":11094,"cache_read":520805,"output":3063,"replies":11,"bash":10,"cut":0,"reads":0,"whole":0,"cost":0.2543}
+{"date":"2026-11-21","day":null,"model":"claude-opus-5-5","agent":"main","input":68,"cache_write":109949,"cache_read":1244159,"output":10784,"replies":34,"bash":29,"cut":4,"reads":4,"whole":0,"cost":1.3444},
+{"date":"2026-11-21","day":14,"model":"claude-opus-5-5","agent":"defect-rater","input":4,"cache_write":11959,"cache_read":11419,"output":1000,"replies":2,"bash":0,"cut":0,"reads":0,"whole":0,"cost":0.0821},
+{"date":"2026-11-21","day":14,"model":"claude-opus-5-5","agent":"main","input":62,"cache_write":34113,"cache_read":1834915,"output":15682,"replies":31,"bash":29,"cut":1,"reads":0,"whole":0,"cost":0.9538},
+{"date":"2026-11-21","day":15,"model":"claude-haiku-5-5","agent":"implementer","input":38,"cache_write":48655,"cache_read":668587,"output":18118,"replies":19,"bash":12,"cut":2,"reads":1,"whole":0,"cost":0.0218},
+{"date":"2026-11-21","day":15,"model":"claude-opus-5-5","agent":"main","input":24,"cache_write":18427,"cache_read":597903,"output":9290,"replies":12,"bash":9,"cut":1,"reads":0,"whole":0,"cost":0.4529}
 ]
