@@ -200,7 +200,7 @@ ruff check . && ruff format --check .
   D22.5); the local `ruff check .` EXE002 errors (77, D21.4), not a spec defect, for the close to
   record again; plan.md's "any other git failure keeps git's text" has no criterion, already
   left to review by Out of scope (known limit); and this record of the audits (fixed, here).
-- **Defect** D22.4 — found: auditor · cause: spec · made: Day 22 · same-as: D18.8 · C22.5 ran
+- **Defect** D22.4 — found: auditor · cause: spec · made: Day 22 · C22.5 ran
   Day 18's `tests/test_direction_repo.py` but had no `git diff` half, so an edited test would
   still pass it; now pinned at `e72fc75`.
 - **Defect** D22.5 — found: auditor · cause: spec · made: Day 22 · In scope left
