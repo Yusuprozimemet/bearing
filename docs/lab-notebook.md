@@ -895,6 +895,45 @@
   close, it still holds 87 rows, from 2026-10-28 to 2026-11-21, $361.85; #135's session and
   this close's were not in the transcripts it reads.
 
+### Day 20: a `--prs` file that cannot be read names it (Phase 12), closed in #143
+
+- **Delivered:** every failure to read `bearing ingest`'s `--prs` file prints "bearing: cannot
+  read FILE: " and a reason on one line, exit 1, an empty stdout and no `bearing.db` (#142).
+  Text that is not JSON gives "not JSON: <msg> (line L, column C)", bytes that are not UTF-8
+  "not UTF-8", and a directory or a missing file the `OSError`'s `strerror`, where the first
+  three printed Python's message alone. A byte order mark is still not JSON. Day 19's record
+  lines keep their wording. No contract, golden file or migration changed. `pytest -q`: 138
+  passed, 131 subtests passed.
+- **Criteria:** 9 of 9 ticked: 4 `new` and 5 `hold`.
+- **Breaks on purpose:** 8, all in `specs/breaks/day-20.json`: 2 in #142, 5 in #121 and 1 at
+  the close. The close replayed all 8, and each failed its check; #121's "cannot load" break
+  runs `at` `dac5747`, since #142 made its text occur three times (D20.5).
+- **PRs:** 4 at the day-spec rung: the spec (#121, shared with Days 19 and 21 to 24), a
+  spec-change PR (#139), Track A (#142) and the close (#143). No Track 0.
+- **Defects:** 5 in the Notes.
+
+  | Field | Count |
+  | --- | --- |
+  | found: auditor | 3 |
+  | found: Track A | 1 |
+  | found: close | 1 |
+  | cause: spec | 3 |
+  | cause: process | 1 |
+  | cause: environment | 1 |
+
+  The spec-auditor in #121 found that In scope kept the missing file's own `except`, so C20.5's
+  break could not fail (D20.1); the first-day audits found a Note naming the wrong file (D20.2)
+  and an auditor run that left a `--help/` directory in the repository (D20.3). D20.4 is the
+  local `ruff` mode-bit failure again (same as D16.4). The close found that a spec-PR break no
+  longer applies to the closing commit (D20.5, an escape). The blind relabel agreed on 4 of 5
+  stages (the rater left 1 unclear), 4 of 5 causes and 4 of 5 `made:` tags; no tag changed.
+- **Human interventions:** #121 has four `human:` lines, shared with Days 19 and 21 to 24.
+  #139, #142 and the close have none: a driver started those sessions.
+- **Hand-offs:** none new. Phase 12 ends with this close: next is the plan-auditor on Phases
+  12 and 13 (CLAUDE.md, step 6).
+- **Tokens:** `docs/dashboard/token-usage.json` tags no row with Day 20: refreshed at the
+  close, it still holds 87 rows, from 2026-10-28 to 2026-11-21, $361.85.
+
 ## What is being measured
 
 | Question | Evidence it will be judged on |
