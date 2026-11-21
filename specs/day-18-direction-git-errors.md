@@ -128,7 +128,7 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
 
 ## Verify
 ```bash
-python -m pytest -q                                              # 125 passed, 131 subtests passed
+python -m pytest -q                                              # 125 passed, (131 subtests passed)
 python -m pytest -q tests/test_direction_repo.py
 python -m pytest -q tests/test_timeline_cli.py tests/test_page_cli.py tests/test_snapshot_tree.py tests/test_snapshot_cli.py tests/test_changes.py
 python -m pytest -q tests/test_direction_cli.py
@@ -192,3 +192,9 @@ ruff check . && ruff format --check .
   without `tests/test_snapshot_cli.py`, the test that pins them; added.
 - **Defect** D18.4 — found: auditor · cause: spec · made: Day 18 · C18.5 cited C15.4 for C15.5's
   edit and held two kit tests no change to `bearing/` can fail; cite fixed, tests dropped.
+- **Defect** D18.5 — found: maintainer · cause: spec · made: Day 18 · Verify's first comment,
+  "125 passed, 131 subtests passed", is two parts to `scripts/evidence.py`, and "125 passed"
+  never matches pytest's "125 passed, 131 subtests passed in …s", so the post-merge replay
+  would have failed it as it failed Day 14's (D14.7). Now "125 passed, (131 subtests passed)",
+  as Day 14's after #110 and Days 16 and 17's after #112 and #113: the subtest count is a note
+  the replay does not check.
