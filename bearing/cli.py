@@ -3,6 +3,7 @@
 import argparse
 import datetime
 import json
+import re
 import sqlite3
 import sys
 from pathlib import Path
@@ -30,6 +31,17 @@ from bearing.store.db import open_store, save
 def _fail(message: str) -> int:
     print(f"bearing: {message}", file=sys.stderr)
     return 1
+
+
+def _date(value: str) -> datetime.date:
+    """A date in the store's YYYY-MM-DD form; anything else is an argument error."""
+    message = f"not a date in YYYY-MM-DD form: '{value}'"
+    if not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value):
+        raise argparse.ArgumentTypeError(message)
+    try:
+        return datetime.date.fromisoformat(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(message) from None
 
 
 def _changelog(args) -> int:
@@ -159,8 +171,8 @@ def main(argv=None) -> int:
     changelog = subparsers.add_parser(
         "changelog", help="print the changelog from a stored history"
     )
-    changelog.add_argument("--since", type=datetime.date.fromisoformat, default=None)
-    changelog.add_argument("--until", type=datetime.date.fromisoformat, default=None)
+    changelog.add_argument("--since", type=_date, default=None)
+    changelog.add_argument("--until", type=_date, default=None)
     changelog.add_argument("--data", default=".bearing")
     snap = subparsers.add_parser(
         "snapshot", help="print the modules and imports of a repository at one commit"
