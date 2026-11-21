@@ -147,8 +147,8 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       This spec's PR breaks each half: `parse_numstat` naming a rename by its old path, and a
       line of `tests/test_coupling.py` changed.
 - [ ] C15.8 **hold** — The day stays in `bearing/` and `tests/`, with no new dependency:
-      `git -c core.safecrlf=false diff --exit-code --name-only 85a21a1 -- .github .claude scripts pyproject.toml plan.md`
-      prints nothing and exits 0 (`85a21a1` is `main` with Phases 7 to 10 merged, #102).
+      `git -c core.safecrlf=false diff --exit-code --name-only 1472abc -- .github .claude scripts pyproject.toml plan.md`
+      prints nothing and exits 0 (`1472abc` is `main` with Phases 11 to 16 merged, #118).
       This spec's PR breaks it: a line of `pyproject.toml` changed.
 
 ## Verify
@@ -158,7 +158,7 @@ python -m pytest -q tests/test_renames.py tests/test_direction_cli.py tests/cont
 python -m pytest -q tests/test_changes.py tests/test_coupling.py
 git -c core.safecrlf=false diff --exit-code 714412f -- tests/contract/ tests/fixtures/expected/
 git -c core.safecrlf=false diff --exit-code 714412f -- tests/test_changes.py tests/test_coupling.py
-git -c core.safecrlf=false diff --exit-code --name-only 85a21a1 -- .github .claude scripts pyproject.toml plan.md
+git -c core.safecrlf=false diff --exit-code --name-only 1472abc -- .github .claude scripts pyproject.toml plan.md
 ruff check . && ruff format --check .
 ```
 
@@ -184,6 +184,10 @@ ruff check . && ruff format --check .
   day if anything under its paths has merged since `85a21a1`. Audited on `02362b0`: Day 14
   merged as specified ("107 passed, 128 subtests passed"), and nothing under C15.8's paths has
   merged since `85a21a1`, so its base stands.
+- C15.8's base re-pinned after track A (#116): the course correction after Day 15's track A
+  (#118) edits `plan.md`, so on `1472abc` the check with base `85a21a1` printed "plan.md" and
+  exited 1. Its base is now `1472abc`, #118's merge commit, as that change's item 6 says, with
+  `plan.md` still in the list: there it prints nothing and exits 0. Only the base moved.
 - C15.6–C15.8's `git diff` checks are commands, not tests: plan.md's "every check is a test"
   is read as every new behaviour, as Day 14's C14.4 and C14.5 did.
 - Spec-auditor, before this spec's PR: 6 findings, all fixed. One seen-red command for the
