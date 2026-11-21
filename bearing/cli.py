@@ -13,7 +13,12 @@ from bearing.direction.report import direction_report
 from bearing.ingest.changelog import format_changelog, read_entries
 from bearing.ingest.gh import GhError, fetch_prs
 from bearing.ingest.history import GitError, read_first_parent
-from bearing.ingest.mapping import format_report, load_prs, map_history
+from bearing.ingest.mapping import (
+    check_records,
+    format_report,
+    load_prs,
+    map_history,
+)
 from bearing.page.data import page as page_steps
 from bearing.page.html import render
 from bearing.snapshot.cache import BlobCache
@@ -229,6 +234,7 @@ def main(argv=None) -> int:
     else:
         try:
             records = load_prs(args.prs)
+            check_records(args.prs, records)
         except FileNotFoundError as exc:
             return _fail(f"cannot read {args.prs}: {exc.strerror}")
         except (OSError, ValueError) as exc:
