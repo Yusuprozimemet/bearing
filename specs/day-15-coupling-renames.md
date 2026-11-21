@@ -71,7 +71,7 @@ this spec's PR.
 Tick each box in the closing PR once its evidence is in it; under a box left unticked, write
 `Not proven: <why>` (`specs/README.md`, "Evidence at the close").
 
-- [ ] C15.1 **new** — Numstat bytes holding a rename give its old and new path, in git's order.
+- [x] C15.1 **new** — Numstat bytes holding a rename give its old and new path, in git's order.
       `parse_renames` gives, for
       `b"3\t1\tapp/a.py\x00-\t-\tlogo.png\x000\t0\t\x00scripts/helpers.py\x00scripts/tools.py\x001\t0\t\x00docs/old.md\x00docs/new.md\x00"`,
       `[("scripts/helpers.py", "scripts/tools.py"), ("docs/old.md", "docs/new.md")]`; for
@@ -79,18 +79,24 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       raises `SnapshotError`, as `changed_files` does.
       Red today: the import of `parse_renames` from `bearing.direction.changes` fails.
       Test: `tests/test_renames.py::RenamesTest::test_parse_renames`.
-- [ ] C15.2 **new** — A chain of renames is one file, named by its last name. `latest_names` gives,
+      Evidence: `RenamesTest.test_parse_renames` (#116), seen red in #116 on `main`'s code ("5 failed", the five `new` tests together) and again at the close on `4118a00^1`'s code ("5 failed in 0.98s"); `python -m pytest -q` at the close on `3f83202` ("111 passed, 128 subtests passed").
+      broken: parse_renames giving the new path as the old → 1 failed in 0.36s (#116)
+- [x] C15.2 **new** — A chain of renames is one file, named by its last name. `latest_names` gives,
       for `[(["a.py"], []), (["b.py", "x.py"], [("a.py", "b.py")]), (["c.py"], [("b.py", "c.py")])]`,
       `[["c.py"], ["c.py", "x.py"], ["c.py"]]`.
       Red today: the import of `latest_names` from `bearing.direction.coupling` fails.
       Test: `tests/test_renames.py::RenamesTest::test_chain`.
-- [ ] C15.3 **new** — A path used again after its file was renamed away is a second file.
+      Evidence: `RenamesTest.test_chain` (#116), seen red in #116 on `main`'s code ("5 failed", the five `new` tests together) and again at the close on `4118a00^1`'s code ("5 failed in 0.98s"); `python -m pytest -q` at the close on `3f83202` ("111 passed, 128 subtests passed").
+      broken: latest_names keeping a renamed file's first name → 1 failed in 0.27s (#116)
+- [x] C15.3 **new** — A path used again after its file was renamed away is a second file.
       `latest_names` gives, for
       `[(["a.py", "x.py"], []), (["b.py"], [("a.py", "b.py")]), (["a.py", "x.py"], [])]`,
       `[["b.py", "x.py"], ["b.py"], ["a.py", "x.py"]]`.
       Red today: as C15.2.
       Test: `tests/test_renames.py::RenamesTest::test_reused_path`.
-- [ ] C15.4 **new** — The report follows a rename made by a direct commit, reads each commit with
+      Evidence: `RenamesTest.test_reused_path` (#116), seen red in #116 on `main`'s code ("5 failed", the five `new` tests together) and again at the close on `4118a00^1`'s code ("5 failed in 0.98s"); `python -m pytest -q` at the close on `3f83202` ("111 passed, 128 subtests passed").
+      broken: latest_names leaving the old path on the renamed file → 1 failed in 0.28s (#116)
+- [x] C15.4 **new** — The report follows a rename made by a direct commit, reads each commit with
       one `commit_changes` call, and keeps churn and said vs done on the paths as changed. The
       test builds a store with `bearing.store.db.open_store` in a temporary directory, holding
       four commits (`sha`, `position`, `parent_count`, `kind`, `pr_number`, `committed_at`):
@@ -117,7 +123,9 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       Red today: patching `bearing.direction.report.commit_changes` raises `AttributeError`, as
       `report.py` has no such name.
       Test: `tests/test_renames.py::RenamesTest::test_report_direct_rename`.
-- [ ] C15.5 **new** — On the fixture, after `bearing ingest` with its `prs.json`, `bearing direction`
+      Evidence: `RenamesTest.test_report_direct_rename` (#116), seen red in #116 on `main`'s code ("5 failed", the five `new` tests together) and again at the close on `4118a00^1`'s code ("5 failed in 0.98s"); `python -m pytest -q` at the close on `3f83202` ("111 passed, 128 subtests passed").
+      broken: coupling given the merges' paths as changed → 2 failed in 2.75s (#116, with C15.5's test)
+- [x] C15.5 **new** — On the fixture, after `bearing ingest` with its `prs.json`, `bearing direction`
       with a copy of `tests/fixtures/bearing.toml` at `min_prs = 2`, written in the test, prints
       the Churn section of today and a Coupling table of exactly four rows, in this order, the
       next line blank:
@@ -132,24 +140,38 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       Test: `tests/test_direction_cli.py::DirectionCliTest::test_threshold`.
       Replaces: C08.6 — was: at `min_prs = 2` the fixture's Coupling table is exactly three rows,
       the three above without `scripts/run.py`, `scripts/tools.py`.
-- [ ] C15.6 **hold** — At `min_prs = 3`, the golden file's, the output is unchanged, and no
+      Evidence: `DirectionCliTest.test_threshold` (#116), seen red in #116 on `main`'s code ("5 failed", the five `new` tests together) and again at the close on `4118a00^1`'s code ("5 failed in 0.98s"); `python -m pytest -q` at the close on `3f83202` ("111 passed, 128 subtests passed").
+      broken: coupling given the merges' paths as changed → 2 failed in 2.75s (#116, with C15.4's test)
+- [x] C15.6 **hold** — At `min_prs = 3`, the golden file's, the output is unchanged, and no
       contract changes: `python -m pytest -q tests/contract/test_direction.py` passes, and
       `git -c core.safecrlf=false diff --exit-code 714412f -- tests/contract/ tests/fixtures/expected/`
       prints nothing and exits 0 (`714412f` is `main` with Day 14's spec merged, #99); and
       `python -m pytest -q` passes.
       This spec's PR breaks each half: coupling's threshold lowered by one, and a line of
       `tests/contract/test_direction.py` changed.
-- [ ] C15.7 **hold** — `parse_numstat` and `changed_files` keep their return values (C08.2) and
+      Evidence: `tests/contract/test_direction.py` passed at the close on `3f83202` (with
+      C15.5's file, "10 passed"); the diff against `714412f` printed nothing and exited 0;
+      `python -m pytest -q` at the close on `3f83202` ("111 passed, 128 subtests passed").
+      broken: coupling's threshold lowered by one → 1 failed in 1.74s (#103)
+      broken: a line of tests/contract/test_direction.py changed → ENV = {k: v for k, v in os.environ.items() if k not in ("GIT_DIR", "GIT_WORK_TREE")} (#103)
+- [x] C15.7 **hold** — `parse_numstat` and `changed_files` keep their return values (C08.2) and
       `coupling` its (C08.4): `python -m pytest -q tests/test_changes.py tests/test_coupling.py`
       passes, and
       `git -c core.safecrlf=false diff --exit-code 714412f -- tests/test_changes.py tests/test_coupling.py`
       prints nothing and exits 0.
       This spec's PR breaks each half: `parse_numstat` naming a rename by its old path, and a
       line of `tests/test_coupling.py` changed.
-- [ ] C15.8 **hold** — The day stays in `bearing/` and `tests/`, with no new dependency:
+      Evidence: `python -m pytest -q tests/test_changes.py tests/test_coupling.py` at the close
+      on `3f83202`, "3 passed"; the diff against `714412f` printed nothing and exited 0.
+      broken: parse_numstat naming a rename by its old path → 2 failed, 1 passed in 0.94s (#103)
+      broken: a line of tests/test_coupling.py changed → prs = [ (#103)
+- [x] C15.8 **hold** — The day stays in `bearing/` and `tests/`, with no new dependency:
       `git -c core.safecrlf=false diff --exit-code --name-only 1472abc -- .github .claude scripts pyproject.toml plan.md`
       prints nothing and exits 0 (`1472abc` is `main` with Phases 11 to 16 merged, #118).
       This spec's PR breaks it: a line of `pyproject.toml` changed.
+      Evidence: the diff against `1472abc` printed nothing and exited 0 at the close on
+      `3f83202`; the base re-pinned from `85a21a1` in #119.
+      broken: a line of pyproject.toml changed → pyproject.toml (#119)
 
 ## Verify
 ```bash
@@ -230,3 +252,44 @@ ruff check . && ruff format --check .
   would have failed it as it failed Day 14's (D14.7), a spec written before that fix. Now "111
   passed, (128 subtests passed)", as Day 14's after #110: the subtest count is a note the
   replay does not check.
+- The close ran on `3f83202`. `python -m pytest -q` printed "111 passed, 128 subtests passed",
+  against "107 passed, 128 subtests passed" before the day. Each Verify command ran as written:
+  the three test files "10 passed", `tests/test_changes.py tests/test_coupling.py` "3 passed",
+  the three diffs nothing with exit 0, and `ruff format --check .` "119 files already
+  formatted". `ruff check .` here reports 71 errors, all EXE002, from this checkout's file
+  modes, as on Day 14 (D15.11); `ruff check . --extend-ignore EXE002` passes, and CI's "Style
+  check" passed on #116.
+- All 9 breaks in `specs/breaks/day-15.json` were replayed at the close with `scripts/break.py`
+  and each failed its check: 4 from #116, 4 from #103 and C15.8's from #119. The `broken:` lines
+  above are the close's, not the PRs'; the four `git diff` breaks failed by exit code 1, the
+  line being the check's last output. C15.8's entry is #119's, not #103's: after #118 the
+  check with #103's base, `85a21a1`, fails with no break in, so that entry could no longer show
+  a break being caught.
+- Seen red again at the close: `python scripts/seen-red.py --base 4118a00^1 -- python -m pytest
+  -q tests/test_renames.py tests/test_direction_cli.py::DirectionCliTest::test_threshold`
+  reported "5 failed in 0.98s". With `--base 1472abc` it found no test file differing, since
+  #116 merged before it.
+- Phase 7's "Done when" (plan.md): numstat bytes holding a rename is C15.1; the chain a→b→c is
+  C15.2; a path used again is C15.3; the fixture's four rows at `min_prs = 2` is C15.5; the
+  output unchanged at 3 is C15.6. Each is a test under `tests/` that CI's "Tests" check ran on
+  #116. C15.4 adds the direct commit's rename, which the fixture cannot show.
+- Track A (#116) was written by the implementer on Haiku from the main session's brief and
+  reviewed without a rewrite. The review found nothing to fix in the code.
+- This day leaves no new hand-off. A commit that swaps two names stays untested (the Note
+  above), owned by no day. Phase 7 ends here: the plan-auditor runs on Phase 7 and Phase 8 on
+  fresh `main` after this close merges.
+- **Defect** D15.11 — found: Track A · cause: environment · made: none · same-as: D14.6 ·
+  `ruff check .` failed locally with 70 EXE002 errors on files #116 did not touch, from the
+  checkout's mode bits (`core.filemode=false`, files 777 on disk); CI's check passed. #116's
+  body reported it; the close writes the line.
+- **Defect** D15.12 — found: self · cause: process · made: Day 15 · the close first built C15.8's
+  manifest entry from #103's, with only the base changed to `1472abc`, instead of copying the
+  entry #119 recorded (a different `find`); replaced by #119's line, and rerun, before the
+  commit.
+- Blind relabel at the close (`scripts/relabel.py`, 12 entries): stage 9 of 12, cause 10 of
+  12, `made:` 10 of 12 agree. Kept, each: D15.1 (rater: before merge, implementation) was
+  found by the spec-auditor in the draft's one seen-red command, before any code; D15.8 (rater:
+  unclear) was the auditor's recheck, before code; D15.10 (rater: `made:` earlier) is Day 15's
+  own spec, drafted ahead of its day, and the draft is the day's work; D15.11 (rater: escape,
+  process, this day) is the local `ruff` failure, the machine's, found during Track A. Its first
+  wording put the late Defect line first, which misled the rater; reworded above.

@@ -678,6 +678,53 @@
   through it). The spec's session and its spec-auditor ran where these transcripts are not, so
   they have no row. The folder's total from 2026-10-28 to 2026-11-21 is $359.61.
 
+### Day 15: Coupling follows renames (Phase 7), closed in #123
+
+- **Delivered:** `parse_renames` and `commit_changes` in `bearing/direction/changes.py`,
+  `latest_names` in `bearing/direction/coupling.py`, and `bearing direction`'s report reading
+  each commit once with `commit_changes` and passing the merges' paths to `coupling` by their
+  last names (#116). A file renamed on the first-parent line, by a merge or a direct commit, is
+  one file in Coupling; churn, said vs done and the page keep the paths as changed. On the
+  fixture at `min_prs = 2` the pair `scripts/run.py`, `scripts/tools.py` (#2, #8) appears; at
+  3, the golden file's, nothing changed. No contract, golden file or migration changed.
+  `pytest -q`: 111 passed, 128 subtests passed.
+- **Criteria:** 8 of 8 ticked: 5 `new` and 3 `hold`.
+- **Breaks on purpose:** 9, all in `specs/breaks/day-15.json`: 4 in #116, 4 in #103 and 1 in
+  #119 (C15.8's, re-run on its new base). The close replayed all 9 on `main`, and each failed
+  its check.
+- **PRs:** 3 at the day-spec rung: the spec (#103), Track A (#116) and the close (#123). Two
+  spec-change PRs: #111 (Verify's pytest count), #119 (C15.8's base re-pinned after the plan
+  change #118, which edited `plan.md`). No Track 0.
+- **Defects:** 12 in the Notes.
+
+  | Field | Count |
+  | --- | --- |
+  | found: auditor | 10 |
+  | found: Track A | 1 |
+  | found: self | 1 |
+  | cause: spec | 10 |
+  | cause: process | 1 |
+  | cause: environment | 1 |
+
+  The spec-auditor found all ten spec defects before any code, over two runs and #111's.
+  Several were about whether a check could fail at all: a seen-red command that stopped at an
+  import error and never ran `test_threshold` (D15.1), `hold` breaks that never touched the
+  `git diff` half (D15.6), and a fake that could not tell a second `commit_changes` call
+  (D15.7). Track A had none of its own: the review fixed nothing. D15.11 is the local `ruff`
+  mode-bit failure again (same as D14.6); D15.12 is the close's own manifest slip, caught before
+  the commit. The blind relabel agreed on 9 of 12 stages, 10 of 12 causes and 10 of 12 `made:`
+  tags; every tag was kept, with D15.11 reworded (the spec's Notes give each reason).
+- **Human interventions:** #103 has two `human:` lines (the spec asked for, the scope held);
+  #111 one (the step directed); #119 two (the re-pin named, then one PR for four days' re-pins).
+  #116 and the close have none: a driver started those sessions.
+- **Hand-offs:** none new. A commit that swaps two names stays untested. Phase 7 ends here;
+  the plan-auditor runs on Phases 7 and 8 on fresh `main` after this close merges.
+- **Tokens:** `docs/dashboard/token-usage.json` tags two rows with Day 15, both on 2026-11-21:
+  the implementer on Haiku (19 replies, $0.02) and a main session on Opus (12 replies, $0.45),
+  for Track A. The close's own session was not yet in the transcripts when counted, and the
+  spec's session ran where these transcripts are not. The folder's total from 2026-10-28 to
+  2026-11-21 is $361.85.
+
 ## What is being measured
 
 | Question | Evidence it will be judged on |
