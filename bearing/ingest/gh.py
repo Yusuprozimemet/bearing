@@ -20,12 +20,15 @@ class GhError(Exception):
     """A gh call that failed; the message is what the CLI prints after "bearing: "."""
 
 
-def fetch_prs(repo) -> list[dict]:
+def fetch_prs(repo, branch="main") -> list[dict]:
     # gh writes UTF-8 whatever the console's code page; the locale's would garble the titles.
     # check is left out on purpose: a failed exit is read below, into the GhError message.
     try:
         result = subprocess.run(  # noqa: PLW1510
-            PR_LIST, cwd=repo, capture_output=True, encoding="utf-8"
+            [*PR_LIST, "--base", branch],
+            cwd=repo,
+            capture_output=True,
+            encoding="utf-8",
         )
     except FileNotFoundError:
         raise GhError("gh not found: install GitHub's CLI or pass --prs FILE")

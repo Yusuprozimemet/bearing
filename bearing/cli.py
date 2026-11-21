@@ -150,6 +150,7 @@ def main(argv=None) -> int:
     ingest.add_argument("repo")
     ingest.add_argument("--prs", default=None)
     ingest.add_argument("--data", default=".bearing")
+    ingest.add_argument("--branch", default="main")
     changelog = subparsers.add_parser(
         "changelog", help="print the changelog from a stored history"
     )
@@ -215,14 +216,14 @@ def main(argv=None) -> int:
     # Read git and the PR records (file or gh) before the store is opened, so an error leaves
     # no store behind.
     try:
-        commits = read_first_parent(args.repo)
+        commits = read_first_parent(args.repo, args.branch)
     except GitError as exc:
         return _fail(str(exc) or f"not a git repository: {args.repo}")
     except OSError as exc:
         return _fail(f"cannot run git in {args.repo}: {exc.strerror or exc}")
     if args.prs is None:
         try:
-            records = fetch_prs(args.repo)
+            records = fetch_prs(args.repo, args.branch)
         except GhError as exc:
             return _fail(str(exc))
     else:

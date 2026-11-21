@@ -43,6 +43,21 @@ class FetchPrsTest(unittest.TestCase):
             "1000",
             "--json",
             "number,title,body,headRefName,baseRefName,mergeCommit,mergedAt",
+            "--base",
+            "main",
+        ]
+        release = [
+            "gh",
+            "pr",
+            "list",
+            "--state",
+            "merged",
+            "--limit",
+            "1000",
+            "--json",
+            "number,title,body,headRefName,baseRefName,mergeCommit,mergedAt",
+            "--base",
+            "release",
         ]
         outcome = subprocess.CompletedProcess(
             command, 0, stdout='[{"number": 1, "title": "Café → bar"}]', stderr=""
@@ -54,6 +69,18 @@ class FetchPrsTest(unittest.TestCase):
         self.assertEqual(len(calls), 1)
         args, kwargs = calls[0]
         self.assertEqual(args, (command,))
+        self.assertEqual(
+            kwargs,
+            {"cwd": "some/repo", "capture_output": True, "encoding": "utf-8"},
+        )
+
+        calls = []
+        with patch("subprocess.run", gh_fake(outcome, calls)):
+            records = fetch_prs("some/repo", "release")
+        self.assertEqual(records, [{"number": 1, "title": "Café → bar"}])
+        self.assertEqual(len(calls), 1)
+        args, kwargs = calls[0]
+        self.assertEqual(args, (release,))
         self.assertEqual(
             kwargs,
             {"cwd": "some/repo", "capture_output": True, "encoding": "utf-8"},
