@@ -69,7 +69,7 @@ Day 17's end, "121 passed, 131 subtests passed", to "125 passed, 131 subtests pa
 Tick each box in the closing PR once its evidence is in it; under a box left unticked, write
 `Not proven: <why>` (`specs/README.md`, "Evidence at the close").
 
-- [ ] C18.1 **new** — A directory that is not a git repository is one line. On the fixture's
+- [x] C18.1 **new** — A directory that is not a git repository is one line. On the fixture's
       store, `direction <dir> --data <store> --config tests/fixtures/bearing.toml`, `<dir>` a
       new empty directory under the class's temporary directory, returns 1, its stdout is
       empty, and its stderr, read with `\r\n` as `\n` (`tests/test_direction_cli.py`'s `text`),
@@ -77,7 +77,9 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       Red today: its stderr is "bearing: error: Could not access
       '62c4b2fcda436266c9cdd7ec8db866427452cfb9^1'".
       Test: `tests/test_direction_repo.py::DirectionRepoTest::test_not_a_repo`.
-- [ ] C18.2 **new** — A repository without the store's commits is one line. On the fixture's
+      Evidence: `DirectionRepoTest.test_not_a_repo` (#133), seen red in #133 on `main`'s code ("3 failed in 1.18s", the three `new` tests together) and again at the close on `bffafe1`'s code ("3 failed in 0.89s"); `python -m pytest -q` at the close on `9efc581` ("125 passed, 131 subtests passed").
+      broken: check_commit not called on the git diff's failure → 3 failed in 2.92s (#133)
+- [x] C18.2 **new** — A repository without the store's commits is one line. On the fixture's
       store, `direction <other> --data <store> --config tests/fixtures/bearing.toml`, `<other>`
       a repository the test makes with `git init -q` and no commit, returns 1, its stdout is
       empty, and its stderr, read as C18.1's, is exactly
@@ -86,7 +88,9 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       '62c4b2fcda436266c9cdd7ec8db866427452cfb9^1': unknown revision or path not in the working
       tree.".
       Test: `tests/test_direction_repo.py::DirectionRepoTest::test_not_a_commit`.
-- [ ] C18.3 **new** — `changed_files` raises the same lines, so the page's call reads them too.
+      Evidence: `DirectionRepoTest.test_not_a_commit` (#133), seen red in #133 on `main`'s code ("3 failed in 1.18s", the three `new` tests together) and again at the close on `bffafe1`'s code ("3 failed in 0.89s"); `python -m pytest -q` at the close on `9efc581` ("125 passed, 131 subtests passed").
+      broken: check_commit not called on the git diff's failure → 3 failed in 2.92s (#133)
+- [x] C18.3 **new** — `changed_files` raises the same lines, so the page's call reads them too.
       `bearing.direction.changes.changed_files(<dir>, "62c4b2fcda436266c9cdd7ec8db866427452cfb9")`,
       `<dir>` C18.1's directory, raises `SnapshotError` whose text is exactly
       "not a git repository: <dir>"; with C18.2's `<other>`, exactly
@@ -94,7 +98,9 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       Red today: the first raises "error: Could not access
       '62c4b2fcda436266c9cdd7ec8db866427452cfb9^1'".
       Test: `tests/test_direction_repo.py::DirectionRepoTest::test_changed_files`.
-- [ ] C18.4 **hold** — `timeline`'s, `page`'s and `snapshot`'s errors stay word for word, and
+      Evidence: `DirectionRepoTest.test_changed_files` (#133), seen red in #133 on `main`'s code ("3 failed in 1.18s", the three `new` tests together) and again at the close on `bffafe1`'s code ("3 failed in 0.89s"); `python -m pytest -q` at the close on `9efc581` ("125 passed, 131 subtests passed").
+      broken: check_commit not called on the git diff's failure → 3 failed in 2.92s (#133)
+- [x] C18.4 **hold** — `timeline`'s, `page`'s and `snapshot`'s errors stay word for word, and
       `changed_files` its return value (C08.2):
       `python -m pytest -q tests/test_timeline_cli.py tests/test_page_cli.py tests/test_snapshot_tree.py tests/test_snapshot_cli.py tests/test_changes.py`
       passes, and
@@ -102,22 +108,36 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       prints nothing and exits 0.
       This spec's PR breaks each half: "not a commit: " in `snapshot`'s message missing its
       colon, and a line of `tests/test_timeline_cli.py` changed.
-- [ ] C18.5 **hold** — `direction`'s report and its other errors stay as they are:
+      Evidence: at the close on `9efc581`, the five files printed "16 passed, 6 subtests
+      passed", and the diff against `714412f` printed nothing and exited 0.
+      broken: not a commit: in snapshot's message missing its colon → 4 failed, 14 passed, 4 subtests passed in 76.43s (0:01:16) (#106)
+      broken: a line of tests/test_timeline_cli.py changed → import unittest (#106)
+- [x] C18.5 **hold** — `direction`'s report and its other errors stay as they are:
       `python -m pytest -q tests/test_direction_cli.py` passes. Day 15 edits that file (C15.5's
       `test_threshold`), so this criterion has no `git diff` half against a fixed base; the
       day's own spec-auditor run pins one against Day 15's closing commit once it exists.
       This spec's PR breaks it: every line count read from git's numstat one too many.
-- [ ] C18.6 **hold** — No contract changes: `python -m pytest -q tests/contract/` passes, and
+      Evidence: at the close on `9efc581`, `python -m pytest -q tests/test_direction_cli.py`
+      printed "5 passed"; #133's diff does not touch the file.
+      broken: every line count read from git's numstat one too many → 3 failed, 2 passed in 9.72s (#106)
+- [x] C18.6 **hold** — No contract changes: `python -m pytest -q tests/contract/` passes, and
       `git -c core.safecrlf=false diff --exit-code 714412f -- tests/contract/ tests/fixtures/expected/ tests/fixtures/make_repo.py`
       prints nothing and exits 0 (`714412f` is `main` with Day 14's spec merged, #99); and
       `python -m pytest -q` passes.
       This spec's PR breaks each half: the direction report's "## Coupling" heading misspelt,
       and a line of `tests/contract/test_direction.py` changed.
-- [ ] C18.7 **hold** — The day stays in `bearing/` and `tests/`, with no new dependency:
+      Evidence: at the close on `9efc581`, `python -m pytest -q tests/contract/` printed "7
+      passed", the diff against `714412f` printed nothing and exited 0, and `python -m pytest
+      -q` printed "125 passed, 131 subtests passed".
+      broken: the direction report's Coupling heading misspelt → 1 failed, 6 passed in 47.38s (#106)
+      broken: a line of tests/contract/test_direction.py changed → ENV = {k: v for k, v in os.environ.items() if k not in ("GIT_DIR", "GIT_WORK_TREE")} (#106)
+- [x] C18.7 **hold** — The day stays in `bearing/` and `tests/`, with no new dependency:
       `git -c core.safecrlf=false diff --exit-code --name-only 1472abc -- .github .claude scripts pyproject.toml plan.md`
       prints nothing and exits 0 (`1472abc` is `main` with Phases 11 to 16 merged, #118).
       This spec's PR breaks it: a line of `pyproject.toml` changed.
-- [ ] C18.8 **hold** — The check costs nothing on success: one commit's files are one git call.
+      Evidence: at the close on `9efc581` the check printed nothing and exited 0.
+      broken: a line of pyproject.toml changed → pyproject.toml (#119)
+- [x] C18.8 **hold** — The check costs nothing on success: one commit's files are one git call.
       `changed_files(<the fixture's repository>, "fde93a4")`, with `subprocess.run` patched by
       `unittest.mock.patch("subprocess.run", wraps=subprocess.run)`, returns C08.2's four rows
       (`tests/test_changes.py::ChangesTest::test_fixture_merge`) and the mock is called exactly
@@ -125,6 +145,10 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       same way, also calls it exactly once, so the report's path is held too.
       Test: `tests/test_direction_repo.py::DirectionRepoTest::test_one_git_call`.
       Track A's PR breaks it: `check_commit` called before the `git diff`, not on its failure.
+      Evidence: `DirectionRepoTest.test_one_git_call` (#133) passed on `main`'s code before
+      the change (`seen-red.py` exit 1, "1 passed in 0.81s" in #133; "1 passed in 0.87s" on
+      `bffafe1` at the close) and passed at the close on `9efc581`.
+      broken: check_commit called before the git diff, not on its failure → 1 failed in 1.95s (#133)
 
 ## Verify
 ```bash
@@ -203,3 +227,50 @@ ruff check . && ruff format --check .
   would have failed it as it failed Day 14's (D14.7). Now "125 passed, (131 subtests passed)",
   as Day 14's after #110 and Days 16 and 17's after #112 and #113: the subtest count is a note
   the replay does not check.
+- Closed on `main` at `9efc581` (#133 merged), with Python 3.13.5 on Linux (WSL); CI runs 3.12.
+  `python -m pytest -q` printed "125 passed, 131 subtests passed", as Tracks said; `ruff check .`
+  found 74 EXE002 errors from this checkout's file modes and nothing else, `ruff check .
+  --extend-ignore EXE002` passed, and `ruff format --check .` printed "122 files already
+  formatted" (D18.6). CI's "Style check", "Tests" and "Track tests seen red" passed on #133.
+- Seen red again at the close: `python scripts/seen-red.py --base bffafe1 -- python -m pytest -q`
+  with C18.1–C18.3's three tests reported "3 failed in 0.89s", the spec's count; with C18.8's
+  test it said "The check passed on bffafe1" ("1 passed in 0.87s"), as a `hold` should.
+  `bffafe1` is `main` just before #133.
+- All 8 breaks in `specs/breaks/day-18.json` were replayed at the close with `scripts/break.py`
+  on `9efc581`, each failed its check, and each reported what its `broken:` line says, run
+  times aside. C18.1–C18.3's and C18.8's are #133's; C18.4, C18.5 and C18.6's five are #106's;
+  C18.7's is #119's, on base `1472abc`: #106's, on `85a21a1`, fails with no break in since
+  #118, as Days 16 and 17 found. No entry needs an `at`: every text a break edits is still on
+  `main`.
+- C18.5's `git diff` half: the spec left it to the day's spec-auditor run, to pin against Day
+  15's closing commit. #133's record shows no such run (D18.8), so no half was added; #133's
+  diff does not touch `tests/test_direction_cli.py`, and the test passed at the close.
+- Phase 10's "Done when" (plan.md): a directory that is not a git repository is C18.1, an empty
+  `git init` made in the test C18.2, and the shared `changed_files` C18.3. Each is a test under
+  `tests/` that CI's "Tests" check ran on #133.
+- Track A (#133) was written by the implementer on Haiku from the main session's brief; the
+  review found nothing to change in the code. #133's diff is 147 changed lines; the close
+  re-counted 138 insertions and 9 deletions over its 3 files.
+- This day leaves no new hand-off. It is Phase 10's only day, so after this close merges the
+  next step is CLAUDE.md's step 6: the plan-auditor on Phase 10 and on Phase 11, in a new
+  session.
+- **Defect** D18.6 — found: Track A · cause: environment · made: none · same-as: D16.4 ·
+  `ruff check .` failed locally with EXE002 errors (74 at the close) on files the day did not
+  touch, from the checkout's mode bits; CI's check passed.
+- **Defect** D18.7 — found: Track A · cause: process · made: Day 18 · the main session's brief
+  for #133 told the implementer to pass `--config` to `ingest`, which has no such option; the
+  implementer used `tests/test_direction_cli.py`'s `ingest` call instead, and #133's body said
+  so.
+- **Defect** D18.8 — found: close · cause: process · made: Day 18 · same-as: D17.6 · Day 18 is
+  Phase 10's first day, and #133's body and commit record neither the plan-auditor on Phase 10
+  nor the spec-auditor on the day before the track, as step 1 of CLAUDE.md asks, nor say they
+  were skipped. The spec's own audit ran before #106.
+- Blind relabel at the close (`scripts/relabel.py`, 8 entries): stage 2 of 7, cause 8 of 8,
+  `made:` 8 of 8 agree. The rater read D18.1's "kept them red after the fix" as found during
+  the track (`before_merge`); the fix never ran red: the Note above it says the spec-auditor
+  found it before #106, where the stderr "would stay red", so `found: auditor` is kept. It left
+  D18.2–D18.4's stage unclear: their text does not say when they were found, but the same Note
+  does, so `found: auditor` is kept. It left D18.6's unclear; kept as Track A, since #133's body
+  reported the local failure before it merged. D18.5's stage was not compared: `found:
+  maintainer` is not one of `specs/README.md`'s values, kept as written, as D16.3 and D17.4.
+  Every tag kept.
