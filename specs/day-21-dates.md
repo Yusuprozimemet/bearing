@@ -63,45 +63,60 @@ Each case runs `changelog <option> <value> --data <the ingested store>` and pass
 returns 2, its stdout is empty, its stderr's first line starts "usage: bearing changelog", and
 its stderr's last line is exactly the line given.
 
-- [ ] C21.1 **new** — A word is refused in the new form. `--since yesterday` gives
+- [x] C21.1 **new** — A word is refused in the new form. `--since yesterday` gives
       "bearing changelog: error: argument --since: not a date in YYYY-MM-DD form: 'yesterday'";
       `--since it's` gives "bearing changelog: error: argument --since: not a date in
       YYYY-MM-DD form: 'it's'", the value between single quotes as typed.
       Red today: "bearing changelog: error: argument --since: invalid fromisoformat value:
       'yesterday'".
       Test: `tests/test_changelog_dates.py::ChangelogDatesTest::test_word`.
-- [ ] C21.2 **new** — The basic form is refused. `--since 20260121` gives
+      Evidence: `ChangelogDatesTest.test_word` (#147), seen red in #147 on `main`'s code ("6 failed in 1.89s", the six `new` tests together) and again at the close on `02ee59e`'s code ("6 failed in 1.59s"); `python -m pytest -q` at the close on `e679a9b` ("144 passed, 131 subtests passed").
+      broken: _date quoting VALUE with !r → 1 failed in 2.41s (#147)
+- [x] C21.2 **new** — The basic form is refused. `--since 20260121` gives
       "bearing changelog: error: argument --since: not a date in YYYY-MM-DD form: '20260121'".
       Red today: it exits 0 and prints the changelog from 2026-01-21.
       Test: `tests/test_changelog_dates.py::ChangelogDatesTest::test_basic_form`.
-- [ ] C21.3 **new** — A week date is refused. `--since 2026-W03-2` gives
+      Evidence: `ChangelogDatesTest.test_basic_form` (#147), seen red in #147 on `main`'s code ("6 failed in 1.89s", the six `new` tests together) and again at the close on `02ee59e`'s code ("6 failed in 1.59s"); `python -m pytest -q` at the close on `e679a9b` ("144 passed, 131 subtests passed").
+      No break of its own: the seen-red runs are what show it can fail.
+- [x] C21.3 **new** — A week date is refused. `--since 2026-W03-2` gives
       "bearing changelog: error: argument --since: not a date in YYYY-MM-DD form:
       '2026-W03-2'".
       Red today: it exits 0 and prints the changelog from 2026-01-13.
       Test: `tests/test_changelog_dates.py::ChangelogDatesTest::test_week_date`.
-- [ ] C21.4 **new** — A day that does not exist is refused in the new form. `--since 2026-02-30`
+      Evidence: `ChangelogDatesTest.test_week_date` (#147), seen red in #147 on `main`'s code ("6 failed in 1.89s", the six `new` tests together) and again at the close on `02ee59e`'s code ("6 failed in 1.59s"); `python -m pytest -q` at the close on `e679a9b` ("144 passed, 131 subtests passed").
+      No break of its own: the seen-red runs are what show it can fail.
+- [x] C21.4 **new** — A day that does not exist is refused in the new form. `--since 2026-02-30`
       gives "bearing changelog: error: argument --since: not a date in YYYY-MM-DD form:
       '2026-02-30'".
       Red today: "... argument --since: invalid fromisoformat value: '2026-02-30'".
       Test: `tests/test_changelog_dates.py::ChangelogDatesTest::test_no_such_day`.
-- [ ] C21.5 **new** — `--until` is checked the same way. `--until 20260121` gives
+      Evidence: `ChangelogDatesTest.test_no_such_day` (#147), seen red in #147 on `main`'s code ("6 failed in 1.89s", the six `new` tests together) and again at the close on `02ee59e`'s code ("6 failed in 1.59s"); `python -m pytest -q` at the close on `e679a9b` ("144 passed, 131 subtests passed").
+      No break of its own: the seen-red runs are what show it can fail.
+- [x] C21.5 **new** — `--until` is checked the same way. `--until 20260121` gives
       "bearing changelog: error: argument --until: not a date in YYYY-MM-DD form: '20260121'".
       Red today: it exits 0 and prints the changelog up to 2026-01-21.
       Test: `tests/test_changelog_dates.py::ChangelogDatesTest::test_until`.
-- [ ] C21.6 **new** — The date is checked before the store is looked for. `--since 20260121`
+      Evidence: `ChangelogDatesTest.test_until` (#147), seen red in #147 on `main`'s code ("6 failed in 1.89s", the six `new` tests together) and again at the close on `02ee59e`'s code ("6 failed in 1.59s"); `python -m pytest -q` at the close on `e679a9b` ("144 passed, 131 subtests passed").
+      No break of its own: the seen-red runs are what show it can fail.
+- [x] C21.6 **new** — The date is checked before the store is looked for. `--since 20260121`
       with `--data` naming a directory that does not exist gives C21.2's exit, stdout and last
       line, and the directory still does not exist.
       Red today: it exits 1 with "bearing: no store at <dir>/bearing.db: run bearing ingest
       first".
       Test: `tests/test_changelog_dates.py::ChangelogDatesTest::test_no_store`.
-- [ ] C21.7 **hold** — Day 16's checks of dates out of order still read dates:
+      Evidence: `ChangelogDatesTest.test_no_store` (#147), seen red in #147 on `main`'s code ("6 failed in 1.89s", the six `new` tests together) and again at the close on `02ee59e`'s code ("6 failed in 1.59s"); `python -m pytest -q` at the close on `e679a9b` ("144 passed, 131 subtests passed").
+      No break of its own: the seen-red runs are what show it can fail.
+- [x] C21.7 **hold** — Day 16's checks of dates out of order still read dates:
       `python -m pytest -q tests/test_cli_errors.py` passes, and
       `git -c core.safecrlf=false diff --exit-code 50a000a -- tests/test_cli_errors.py`
       prints nothing and exits 0 (`50a000a` is `main` with Day 16's close merged, #128).
       Track A's PR breaks the test half: `_date` returning the string it was given, not a
       `date`. The day's spec-change PR breaks the `git diff` half: a line of
       `tests/test_cli_errors.py` changed.
-- [ ] C21.8 **hold** — Dates in YYYY-MM-DD print what they print today, and nothing else moves:
+      Evidence: at the close on `e679a9b`, `python -m pytest -q tests/test_cli_errors.py` printed "4 passed", and the `git diff` against `50a000a` printed nothing and exited 0.
+      broken: _date returning the string it was given, not a date → 3 failed, 1 passed in 4.05s (#147)
+      broken: a line of tests/test_cli_errors.py changed → self.assertEqual(result.stdout, b"") (#146)
+- [x] C21.8 **hold** — Dates in YYYY-MM-DD print what they print today, and nothing else moves:
       `python -m pytest -q tests/test_changelog_cli.py tests/test_cli.py tests/test_stderr.py tests/contract/`
       passes, and
       `git -c core.safecrlf=false diff --exit-code 714412f -- tests/test_changelog_cli.py tests/test_cli.py tests/test_stderr.py tests/contract/ tests/fixtures/expected/ tests/fixtures/make_repo.py`
@@ -109,10 +124,16 @@ its stderr's last line is exactly the line given.
       `python -m pytest -q` passes.
       The spec PR breaks each half: `--since` read as a string where it is read as a date, and
       a line of `tests/test_changelog_cli.py` changed.
-- [ ] C21.9 **hold** — The day stays in `bearing/` and `tests/`, with no new dependency:
+      Evidence: at the close on `e679a9b`, the four paths' tests printed "17 passed, 5 subtests passed", the `git diff` against `714412f` printed nothing and exited 0, and `python -m pytest -q` printed "144 passed, 131 subtests passed". #121's code break finds the `--since` line #147 rewrote, so its manifest entry runs `at` `02ee59e`; the close broke the same line on its own code too (D21.3).
+      broken: --since read as a string where it is read as a date → 2 failed, 15 passed, 5 subtests passed in 73.07s (0:01:13) (#121)
+      broken: --since read as a string where it is read as a date, on the close's code → 2 failed, 15 passed, 5 subtests passed in 21.17s (#148)
+      broken: a line of tests/test_changelog_cli.py changed → import os (#121)
+- [x] C21.9 **hold** — The day stays in `bearing/` and `tests/`, with no new dependency:
       `git -c core.safecrlf=false diff --exit-code --name-only 1472abc -- .github .claude scripts pyproject.toml plan.md`
       prints nothing and exits 0 (`1472abc` is `main` with Phases 11 to 16 merged, #118).
       The spec PR breaks it: a line of `scripts/check-links.py` changed.
+      Evidence: at the close on `e679a9b`, the `git diff --name-only` against `1472abc` printed nothing and exited 0; #147 touched only `bearing/` and `tests/`.
+      broken: a line of scripts/check-links.py changed → scripts/check-links.py (#121)
 
 ## Verify
 ```bash
@@ -179,3 +200,43 @@ ruff check . && ruff format --check .
   break from the spec PR for Days 19 to 24 finds the `--since` line Track A rewrites, so it
   cannot run on the closing commit; the Notes now give the close an `at` and a break on the
   new code.
+- The close, run on `main` at `e679a9b` (Linux under WSL, Python 3.13.5): `python -m pytest -q`
+  "144 passed, 131 subtests passed", the spec's count; `tests/test_changelog_dates.py` "6
+  passed", `tests/test_cli_errors.py` "4 passed", C21.8's four paths "17 passed, 5 subtests
+  passed"; the three `git diff` checks of C21.7–C21.9 each printed nothing and exited 0.
+  `ruff format --check .` printed "125 files already formatted"; `ruff check .` reported 77
+  EXE002 errors and passed with `--extend-ignore EXE002` (D21.4).
+- Seen red again at the close: `python scripts/seen-red.py --base 02ee59e -- python -m pytest -q
+  tests/test_changelog_dates.py` reported "6 failed in 1.59s", the spec's count. `02ee59e` is
+  `main` just before #147.
+- All 7 breaks in `specs/breaks/day-21.json` were replayed at the close with `scripts/break.py`,
+  each failed its check, and each reported what its `broken:` line says, run times aside.
+  C21.7's test half and C21.1's quoting break are #147's; C21.7's `git diff` half is #146's;
+  C21.8's two and C21.9's one are #121's; one more, C21.8's "on the close's code", is this
+  close's own. As D21.3 said, #121's code break finds `"--since", type=datetime.date.fromisoformat`,
+  gone since #147, so that entry carries `"at": "02ee59e"` and was replayed in a worktree there;
+  the close broke `"--since", type=_date` the same way on its own code and recorded it beside.
+- C21.2–C21.6 have no break of their own: the seen-red runs, on `main`'s code in #147 and on
+  `02ee59e` at the close, are what show their tests can fail.
+- The first-day audits ran in the spec-change PR (#146), as the Note above records; #146 has
+  "human: none yet". Phase 13's "Done when" (plan.md): `yesterday` is C21.1, `20260121` C21.2,
+  `2026-W03-2` C21.3, `2026-02-30` C21.4, `--until` C21.5 and the missing store C21.6, each a test
+  in `tests/test_changelog_dates.py` that CI's "Tests" check ran on #147; YYYY-MM-DD dates
+  unchanged is C21.8.
+- Track A (#147) was written by the implementer on Haiku from the main session's brief. The
+  close re-counted its diff from `git diff --numstat 02ee59e e679a9b`: 116 changed lines
+  (`bearing/cli.py` 14+/2−, `tests/test_changelog_dates.py` 100+).
+- `docs/dashboard/token-usage.json`, refreshed at the close, is unchanged: 87 rows, from
+  2026-10-28 to 2026-11-21, $361.85; it tags no row with Day 21.
+- This day leaves no new hand-off. It is Phase 13's only day, so after this close merges the
+  next step is CLAUDE.md's step 6: the plan-auditor on Phase 13 and on Phase 14, in a new
+  session.
+- **Defect** D21.4 — found: Track A · cause: environment · made: none · same-as: D20.4 ·
+  `ruff check .` failed locally with EXE002 errors (76 in #147, 77 at the close), from the
+  checkout's file modes and on no line the day wrote; CI's check passed.
+- Blind relabel at the close (`scripts/relabel.py compare`): stage 1 of 4 agree, cause 4 of 4,
+  `made:` 1 of 4; the rater left 3 stages and 2 `made:` tags unclear. No tag changed. D21.1–D21.3
+  stay `found: auditor`: the audit Notes beside them name the run that found each, before any
+  code, and the blind file holds only the Defect lines. Their `made: Day 21` stays too, D21.3's
+  included where the rater read "earlier": the spec PR for Days 19 to 24 wrote Day 21's own
+  spec, so the text was this day's, as D20.5's was Day 20's.
