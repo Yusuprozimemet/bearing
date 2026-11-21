@@ -45,6 +45,7 @@ THRESHOLD_ROWS = [
     "| app/b.py | app/core.py | #3, #9 | no |",
     "| app/b.py | src/lib/util.py | #3, #9 | app, lib |",
     ROW_APP_LIB,
+    "| scripts/run.py | scripts/tools.py | #2, #8 | no |",
 ]
 SAID_VS_DONE = [
     "",
@@ -142,8 +143,8 @@ class DirectionCliTest(unittest.TestCase):
         lines = text(result.stdout).split("\n")
         self.assertEqual(lines[:18], CHURN)
         # Day 9 adds a section after Coupling: only a blank line may follow the rows.
-        self.assertEqual(lines[18:25], COUPLING_HEAD + THRESHOLD_ROWS)
-        self.assertEqual(lines[25], "")
+        self.assertEqual(lines[18:26], COUPLING_HEAD + THRESHOLD_ROWS)
+        self.assertEqual(lines[26], "")
 
         config4 = Path(self.tmp.name) / "min4.toml"
         config4.write_bytes(raw.replace(b"min_prs = 3", b"min_prs = 4"))
