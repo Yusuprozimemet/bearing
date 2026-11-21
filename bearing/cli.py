@@ -235,9 +235,15 @@ def main(argv=None) -> int:
         try:
             records = load_prs(args.prs)
             check_records(args.prs, records)
-        except FileNotFoundError as exc:
-            return _fail(f"cannot read {args.prs}: {exc.strerror}")
-        except (OSError, ValueError) as exc:
+        except json.JSONDecodeError as exc:
+            return _fail(
+                f"cannot read {args.prs}: not JSON: {exc.msg} (line {exc.lineno}, column {exc.colno})"
+            )
+        except UnicodeDecodeError:
+            return _fail(f"cannot read {args.prs}: not UTF-8")
+        except OSError as exc:
+            return _fail(f"cannot read {args.prs}: {exc.strerror or exc}")
+        except ValueError as exc:
             return _fail(str(exc))
 
     # gh stops at 1000 records (bearing/ingest/gh.py's --limit). 1001 cannot be one gh call's
