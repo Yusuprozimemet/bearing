@@ -934,6 +934,41 @@
 - **Tokens:** `docs/dashboard/token-usage.json` tags no row with Day 20: refreshed at the
   close, it still holds 87 rows, from 2026-10-28 to 2026-11-21, $361.85.
 
+### Day 21: a date that is not YYYY-MM-DD (Phase 13), closed in #148
+
+- **Delivered:** `bearing changelog --since` and `--until` take only YYYY-MM-DD for a day that
+  exists, through a new type, `_date` in `bearing/cli.py` (#147). Anything else, `20260121`,
+  `2026-W03-2` and `2026-02-30` among them, gives argparse's usage and "argument --since: not a
+  date in YYYY-MM-DD form: 'VALUE'", exit 2, before the store is looked for; where the first two
+  passed as dates and the rest said "invalid fromisoformat value". It reverses Day 3's D03.9.
+  No contract, golden file or migration changed. `pytest -q`: 144 passed, 131 subtests passed.
+- **Criteria:** 9 of 9 ticked: 6 `new` and 3 `hold`.
+- **Breaks on purpose:** 7, all in `specs/breaks/day-21.json`: 2 in #147, 1 in #146, 3 in #121
+  and 1 at the close. The close replayed all 7, and each failed its check; #121's `--since`
+  break runs `at` `02ee59e`, since #147 rewrote its line (D21.3, foreseen by the audit).
+- **PRs:** 4 at the day-spec rung: the spec (#121, shared with Days 19, 20 and 22 to 24), a
+  spec-change PR (#146), Track A (#147) and the close (#148). No Track 0.
+- **Defects:** 4 in the Notes.
+
+  | Field | Count |
+  | --- | --- |
+  | found: auditor | 3 |
+  | found: Track A | 1 |
+  | cause: spec | 3 |
+  | cause: environment | 1 |
+
+  The spec-auditor in #121 found a Note naming the wrong test file (D21.1); the first-day audits
+  found a Note undercounting C21.7's break (D21.2) and a spec-PR break that Track A would make
+  unrunnable (D21.3, same as D20.5, caught this time before the close). D21.4 is the local
+  `ruff` mode-bit failure again (same as D20.4). The blind relabel agreed on 1 of 4 stages (the
+  rater left 3 unclear), 4 of 4 causes and 1 of 4 `made:` tags; no tag changed.
+- **Human interventions:** #121 has four `human:` lines, shared with Days 19, 20 and 22 to 24.
+  #146, #147 and the close have none: a driver started those sessions.
+- **Hand-offs:** none new. Phase 13 ends with this close: next is the plan-auditor on Phases
+  13 and 14 (CLAUDE.md, step 6).
+- **Tokens:** `docs/dashboard/token-usage.json` tags no row with Day 21: refreshed at the
+  close, it still holds 87 rows, from 2026-10-28 to 2026-11-21, $361.85.
+
 ## What is being measured
 
 | Question | Evidence it will be judged on |
