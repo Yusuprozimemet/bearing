@@ -143,7 +143,7 @@ def _page(args) -> int:
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="bearing")
     parser.add_argument("--version", action="version", version=f"bearing {__version__}")
-    subparsers = parser.add_subparsers(dest="command")
+    subparsers = parser.add_subparsers(dest="command", required=True)
     ingest = subparsers.add_parser(
         "ingest", help="store a repository's history and PRs"
     )
@@ -182,6 +182,15 @@ def main(argv=None) -> int:
     page.add_argument("--config", default="bearing.toml")
     page.add_argument("--out", required=True)
     args = parser.parse_args(argv)
+    if (
+        args.command == "changelog"
+        and args.since
+        and args.until
+        and args.since > args.until
+    ):
+        changelog.error(
+            f"--since {args.since.isoformat()} is after --until {args.until.isoformat()}"
+        )
     # Output and errors are UTF-8 whatever the console's code page; a stream without reconfigure
     # (a test's StringIO) is left as it is. Parsing comes first, so --version never touches a stream.
     if hasattr(sys.stdout, "reconfigure"):
