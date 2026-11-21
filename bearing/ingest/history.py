@@ -5,6 +5,8 @@ import subprocess
 from datetime import UTC, datetime
 from typing import NamedTuple
 
+from bearing.snapshot.tree import SnapshotError, check_repo
+
 MERGE_SUBJECT = re.compile(r"Merge pull request #(\d+) from ([^/\s]+)/(\S+)")
 
 
@@ -27,8 +29,12 @@ class GitError(Exception):
 
 def read_first_parent(repo, branch="main") -> list[Commit]:
     # Read-only: git log writes nothing, so the repository is left as it was.
-    # rev-parse exits 1 for a missing ref; any other failure (128 outside a repository) is left to
-    # git log, so its error stays git's.
+    try:
+        check_repo(repo)
+    except SnapshotError as error:
+        raise GitError(str(error)) from error
+    # check_repo has already refused a path that is not a repository; rev-parse exits 1 for a
+    # missing ref, and any other failure is left to git log, so its error stays git's.
     check = subprocess.run(
         [
             "git",

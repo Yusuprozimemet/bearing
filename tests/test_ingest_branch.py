@@ -226,5 +226,5 @@ class IngestBranchTest(unittest.TestCase):
         )
         self.assertEqual(code, 1)
         self.assertEqual(out, "")
-        self.assertTrue(err.startswith("bearing: fatal: not a git repository"), err)
+        self.assertEqual(err, f"bearing: not a git repository: {plain}\n")
         self.assertFalse((data / "bearing.db").exists())
