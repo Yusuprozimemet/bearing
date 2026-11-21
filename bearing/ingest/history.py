@@ -1,4 +1,4 @@
-"""Reading the first-parent history of main, and the merge subjects GitHub writes into it."""
+"""Reading the first-parent history of a local branch (main by default), and the merge subjects GitHub writes into it."""
 
 import re
 import subprocess
@@ -25,8 +25,27 @@ class GitError(Exception):
     """Raised when git fails; the message carries git's stderr."""
 
 
-def read_first_parent(repo) -> list[Commit]:
+def read_first_parent(repo, branch="main") -> list[Commit]:
     # Read-only: git log writes nothing, so the repository is left as it was.
+    # rev-parse exits 1 for a missing ref; any other failure (128 outside a repository) is left to
+    # git log, so its error stays git's.
+    check = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(repo),
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            f"refs/heads/{branch}",
+        ],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=False,
+    )
+    if check.returncode == 1:
+        raise GitError(f"--branch {branch}: not a local branch in {repo}")
     result = subprocess.run(
         [
             "git",
@@ -36,7 +55,7 @@ def read_first_parent(repo) -> list[Commit]:
             "--first-parent",
             "--reverse",
             "--format=%H%x00%P%x00%ct%x00%s",
-            "main",
+            f"refs/heads/{branch}",
             "--",
         ],
         capture_output=True,
