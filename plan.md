@@ -300,6 +300,147 @@ it changes Day 8's `bearing/direction/` and reuses Day 5's checks in `bearing/sn
 - **Done when:** every check is a test under `tests/`; the second repository is an empty
   `git init` made in the test, as `tests/test_timeline_cli.py` already does.
 
+Phases 11 to 16 are one small day each, Days 19 to 24 (Course correction after Day 15's track
+A). They hold to the same rules as Phases 7 to 10: each day's work stays in `bearing/` and
+`tests/`, with no new dependency and nothing under `.github/`, `.claude/` or `scripts/`; and
+each "Done when" also holds that `pytest -q` passes in CI and that
+`git diff --exit-code 714412f -- tests/contract/` prints nothing. Every error in Phases 11, 12,
+14, 15 and 16 is one line on stderr starting "bearing: ", exit 1, with nothing on stdout;
+Phase 13's is argparse's usage and error line, exit 2.
+
+### Phase 11 — A `--prs` file that is not PR records
+**Goal:** `bearing ingest --prs FILE` stops with one line when the file's JSON is not a list of
+PR records. Today a record with no `title` ends in a traceback (`KeyError: 'title'`) and leaves
+a `bearing.db` behind, a list of numbers in another (`AttributeError`), a `mergeCommit` that is
+a string in a third, a JSON object exits 0 as if it held no PRs, and two records with one
+`number` print "cannot open store at D: UNIQUE constraint failed: prs.number" and leave a store.
+Day 19; it changes Day 2's `--prs` path in `bearing/cli.py` and `bearing/ingest/mapping.py`.
+- A new function in `bearing/ingest/mapping.py` checks the records `load_prs` returned and
+  raises `ValueError` carrying the line after "bearing: ". `ingest` calls it inside the `try`
+  that reads the file, right after `load_prs`, so the existing `except (OSError, ValueError)`
+  prints it; that is before the 1000-record warning and before the store is opened. `load_prs`
+  itself is unchanged: `tests/test_mapping.py`'s `test_utf8` reads a record with no branch
+  names through it. The records `gh` prints are not checked.
+- The first failure found is the line, records counted from 1, exit 1, no store written:
+  - "bearing: FILE: not a list of PR records", for anything but a JSON list;
+  - "bearing: FILE: record N is not an object";
+  - for each of `number`, `title`, `headRefName`, `baseRefName` in that order, the fields
+    `save` and the report read with `[]`, its presence and then its type: "bearing: FILE:
+    record N has no FIELD", "bearing: FILE: record N's number is not an integer" (`true` is
+    not one), "bearing: FILE: record N's FIELD is not a string";
+  - then the optional fields, each absent, `null` or of its type: "bearing: FILE: record N's
+    FIELD is not a string" for `body` and `mergedAt`, "bearing: FILE: record N's mergeCommit
+    is not an object", and "bearing: FILE: record N's mergeCommit oid is not a string";
+  - after every record passes: "bearing: FILE: record N repeats number M", N the first record
+    whose number an earlier record has.
+- **Done when:** every check is a test under `tests/`. `{}`, `[1]`, and the fixture's records
+  with record 3's `title` removed, its `number` the string "3", its `mergeCommit` the string
+  "x", and its `number` that of record 2, each give its line, exit 1, an empty stdout and no
+  store; the fixture's `prs.json` still prints `tests/fixtures/expected/ingest.txt`.
+
+### Phase 12 — A `--prs` file that cannot be read names it
+**Goal:** every failure to read a `--prs` file says "cannot read FILE", as a missing one does
+today ("bearing: cannot read FILE: No such file or directory"). Day 20; it changes the same
+`except` in `bearing/cli.py` as Day 19.
+- Today text that is not JSON prints "bearing: Expecting property name enclosed in double
+  quotes: line 1 column 2 (char 1)", bytes that are not UTF-8 print "bearing: 'utf-8' codec
+  can't decode byte 0xff in position 0: invalid start byte", and a directory prints "bearing:
+  [Errno 13] Permission denied: '<path>'" (Windows; Linux gives errno 21). None names the
+  option or says the file is the problem.
+- They become "bearing: cannot read FILE: not JSON: <msg> (line L, column C)" from the
+  `JSONDecodeError`'s `msg`, `lineno` and `colno` (not `str(exc)`, which repeats the
+  position), so `{bad` gives "bearing: cannot read FILE: not JSON: Expecting property name
+  enclosed in double quotes (line 1, column 2)"; "bearing: cannot read FILE: not UTF-8"; and
+  "bearing: cannot read FILE: <reason>", the reason `exc.strerror or exc` as `ingest`'s "cannot
+  run git" line has it. Day 19's lines are `ValueError`s too and keep their wording: the day
+  catches the decode errors by their own classes.
+- A file that starts with a UTF-8 byte order mark (what Windows PowerShell 5.1's
+  `Out-File -Encoding utf8` writes) is not JSON, as today: "not JSON: Unexpected UTF-8 BOM
+  (decode using utf-8-sig) (line 1, column 1)". `gh` writes none.
+- **Done when:** every check is a test under `tests/`. A file holding `{bad` and one holding the
+  bytes `ff fe 5b` each give its exact line; a directory gives one line starting
+  "bearing: cannot read <dir>: " with no "[Errno" in it; each exits 1 with an empty stdout and
+  no store. The missing file's line is unchanged.
+
+### Phase 13 — A date that is not YYYY-MM-DD
+**Goal:** `bearing changelog --since` and `--until` take a date in the store's form,
+YYYY-MM-DD, and say so when given anything else. Day 21; it changes Day 3's option types in
+`bearing/cli.py`, after Day 16's date check.
+- Today a value that `date.fromisoformat` refuses gives "bearing changelog: error: argument
+  --since: invalid fromisoformat value: 'yesterday'", and two forms it accepts pass as dates no
+  one wrote down: `20260121` is 2026-01-21 and `2026-W03-2` is 2026-01-13.
+- This reverses a decision of Day 3: its In scope says DATE is any ISO date
+  `date.fromisoformat` accepts, `20260114` among them (`specs/day-03-changelog.md`, set by
+  D03.9). No criterion or test pins it, so no `Replaces:` line; Day 21's spec cites both.
+- Both options take exactly four digits, "-", two digits, "-", two digits (ASCII digits only)
+  naming a real day, and still give a `date`, so Day 16's check is unchanged. Anything else,
+  `2026-02-30` included, makes the type raise `argparse.ArgumentTypeError` (a plain
+  `ValueError` brings back "invalid <name> value"): "bearing changelog: error: argument
+  --since: not a date in YYYY-MM-DD form: 'VALUE'", VALUE as typed between single quotes (not
+  `!r`, which switches to double quotes for a value holding one), `--until` for that option;
+  exit 2, nothing on stdout, and the store not read.
+- **Done when:** every check is a test under `tests/`. `yesterday`, `20260121`, `2026-W03-2` and
+  `2026-02-30` given to `--since`, and one of them to `--until`, each end with its line and exit
+  2; the same with a `--data` that holds no store gives exit 2, not "no store"; and dates in
+  YYYY-MM-DD print what they print today. No test pins argparse's date text today, so no
+  criterion is replaced.
+
+### Phase 14 — `ingest`'s "not a git repository" in one line
+**Goal:** `bearing ingest` names a wrong repository as every other command does. Day 22; it
+changes Day 2's `read_first_parent` as Day 17 leaves it.
+- Today a directory that is not a git repository prints "bearing: fatal: not a git repository
+  (or any of the parent directories): .git", and a path that does not exist "bearing: fatal:
+  cannot change to '<repo>': No such file or directory". Both become
+  "bearing: not a git repository: <repo>", `<repo>` as given: the line `snapshot`, `timeline`
+  and `page` print, and `direction` after Day 18. Exit 1, no store.
+- Day 18's `check_commit(repo, ref)` in `bearing/snapshot/tree.py` runs the
+  `git rev-parse --git-dir` check and the commit check together, and raises `SnapshotError`,
+  which `ingest` does not catch. Day 22 splits the first check out into its own function in
+  `tree.py`, which `check_commit` calls, so the other commands print what they print.
+  `read_first_parent` calls it before Day 17's branch check and raises `GitError` with the same
+  text, so `ingest`'s existing `except GitError` prints it.
+- A repository with no such branch keeps Day 17's line, and any other git failure keeps
+  git's text. Day 22 replaces C17.7, which pins "bearing: fatal: not a git repository", and
+  changes Day 17's In scope line "a directory that is not a git repository keeps today's
+  error"; its spec cites both.
+- **Done when:** every check is a test under `tests/`, with the fixture, an empty temporary
+  directory and a path that does not exist; the missing-branch line is unchanged.
+
+### Phase 15 — OS errors name the path once
+**Goal:** two of `bearing`'s OS errors print the path twice, the second time in Python's
+quoting (with its backslashes doubled on Windows). They print it once, with the OS's reason,
+as `ingest`'s "cannot run git" line does, and `--prs`'s after Day 20. Day 23; it changes `page`
+and `ingest` in `bearing/cli.py`.
+- Today `page --out missing/x.html` prints "bearing: cannot write missing/x.html: [Errno 2] No
+  such file or directory: 'missing\\x.html'", and `ingest --data FILE`, a file where the store's
+  directory should be, prints "bearing: cannot open store at FILE: [WinError 183] Cannot create
+  a file when that file already exists: 'FILE'" (Linux: "[Errno 17] File exists").
+- They become "bearing: cannot write OUT: <reason>" and "bearing: cannot open store at DATA:
+  <reason>", the reason `exc.strerror or exc` as Day 20's. A `sqlite3.Error` at the store keeps its text, as does every other error.
+- **Done when:** every check is a test under `tests/`. `page --out` into a directory that does
+  not exist prints exactly "bearing: cannot write <out>: No such file or directory" (ENOENT reads
+  the same on Linux and Windows), and `ingest --data` naming a file one line starting
+  "bearing: cannot open store at <file>: " with no "[Errno" or "[WinError" in it; each exits 1
+  with an empty stdout. The two tests that pin these lines' starts today
+  (`tests/test_broken_store.py`, `tests/test_page_cli.py`) pass unedited.
+
+### Phase 16 — A `bearing.toml` that is not UTF-8
+**Goal:** `bearing direction` and `bearing page` stop with one line when the config's bytes are
+not UTF-8, as they do for a config that is not TOML. Day 24; it changes Day 8's `_read` in
+`bearing/direction/config.py`, which `load_config` and `load_rules` (Day 9) share.
+- Today a config holding the bytes `ff fe` followed by `[areas]` ends both commands in a
+  traceback, "UnicodeDecodeError: 'utf-8' codec can't decode byte 0xff in position 0: invalid
+  start byte", exit 1: `_read` catches only `tomllib.TOMLDecodeError`.
+- It becomes "bearing: cannot read config FILE: not UTF-8", FILE as given, the prefix the
+  `TOMLDecodeError` line has and the reason Day 20's `--prs` line gives. `_read` raises it as a
+  `ConfigError`, which both commands already print, before the store is looked for.
+- A config that starts with a UTF-8 byte order mark keeps today's line, "bearing: cannot read
+  config FILE: Invalid statement (at line 1, column 1)", as Day 20 keeps `--prs`'s. A missing
+  config and a config that is not TOML keep theirs.
+- **Done when:** every check is a test under `tests/`. The `ff fe` config gives its exact line
+  for `direction` and for `page`, each exit 1 with an empty stdout, and `page` writes no
+  `--out` file; `tests/test_config.py` passes unedited.
+
 ## Stopping points
 
 - **Day 4 (Phase 1) is a stopping point.** Is the changelog of the kit's 91 PRs useful enough to
@@ -360,6 +501,54 @@ kit's repository). For it to count:
 ## Course corrections
 
 <!-- Added by plan-change PRs, newest first. Empty at the start. -->
+
+### 2026-11-21: Course correction after Day 15's track A: Phases 11 to 16, one day each
+
+Day 15's close and Days 16 to 18 give the agentic-workflow-driver about 7 more pull requests;
+it needs about 14 opened and merged by its own sessions at level 1, then one whole day at
+level 2. The maintainer adds six phases of one small day each, Days 19 to 24, with one track
+each, and their specs are written now, one spec PR per day after this one, so the driver never
+stops at "write its day spec". Five days would give exactly the 14 and the level 2 day, so one
+count set back to 0 would end the plan before the driver is done; the sixth is the margin.
+
+1. **Found by running `bearing`,** on `main` at `4118a00` (#116 merged) with Python 3.12.10, on
+   the fixture and on inputs a user can type: each phase's "Today" lines are what it printed.
+   Chosen: a `--prs` file of the wrong shape, a traceback or a silent exit 0 (Phase 11); a
+   `--prs` file that cannot be read, with no file named (Phase 12); dates in forms no one wrote
+   down, and argparse's "invalid fromisoformat value" (Phase 13); `ingest`, the one command
+   that prints git's text for a wrong repository (Phase 14); OS errors that print their path
+   twice (Phase 15); and a config that is not UTF-8, a traceback (Phase 16).
+2. **One track each, small enough for one sitting:** each day is one function or one `except`
+   and a new test file, in `bearing/` and `tests/`. Days 19 and 20 touch the same `except`, and
+   Day 21 the options Day 16 checks, so they run in this order.
+3. **Decisions made here so the days need none,** proposed in this PR and the maintainer's by
+   its merge: the six wordings above, word for word; records counted from 1 and the first
+   failure reported; every field `save` stores checked for its type, and numbers for
+   repeats; `gh`'s records not checked; `load_prs` unchanged; dates narrowed to YYYY-MM-DD,
+   `20260121` and ISO week dates refused (Day 3's choice, reversed); `ingest`'s
+   wrong-repository line from a check split out of Day 18's `check_commit`; `exc.strerror or
+   exc` for an OS error.
+4. **One day replaces a criterion:** Day 22 replaces C17.7 ("bearing: fatal: not a git
+   repository"), which Day 17 adds, with a `Replaces:` line. Day 21 reverses Day 3's In scope
+   choice of dates, which no criterion pins. No other test pins what these
+   phases change: `tests/test_broken_store.py` and `tests/test_page_cli.py` pin Phase 15's
+   lines by their start, which stays.
+5. **Specs written ahead of their day,** as item 6 of the course correction after Phase 6:
+   against `main` at `4118a00`, before the code of Days 15 to 18 has merged. Each day's
+   spec-auditor run reads its spec against `main` as it is then, and a spec-change PR fixes what
+   moved; the test counts assume the days before land as their specs say, from Day 18's
+   "125 passed, (131 subtests passed)".
+6. **This change breaks four holds, and four spec-change PRs re-pin them.** C15.8, C16.7, C17.10
+   and C18.7 require `git diff --exit-code --name-only 85a21a1 -- .github .claude scripts
+   pyproject.toml plan.md` to print nothing, and this PR edits `plan.md`. After it merges, and
+   before Day 15's close, one spec-change PR per day (`day-15/spec-...` to `day-18/spec-...`)
+   moves its criterion's base from `85a21a1` to this PR's merge commit, `plan.md` still in the
+   list. Day 14's C14.5 leaves `plan.md` out, which is why the change after Phase 6 (#102) did
+   not hit this. Days 19 to 24 take the same base.
+7. **Not chosen.** `changelog --since` after the last merge prints "# Changelog" and exits 0:
+   Day 16's Out of scope keeps it, and C03's `test_range` pins it. A `bearing.toml` that is not
+   UTF-8, found by this PR's plan-auditor, is Phase 16. Everything the course correction after
+   Phase 6 left unowned stays so.
 
 ### 2026-11-19: Course correction after Phase 6: Phases 7 to 10, one day each
 
@@ -729,3 +918,9 @@ The phases are broken into day specs in [`specs/`](specs/). Read
 9. Phase 8: Day 16.
 10. Phase 9: Day 17.
 11. Phase 10: Day 18.
+12. Phase 11: Day 19.
+13. Phase 12: Day 20.
+14. Phase 13: Day 21.
+15. Phase 14: Day 22.
+16. Phase 15: Day 23.
+17. Phase 16: Day 24.
