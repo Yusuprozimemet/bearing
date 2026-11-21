@@ -635,6 +635,49 @@
   (18 replies, $1.07). The folder's total from 2026-10-28 to 2026-11-11 is $358.44, counted during
   the close, so the close's own session is only partly in it.
 
+### Day 14: Description length, one or two sentences (Phase 6), closed in #108
+
+- **Delivered:** `what_i_built` in `bearing/ingest/text.py` returns at most the first two
+  sentences of the paragraph it finds, exactly as written, a sentence ending at ".", "!" or "?"
+  followed by a space, a tab, a line feed or the end of the text (#101). `bearing changelog` and
+  the page's `paragraph` read it and nothing else, so both are cut; the store keeps the body
+  whole. No contract or golden file changed: every description on the fixture is at most one
+  sentence. No migration. `pytest -q`: 107 passed, 128 subtests passed.
+- **Criteria:** 5 of 5 ticked: 2 `new` and 3 `hold`.
+- **Breaks on purpose:** 3, all in `specs/breaks/day-14.json`: 2 in #99 and 1 in #101. The
+  close replayed all 3 on `main`, and each failed its check.
+- **PRs:** 3 at the day-spec rung: the spec (#99), Track A (#101) and the close (#108). No
+  Track 0. The plan change that created Phase 6 was #98, before the day; #102 to #106 (the plan
+  change for Phases 7 to 10 and Days 15 to 18's specs) merged between #99 and #101.
+- **Defects:** 6 in the Notes.
+
+  | Field | Count |
+  | --- | --- |
+  | found: auditor | 2 |
+  | found: review | 2 |
+  | found: Track A | 1 |
+  | found: close | 1 |
+  | cause: spec | 2 |
+  | cause: implementation | 1 |
+  | cause: process | 1 |
+  | cause: environment | 2 |
+
+  The spec-auditor found the one that mattered (D14.1): no case had an end mark followed by a
+  line feed, so a cut that ignored line feeds passed every criterion. Track A's review found a
+  comment that misdescribed the cut (D14.3) and a line count the implementer got wrong (D14.4,
+  45 for 50). The other two are the machine's: `ruff check .` fails locally on file modes CI does
+  not see (D14.6), and `scripts/token-usage.py` reads no transcripts by default in the driver's
+  container (D14.5). The blind relabel agreed on all 6 stages, 6 causes and 6 `made:` tags.
+- **Human interventions:** #99 has two `human:` lines, the spec's scope and that the driver
+  takes the next step. #101 and the close have none: a driver started those sessions.
+- **Hand-offs:** none new. "e.g. " ending a sentence stays a known limit no day owns. Phase 6
+  ends here; the plan-auditor runs on Phases 6 and 7 on fresh `main` after this close merges.
+- **Tokens:** `docs/dashboard/token-usage.json` tags three rows with Day 14: on 2026-11-12 the
+  implementer on Haiku (8 replies, $0.01) and the main session on Opus (13 replies, $0.35), for
+  Track A; on 2026-11-21 the close's main session on Opus (11 replies, $0.25, counted part-way
+  through it). The spec's session and its spec-auditor ran where these transcripts are not, so
+  they have no row. The folder's total from 2026-10-28 to 2026-11-21 is $359.61.
+
 ## What is being measured
 
 | Question | Evidence it will be judged on |

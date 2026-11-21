@@ -1,0 +1,5 @@
+[
+  {"what": "the cut made after the first sentence, not the second", "file": "bearing/ingest/text.py", "find": "text[: ends[1].end()]", "replace": "text[: ends[0].end()]", "command": ["python", "-m", "pytest", "-q", "tests/test_sentences.py::SentenceTest::test_short_unchanged"]},
+  {"what": "a contract test edited (its docstring)", "file": "tests/contract/test_changelog.py", "find": "The changelog's line contract", "replace": "The changelog's line contract, edited", "command": ["git", "-c", "core.safecrlf=false", "diff", "--exit-code", "c214b09", "--", "tests/contract/", "tests/test_text.py"]},
+  {"what": "a file under scripts/ edited", "file": "scripts/pr-names.py", "find": "agree with each other.", "replace": "agree with each other, edited.", "command": ["git", "-c", "core.safecrlf=false", "diff", "--exit-code", "--name-only", "52416c1", "--", ".github", ".claude", "scripts", "pyproject.toml"]}
+]
