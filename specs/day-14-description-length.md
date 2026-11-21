@@ -93,7 +93,7 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
 
 ## Verify
 ```bash
-python -m pytest -q                                              # 107 passed, 128 subtests passed
+python -m pytest -q                                              # 107 passed, (128 subtests passed)
 python -m pytest -q tests/test_sentences.py tests/test_text.py
 git -c core.safecrlf=false diff --exit-code c214b09 -- tests/contract/ tests/test_text.py
 git -c core.safecrlf=false diff --exit-code --name-only 52416c1 -- .github .claude scripts pyproject.toml
@@ -164,3 +164,11 @@ ruff check . && ruff format --check .
 - **Defect** D14.6 — found: Track A · cause: environment · made: none · `ruff check .` fails
   locally on 70 EXE002 errors from the checkout's file modes, which the index and CI do not
   have; recorded in #101 and at the close, no file changed.
+- **Defect** D14.7 — found: close · cause: spec · made: Day 14 · Verify's first comment, "107
+  passed, 128 subtests passed", is two parts to `scripts/evidence.py`, which splits a comment
+  at ", " and wants each part to be a line or start one before a space; pytest prints "107
+  passed," with a comma, so the post-merge replay on `af19882` (run 44896657767) failed it
+  ("wanted a line '107 passed'"). The comment is now "107 passed, (128 subtests passed)": the
+  one part "107 passed," starts pytest's line before a space, and the parenthetical is dropped,
+  so the subtest count is a note the replay does not check. Days 1 to 13 put no count on
+  `pytest -q`; the close checked the count by eye, not with the matcher.
