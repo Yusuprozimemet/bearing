@@ -109,7 +109,7 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
 
 ## Verify
 ```bash
-python -m pytest -q                                              # 115 passed, 128 subtests passed
+python -m pytest -q                                              # 115 passed, (128 subtests passed)
 python -m pytest -q tests/test_cli_errors.py tests/test_cli.py tests/test_changelog_cli.py
 python -m pytest -q tests/contract/
 git -c core.safecrlf=false diff --exit-code 714412f -- tests/test_cli.py tests/test_changelog_cli.py
@@ -150,3 +150,9 @@ ruff check . && ruff format --check .
 - **Defect** D16.2 — found: auditor · cause: spec · made: Day 16 · In scope's "before any stream
   is reconfigured" and "the store is not opened" with a store present had no check; Out of scope
   now says they are left to review.
+- **Defect** D16.3 — found: maintainer · cause: spec · made: Day 16 · Verify's first comment,
+  "115 passed, 128 subtests passed", is two parts to `scripts/evidence.py`, and "115 passed"
+  never matches pytest's "115 passed, 128 subtests passed in …s", so the post-merge replay
+  would have failed it as it failed Day 14's (D14.7), a spec written before that fix. Now "115
+  passed, (128 subtests passed)", as Day 14's after #110 and Day 15's after #111: the subtest
+  count is a note the replay does not check.
