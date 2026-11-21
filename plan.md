@@ -300,13 +300,13 @@ it changes Day 8's `bearing/direction/` and reuses Day 5's checks in `bearing/sn
 - **Done when:** every check is a test under `tests/`; the second repository is an empty
   `git init` made in the test, as `tests/test_timeline_cli.py` already does.
 
-Phases 11 to 15 are one small day each, Days 19 to 23 (Course correction after Day 15's track
+Phases 11 to 16 are one small day each, Days 19 to 24 (Course correction after Day 15's track
 A). They hold to the same rules as Phases 7 to 10: each day's work stays in `bearing/` and
 `tests/`, with no new dependency and nothing under `.github/`, `.claude/` or `scripts/`; and
 each "Done when" also holds that `pytest -q` passes in CI and that
 `git diff --exit-code 714412f -- tests/contract/` prints nothing. Every error in Phases 11, 12,
-14 and 15 is one line on stderr starting "bearing: ", exit 1, with nothing on stdout; Phase 13's
-is argparse's usage and error line, exit 2.
+14, 15 and 16 is one line on stderr starting "bearing: ", exit 1, with nothing on stdout;
+Phase 13's is argparse's usage and error line, exit 2.
 
 ### Phase 11 — A `--prs` file that is not PR records
 **Goal:** `bearing ingest --prs FILE` stops with one line when the file's JSON is not a list of
@@ -424,6 +424,23 @@ and `ingest` in `bearing/cli.py`.
   with an empty stdout. The two tests that pin these lines' starts today
   (`tests/test_broken_store.py`, `tests/test_page_cli.py`) pass unedited.
 
+### Phase 16 — A `bearing.toml` that is not UTF-8
+**Goal:** `bearing direction` and `bearing page` stop with one line when the config's bytes are
+not UTF-8, as they do for a config that is not TOML. Day 24; it changes Day 8's `_read` in
+`bearing/direction/config.py`, which `load_config` and `load_rules` (Day 9) share.
+- Today a config holding the bytes `ff fe` followed by `[areas]` ends both commands in a
+  traceback, "UnicodeDecodeError: 'utf-8' codec can't decode byte 0xff in position 0: invalid
+  start byte", exit 1: `_read` catches only `tomllib.TOMLDecodeError`.
+- It becomes "bearing: cannot read config FILE: not UTF-8", FILE as given, the prefix the
+  `TOMLDecodeError` line has and the reason Day 20's `--prs` line gives. `_read` raises it as a
+  `ConfigError`, which both commands already print, before the store is looked for.
+- A config that starts with a UTF-8 byte order mark keeps today's line, "bearing: cannot read
+  config FILE: Invalid statement (at line 1, column 1)", as Day 20 keeps `--prs`'s. A missing
+  config and a config that is not TOML keep theirs.
+- **Done when:** every check is a test under `tests/`. The `ff fe` config gives its exact line
+  for `direction` and for `page`, each exit 1 with an empty stdout, and `page` writes no
+  `--out` file; `tests/test_config.py` passes unedited.
+
 ## Stopping points
 
 - **Day 4 (Phase 1) is a stopping point.** Is the changelog of the kit's 91 PRs useful enough to
@@ -485,26 +502,27 @@ kit's repository). For it to count:
 
 <!-- Added by plan-change PRs, newest first. Empty at the start. -->
 
-### 2026-11-21: Course correction after Day 15's track A: Phases 11 to 15, one day each
+### 2026-11-21: Course correction after Day 15's track A: Phases 11 to 16, one day each
 
 Day 15's close and Days 16 to 18 give the agentic-workflow-driver about 7 more pull requests;
 it needs about 14 opened and merged by its own sessions at level 1, then one whole day at
-level 2. The maintainer adds five phases of one small day each, Days 19 to 23, with one track
+level 2. The maintainer adds six phases of one small day each, Days 19 to 24, with one track
 each, and their specs are written now, one spec PR per day after this one, so the driver never
-stops at "write its day spec".
+stops at "write its day spec". Five days would give exactly the 14 and the level 2 day, so one
+count set back to 0 would end the plan before the driver is done; the sixth is the margin.
 
 1. **Found by running `bearing`,** on `main` at `4118a00` (#116 merged) with Python 3.12.10, on
    the fixture and on inputs a user can type: each phase's "Today" lines are what it printed.
    Chosen: a `--prs` file of the wrong shape, a traceback or a silent exit 0 (Phase 11); a
    `--prs` file that cannot be read, with no file named (Phase 12); dates in forms no one wrote
    down, and argparse's "invalid fromisoformat value" (Phase 13); `ingest`, the one command
-   that prints git's text for a wrong repository (Phase 14); and OS errors that print their path
-   twice (Phase 15).
+   that prints git's text for a wrong repository (Phase 14); OS errors that print their path
+   twice (Phase 15); and a config that is not UTF-8, a traceback (Phase 16).
 2. **One track each, small enough for one sitting:** each day is one function or one `except`
    and a new test file, in `bearing/` and `tests/`. Days 19 and 20 touch the same `except`, and
    Day 21 the options Day 16 checks, so they run in this order.
 3. **Decisions made here so the days need none,** proposed in this PR and the maintainer's by
-   its merge: the five wordings above, word for word; records counted from 1 and the first
+   its merge: the six wordings above, word for word; records counted from 1 and the first
    failure reported; every field `save` stores checked for its type, and numbers for
    repeats; `gh`'s records not checked; `load_prs` unchanged; dates narrowed to YYYY-MM-DD,
    `20260121` and ISO week dates refused (Day 3's choice, reversed); `ingest`'s
@@ -526,12 +544,10 @@ stops at "write its day spec".
    before Day 15's close, one spec-change PR per day (`day-15/spec-...` to `day-18/spec-...`)
    moves its criterion's base from `85a21a1` to this PR's merge commit, `plan.md` still in the
    list. Day 14's C14.5 leaves `plan.md` out, which is why the change after Phase 6 (#102) did
-   not hit this. Days 19 to 23 take the same base.
+   not hit this. Days 19 to 24 take the same base.
 7. **Not chosen.** `changelog --since` after the last merge prints "# Changelog" and exits 0:
    Day 16's Out of scope keeps it, and C03's `test_range` pins it. A `bearing.toml` that is not
-   UTF-8 ends in a traceback (`UnicodeDecodeError`: `bearing/direction/config.py` catches only
-   `TOMLDecodeError`), for `direction` and `page` alike: found by this PR's plan-auditor,
-   unowned, and the first candidate for a later day. Everything the course correction after
+   UTF-8, found by this PR's plan-auditor, is Phase 16. Everything the course correction after
    Phase 6 left unowned stays so.
 
 ### 2026-11-19: Course correction after Phase 6: Phases 7 to 10, one day each
@@ -907,3 +923,4 @@ The phases are broken into day specs in [`specs/`](specs/). Read
 14. Phase 13: Day 21.
 15. Phase 14: Day 22.
 16. Phase 15: Day 23.
+17. Phase 16: Day 24.
