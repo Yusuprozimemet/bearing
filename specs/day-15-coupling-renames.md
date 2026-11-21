@@ -124,7 +124,7 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       `report.py` has no such name.
       Test: `tests/test_renames.py::RenamesTest::test_report_direct_rename`.
       Evidence: `RenamesTest.test_report_direct_rename` (#116), seen red in #116 on `main`'s code ("5 failed", the five `new` tests together) and again at the close on `4118a00^1`'s code ("5 failed in 0.98s"); `python -m pytest -q` at the close on `3f83202` ("111 passed, 128 subtests passed").
-      broken: coupling given the merges' paths as changed → 2 failed in 2.75s (#116, with C15.5's test)
+      broken: coupling given the merges' paths as changed → 2 failed in 2.75s (#116)
 - [x] C15.5 **new** — On the fixture, after `bearing ingest` with its `prs.json`, `bearing direction`
       with a copy of `tests/fixtures/bearing.toml` at `min_prs = 2`, written in the test, prints
       the Churn section of today and a Coupling table of exactly four rows, in this order, the
@@ -141,7 +141,7 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       Replaces: C08.6 — was: at `min_prs = 2` the fixture's Coupling table is exactly three rows,
       the three above without `scripts/run.py`, `scripts/tools.py`.
       Evidence: `DirectionCliTest.test_threshold` (#116), seen red in #116 on `main`'s code ("5 failed", the five `new` tests together) and again at the close on `4118a00^1`'s code ("5 failed in 0.98s"); `python -m pytest -q` at the close on `3f83202` ("111 passed, 128 subtests passed").
-      broken: coupling given the merges' paths as changed → 2 failed in 2.75s (#116, with C15.4's test)
+      broken: coupling given the merges' paths as changed → 2 failed in 2.75s (#116)
 - [x] C15.6 **hold** — At `min_prs = 3`, the golden file's, the output is unchanged, and no
       contract changes: `python -m pytest -q tests/contract/test_direction.py` passes, and
       `git -c core.safecrlf=false diff --exit-code 714412f -- tests/contract/ tests/fixtures/expected/`
