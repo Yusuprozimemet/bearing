@@ -24,6 +24,9 @@ time in Python's quoting; and every new behaviour is a test CI runs (plan.md, Ph
   `subprocess.run` from the repository root, as `tests/test_page_cli.py` does, with
   `--config tests/fixtures/bearing.toml` for `page`. Its stderr is read as UTF-8 with `\r\n` as
   `\n`.
+- **CI** (Track A), in `.github/workflows/tests.yml`: the `pytest` step runs
+  `python -m pytest -q -rf`, where today it runs `pytest -q`, so the log names each failure in
+  its short summary.
 
 ## Out of scope
 - Other OS errors: the store's own reads (`changelog`, `timeline`, `direction`, `page`) go
