@@ -71,7 +71,7 @@ So `python -m pytest -q` goes from Day 21's end, "144 passed, 131 subtests passe
 Tick each box in the closing PR once its evidence is in it; under a box left unticked, write
 `Not proven: <why>` (`specs/README.md`, "Evidence at the close").
 
-- [ ] C22.1 **new** — A directory that is not a git repository is one line. On a new empty
+- [x] C22.1 **new** — A directory that is not a git repository is one line. On a new empty
       temporary directory outside any repository,
       `ingest <it> --prs <the fixture's prs.json> --data <dir>` returns 1, its stdout is empty,
       its stderr is exactly "bearing: not a git repository: <it>" and a line feed (`<it>` as
@@ -82,19 +82,25 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       Replaces: C17.7 — was: on a directory that is not a git repository, `ingest` returns 1,
       its stdout is empty, its stderr starts with "bearing: fatal: not a git repository", and
       no `bearing.db` is written.
-- [ ] C22.2 **new** — A path that does not exist is the same line. With `<repo>` a path under
+      Evidence: `IngestBranchTest.test_not_a_repo` (#153), seen red in #153 on `main`'s code ("3 failed in 1.12s", the three `new` tests together) and again at the close on `456659b`'s code ("3 failed in 1.12s"); `python -m pytest -q` at the close on `5bbe4e1` ("146 passed, 131 subtests passed").
+      No break of its own: the seen-red runs are what show it can fail.
+- [x] C22.2 **new** — A path that does not exist is the same line. With `<repo>` a path under
       the class's temporary directory that does not exist,
       `ingest <repo> --prs <the fixture's prs.json> --data <dir>` returns 1, its stdout is
       empty, its stderr is exactly "bearing: not a git repository: <repo>" and a line feed, and
       `<dir>/bearing.db` does not exist.
       Red today: "bearing: fatal: cannot change to '<repo>': No such file or directory".
       Test: `tests/test_ingest_repo.py::IngestRepoTest::test_missing_path`.
-- [ ] C22.3 **new** — The check is one function. `bearing.snapshot.tree.check_repo(<the
+      Evidence: `IngestRepoTest.test_missing_path` (#153), seen red in #153 on `main`'s code ("3 failed in 1.12s", the three `new` tests together) and again at the close on `456659b`'s code ("3 failed in 1.12s"); `python -m pytest -q` at the close on `5bbe4e1` ("146 passed, 131 subtests passed").
+      No break of its own: the seen-red runs are what show it can fail.
+- [x] C22.3 **new** — The check is one function. `bearing.snapshot.tree.check_repo(<the
       fixture's repository>)` returns `None`, and `check_repo(<a new empty temporary
       directory outside any repository>)` raises `SnapshotError` whose text is exactly "not a git repository: <it>".
       Red today: "ImportError: cannot import name 'check_repo'".
       Test: `tests/test_ingest_repo.py::IngestRepoTest::test_check_repo`.
-- [ ] C22.4 **hold** — Day 17's branch lines stay: `python -m pytest -q tests/test_ingest_branch.py`
+      Evidence: `IngestRepoTest.test_check_repo` (#153), seen red in #153 on `main`'s code ("3 failed in 1.12s", the three `new` tests together) and again at the close on `456659b`'s code ("3 failed in 1.12s"); `python -m pytest -q` at the close on `5bbe4e1` ("146 passed, 131 subtests passed").
+      No break of its own: the seen-red runs are what show it can fail.
+- [x] C22.4 **hold** — Day 17's branch lines stay: `python -m pytest -q tests/test_ingest_branch.py`
       prints "6 passed, 3 subtests passed", and
       `diff --strip-trailing-cr <(git show bffafe1:tests/test_ingest_branch.py | head -n 211) <(head -n 211 tests/test_ingest_branch.py)`
       prints nothing and exits 0 (`bffafe1` is `main` with Day 17's close merged, #132; lines
@@ -102,7 +108,10 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       Track A's PR breaks the first: the branch check's result ignored, so a missing branch
       reaches `git log`. Day 22's spec-change PR breaks the second: a line of
       `test_not_a_branch` changed.
-- [ ] C22.5 **hold** — The other commands keep their lines:
+      Evidence: at the close on `5bbe4e1`, `python -m pytest -q tests/test_ingest_branch.py` printed "6 passed, 3 subtests passed", and the `diff` of lines 1–211 against `bffafe1` printed nothing and exited 0.
+      broken: read_first_parent's branch check result ignored, so a missing branch reaches git log → 4 failed, 5 passed in 1.85s (#153)
+      broken: a line of test_not_a_branch changed → >     def test_not_a_branch(self): (#151)
+- [x] C22.5 **hold** — The other commands keep their lines:
       `python -m pytest -q tests/test_timeline_cli.py tests/test_page_cli.py tests/test_snapshot_tree.py tests/test_snapshot_cli.py`
       passes, and
       `git -c core.safecrlf=false diff --exit-code 714412f -- tests/test_timeline_cli.py tests/test_page_cli.py tests/test_snapshot_tree.py tests/test_snapshot_cli.py`
@@ -115,23 +124,36 @@ Tick each box in the closing PR once its evidence is in it; under a box left unt
       changed. Track A's PR breaks the third: `check_commit` no longer calling `check_repo`, its
       check gone. Day 22's spec-change PR breaks the fourth: a line of
       `tests/test_direction_repo.py` changed.
-- [ ] C22.6 **hold** — `ingest` on the fixture is unchanged:
+      Evidence: at the close on `5bbe4e1`, the four files' tests printed "14 passed, 6 subtests passed" and `tests/test_direction_repo.py` "4 passed"; the `git diff` against `714412f` and the one against `e72fc75` each printed nothing and exited 0.
+      broken: snapshot's not a git repository message reading not a git repo → 2 failed, 14 passed, 4 subtests passed in 56.80s (#121)
+      broken: a line of tests/test_snapshot_cli.py changed → import subprocess (#121)
+      broken: check_commit no longer calling check_repo, its check gone → 2 failed, 2 passed in 1.82s (#153)
+      broken: a line of tests/test_direction_repo.py changed → from unittest import mock (#151)
+- [x] C22.6 **hold** — `ingest` on the fixture is unchanged:
       `python -m pytest -q tests/test_ingest_cli.py tests/test_history.py tests/test_entries.py`
       passes, and
       `git -c core.safecrlf=false diff --exit-code 714412f -- tests/test_ingest_cli.py tests/test_history.py tests/test_entries.py`
       prints nothing and exits 0.
       The spec PR breaks each half: `read_first_parent`'s `--first-parent` dropped, and a line
       of `tests/test_history.py` changed.
-- [ ] C22.7 **hold** — No contract changes: `python -m pytest -q tests/contract/` passes, and
+      Evidence: at the close on `5bbe4e1`, the three files' tests printed "8 passed, 5 subtests passed", and the `git diff` against `714412f` printed nothing and exited 0.
+      broken: read_first_parent's --first-parent dropped → 4 failed, 4 passed, 2 subtests passed in 21.70s (#121)
+      broken: a line of tests/test_history.py changed → import sys (#121)
+- [x] C22.7 **hold** — No contract changes: `python -m pytest -q tests/contract/` passes, and
       `git -c core.safecrlf=false diff --exit-code 714412f -- tests/contract/ tests/fixtures/expected/ tests/fixtures/make_repo.py`
       prints nothing and exits 0 (`714412f` is `main` with Day 14's spec merged, #99); and
       `python -m pytest -q` passes.
       The spec PR breaks each half: the ingest report's "direct " missing its space, and a line
       of `tests/contract/test_fixture.py` changed.
-- [ ] C22.8 **hold** — The day stays in `bearing/` and `tests/`, with no new dependency:
+      Evidence: at the close on `5bbe4e1`, `python -m pytest -q tests/contract/` printed "7 passed", the `git diff` against `714412f` printed nothing and exited 0, and `python -m pytest -q` printed "146 passed, 131 subtests passed".
+      broken: the ingest report's direct missing its space → 1 failed, 6 passed in 46.25s (#121)
+      broken: a line of tests/contract/test_fixture.py changed → import sys (#121)
+- [x] C22.8 **hold** — The day stays in `bearing/` and `tests/`, with no new dependency:
       `git -c core.safecrlf=false diff --exit-code --name-only 1472abc -- .github .claude scripts pyproject.toml plan.md`
       prints nothing and exits 0 (`1472abc` is `main` with Phases 11 to 16 merged, #118).
       The spec PR breaks it: a line of `.claude/agents/spec-auditor.md` changed.
+      Evidence: at the close on this branch, which changes only `specs/` and `docs/`, the `git diff --name-only` against `1472abc` printed nothing and exited 0.
+      broken: a line of .claude/agents/spec-auditor.md changed → .claude/agents/spec-auditor.md (#121)
 
 ## Verify
 ```bash
@@ -206,3 +228,40 @@ ruff check . && ruff format --check .
 - **Defect** D22.5 — found: auditor · cause: spec · made: Day 22 · In scope left
   `history.py`'s comment that a failure outside a repository goes to `git log`, which Track A
   makes false; In scope now has Track A rewrite it.
+- Closed on `main` at `5bbe4e1` (Linux under WSL, Python 3.13.5), branch
+  `day-22/close-the-day`. `python -m pytest -q` printed "146 passed, 131 subtests passed", the
+  spec's count; `tests/test_ingest_repo.py tests/test_ingest_branch.py` "8 passed, 3 subtests
+  passed". `ruff format --check .` printed "126 files already formatted"; `ruff check .`
+  reported 78 errors, every one EXE002, and passed with `--extend-ignore EXE002` (D22.6).
+- Seen red again at the close: `python scripts/seen-red.py --base 456659b -- python -m pytest -q
+  tests/test_ingest_branch.py::IngestBranchTest::test_not_a_repo tests/test_ingest_repo.py`
+  reported "3 failed in 1.12s", the spec's count. `456659b` is `main` just before #153.
+- All 11 breaks in `specs/breaks/day-22.json` were replayed at the close with `scripts/break.py`
+  on `5bbe4e1`'s code, each failed its check, and each reported what its `broken:` line says,
+  run times aside. C22.4's test half and C22.5's third part are #153's; C22.4's `diff` half and
+  C22.5's fourth part are #151's; C22.5's first two, C22.6's two, C22.7's two and C22.8's one
+  are #121's. None needs an `at`: #153 moved the `"not a git repository: {repo}"` line into
+  `check_repo` word for word, so #121's find still matches once.
+- C22.1–C22.3 have no break of their own: the seen-red runs, on `main`'s code in #153 and on
+  `456659b` at the close, are what show their tests can fail.
+- Phase 14's "Done when" (plan.md): the empty temporary directory is C22.1, the path that does
+  not exist C22.2 and the one function C22.3, each a test under `tests/` that CI's "Tests" check
+  ran on #153 (15 checks passed, 2 skipped); the missing-branch line unchanged is C22.4.
+- Track A (#153) was written by the implementer on Haiku from the main session's brief. The
+  close re-counted its diff from `git diff --numstat 456659b 5bbe4e1`: 83 changed lines
+  (`bearing/ingest/history.py` 8+/2−, `bearing/snapshot/tree.py` 5+/1−,
+  `tests/test_ingest_branch.py` 1+/1−, `tests/test_ingest_repo.py` 65+).
+- `docs/dashboard/token-usage.json`, refreshed at the close, is unchanged: 87 rows, from
+  2026-10-28 to 2026-11-21, $361.85; it tags no row with Day 22.
+- This day leaves no new hand-off. It is Phase 14's only day, so after this close merges the
+  next step is CLAUDE.md's step 6: the plan-auditor on Phase 14 and on Phase 15, in a new
+  session.
+- **Defect** D22.6 — found: Track A · cause: environment · made: none · same-as: D21.4 ·
+  `ruff check .` failed locally with EXE002 errors (77 in #153, 78 at the close), from the
+  checkout's file modes and on no line the day wrote; CI's check passed.
+- **Defect** D22.7 — found: Track A · cause: process · made: Day 22 · Track A's first try at
+  C22.5's third break gave `scripts/break.py` a two-line `--find`, which matched nothing on the
+  CRLF tree; `break.py` refused it ("--find occurs 0 times") and changed nothing, and the break
+  was rerun with a one-line find.
+- Blind relabel at the close (`scripts/relabel.py compare`): stage 7 of 7 agree, cause 7 of 7,
+  `made:` 7 of 7. No disagreement, so no tag changed.

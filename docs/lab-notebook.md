@@ -969,6 +969,42 @@
 - **Tokens:** `docs/dashboard/token-usage.json` tags no row with Day 21: refreshed at the
   close, it still holds 87 rows, from 2026-10-28 to 2026-11-21, $361.85.
 
+### Day 22: `ingest`'s "not a git repository" in one line (Phase 14), closed in #154
+
+- **Delivered:** `bearing ingest` on a directory that is not a git repository, or on a path
+  that does not exist, prints "bearing: not a git repository: <repo>", exit 1 and no store,
+  the line `snapshot`, `timeline`, `page` and `direction` print; before, it printed git's
+  "fatal: ..." text (#153). The check is one function, `check_repo` in
+  `bearing/snapshot/tree.py`, which `check_commit` and `read_first_parent` both call. It
+  replaces C17.7. No contract, golden file or migration changed. `pytest -q`: 146 passed, 131
+  subtests passed.
+- **Criteria:** 8 of 8 ticked: 3 `new` and 5 `hold`.
+- **Breaks on purpose:** 11, all in `specs/breaks/day-22.json`: 2 in #153, 2 in #151 and 7 in
+  #121. The close replayed all 11, and each failed its check; none needed an `at`.
+- **PRs:** 4 at the day-spec rung: the spec (#121, shared with Days 19 to 21, 23 and 24), a
+  spec-change PR (#151), Track A (#153) and the close (#154). No Track 0.
+- **Defects:** 7 in the Notes.
+
+  | Field | Count |
+  | --- | --- |
+  | found: auditor | 5 |
+  | found: Track A | 2 |
+  | cause: spec | 5 |
+  | cause: environment | 1 |
+  | cause: process | 1 |
+
+  The spec-auditor in #121 found a dropped default, an unpinned In scope claim and an
+  unplaced directory (D22.1–D22.3); the first-day audits found C22.5's unpinned Day 18 test
+  (D22.4) and a comment Track A would make false (D22.5). D22.6 is the local `ruff` mode-bit
+  failure again (same as D21.4); D22.7 a two-line `--find` that `break.py` refused on the CRLF
+  tree. The blind relabel agreed on 7 of 7 stages, causes and `made:` tags; no tag changed.
+- **Human interventions:** #121 has four `human:` lines, shared with Days 19 to 21, 23 and 24.
+  #151, #153 and the close have none: a driver started those sessions.
+- **Hand-offs:** none new. Phase 14 ends with this close: next is the plan-auditor on Phases
+  14 and 15 (CLAUDE.md, step 6).
+- **Tokens:** `docs/dashboard/token-usage.json` tags no row with Day 22: refreshed at the
+  close, it still holds 87 rows, from 2026-10-28 to 2026-11-21, $361.85.
+
 ## What is being measured
 
 | Question | Evidence it will be judged on |
