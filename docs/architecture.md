@@ -315,7 +315,9 @@ flowchart LR
 
 Branch protection must be configured separately; not every CI job shown is required by the
 starter configuration. `Track tests seen red` also needs `TRACK_RED_RUNNER` set to the project's runner to run
-its checks. The project must add and require its own test workflow; see the
+its checks. `evidence.yml` also runs on every pull request as `A closed day's evidence replays`:
+it rehearses a closing branch's replay as its merge would (`close-evidence.py --rehearse`), and
+any other branch passes. The project must add and require its own test workflow; see the
 [setup instructions](../README.md#starting-a-project-from-it).
 
 ## The close

@@ -21,6 +21,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 WORKFLOW = os.path.join(HERE, "..", ".github", "workflows", "evidence.yml")
 STEP = "Install what the replayed checks need"
 REPLAY = "Replay the closing merge"
+REHEARSE = "Rehearse the closing merge"
 
 
 def step():
@@ -61,6 +62,23 @@ class EvidenceWorkflowTest(unittest.TestCase):
             names = [s.get("name") for s in yaml.safe_load(f)["jobs"]["replay"]["steps"]]
         self.assertIn(STEP, names)
         self.assertLess(names.index(STEP), names.index(REPLAY))
+
+    def test_a_pull_request_rehearses_and_a_push_replays(self):
+        with open(WORKFLOW, encoding="utf-8") as f:
+            workflow = yaml.safe_load(f)
+        triggers = workflow.get("on", workflow.get(True))  # YAML 1.1 reads the key `on` as true
+        self.assertIn("pull_request", triggers)
+        self.assertIsNone(triggers["pull_request"], "a path or branch filter leaves a required check unreported")
+        # the name branch protection requires (docs/kit.md's list in the kit)
+        self.assertEqual(workflow["jobs"]["replay"]["name"], "A closed day's evidence replays")
+        steps = {s.get("name"): s for s in workflow["jobs"]["replay"]["steps"]}
+        self.assertEqual(steps[REPLAY]["if"], "github.event_name != 'pull_request'")
+        self.assertEqual(steps[REHEARSE]["if"], "github.event_name == 'pull_request'")
+        self.assertLess(list(steps).index(STEP), list(steps).index(REHEARSE))
+        # the branch name reaches the command as a variable, not as workflow text
+        self.assertEqual(steps[REHEARSE]["run"],
+                         'python scripts/close-evidence.py --rehearse "$BRANCH" --base HEAD^1 --head HEAD^2')
+        self.assertEqual(steps[REHEARSE]["env"]["BRANCH"], "${{ github.head_ref }}")
 
     def test_the_package_and_its_dev_tools_are_installed(self):
         # Bearing has no requirements.txt: the replay installs the package editable with its dev
